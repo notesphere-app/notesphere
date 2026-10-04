@@ -1,0 +1,55 @@
+<% layout("/layouts/boilerplate") %>
+
+<section class="relative flex min-h-[calc(100vh-4rem)] items-center justify-center overflow-hidden bg-[#FBFAF7] px-4 py-16 dark:bg-slate-950">
+
+  <!-- Soft radial glows (same as home) -->
+  <div class="pointer-events-none absolute -top-32 -left-24 h-72 w-72 rounded-full bg-[#0878E8]/10 blur-3xl sm:-left-32 sm:h-96 sm:w-96"></div>
+  <div class="pointer-events-none absolute -bottom-40 -right-24 h-72 w-72 rounded-full bg-amber-400/10 blur-3xl sm:-right-32 sm:h-96 sm:w-96"></div>
+
+  <div class="relative mx-auto w-full max-w-lg text-center">
+
+    <!-- Error code badge -->
+    <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#0878E8]/10 text-[#0878E8] sm:h-20 sm:w-20">
+      <i class="fa-solid fa-triangle-exclamation text-2xl sm:text-3xl"></i>
+    </div>
+
+    <!-- Error code -->
+    <p class="mt-6 text-5xl font-extrabold tracking-tight text-[#022E5A] dark:text-white sm:text-6xl md:text-7xl">
+      <%= statusCode %>
+    </p>
+
+    <!-- Message -->
+    <h1 class="mt-3 text-lg font-semibold text-[#022E5A] dark:text-white sm:text-xl">
+      <%= message %>
+    </h1>
+
+    <!-- Short helper line -->
+    <p class="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-slate-500 dark:text-slate-400 sm:text-base">
+      Something went wrong on our end. You can head back home, or browse the notes library while we sort it out.
+    </p>
+
+    <!-- Actions -->
+    <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+      <a href="/"
+         class="inline-flex items-center gap-2 rounded-full bg-[#0878E8] px-6 py-3 text-sm font-semibold text-white
+                shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[#0668CC] hover:shadow-md">
+        <i class="fa-solid fa-house"></i> Back to home
+      </a>
+
+      <a href="/notes"
+         class="inline-flex items-center gap-2 rounded-full border border-slate-300 px-6 py-3 text-sm font-semibold text-[#022E5A]
+                transition-colors hover:bg-slate-900/5
+                dark:border-slate-700 dark:text-slate-200 dark:hover:bg-white/10">
+        <i class="fa-solid fa-book-open-reader"></i> Browse notes
+      </a>
+    </div>
+
+    <!-- Small contact hint -->
+    <p class="mt-10 text-xs text-slate-400 dark:text-slate-500">
+      Still stuck?
+      <a href="/contact" class="font-medium text-[#0878E8] hover:underline">Contact us</a>
+      — we usually reply within a day.
+    </p>
+
+  </div>
+</section>

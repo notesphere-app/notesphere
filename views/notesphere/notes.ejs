@@ -1,0 +1,1126 @@
+<% layout("/layouts/boilerplate") -%>
+<%
+/* ============================================================
+   DUMMY DATA — swap with controller data later:
+   res.render('pages/notes', { notes, courses, semesters, subjects, totalCount })
+============================================================ */
+
+const courses = [
+  { id: "all",   label: "All courses",  icon: "fa-layer-group" },
+  { id: "btech", label: "B.Tech",       icon: "fa-laptop-code" },
+  { id: "ba",    label: "B.A.",         icon: "fa-book-open" },
+  { id: "bsc",   label: "B.Sc.",        icon: "fa-flask" },
+  { id: "bcom",  label: "B.Com.",       icon: "fa-chart-line" },
+  { id: "bba",   label: "BBA",          icon: "fa-briefcase" },
+];
+
+const semesters = ["All", "1", "2", "3", "4", "5", "6", "7", "8"];
+
+const fileTypes = [
+  { id: "all", label: "All files" },
+  { id: "pdf", label: "PDF" },
+  { id: "handwritten", label: "Handwritten" },
+  { id: "typed", label: "Typed notes" },
+  { id: "solved", label: "Solved papers" },
+];
+
+const sortOptions = [
+  { id: "popular",    label: "Most downloaded" },
+  { id: "recent",     label: "Newest first" },
+  { id: "rating",     label: "Highest rated" },
+  { id: "pages",      label: "Longest" },
+];
+
+const notes = [
+  {
+    id: "eng-maths-1",
+    title: "Engineering Mathematics I — Complete Unit 1 to 5",
+    excerpt: "Handwritten notes covering all five units with solved examples. Great for last-minute revision before the semester exam.",
+    cover: "https://picsum.photos/seed/ns-note-1/800/500",
+    course: "btech", courseLabel: "B.Tech",
+    semester: 1,
+    subject: "Mathematics",
+    type: "handwritten",
+    typeLabel: "Handwritten",
+    pages: 48,
+    size: "12 MB",
+    downloads: 1240,
+    upvotes: 342,
+    rating: 4.8,
+    votes: 210,
+    author: "Ananya Rao",
+    avatar: "https://i.pravatar.cc/64?img=47",
+    date: "3 days ago",
+    uploadedAt: 1737878400,
+    featured: true,
+  },
+  {
+    id: "dsa-sem3",
+    title: "Data Structures — Full Semester Notebook",
+    excerpt: "Clean digital notes on arrays, linked lists, trees, graphs, and sorting. Includes 30+ solved problems.",
+    cover: "https://picsum.photos/seed/ns-note-2/800/500",
+    course: "btech", courseLabel: "B.Tech",
+    semester: 3,
+    subject: "CS",
+    type: "typed",
+    typeLabel: "Typed notes",
+    pages: 72,
+    size: "8 MB",
+    downloads: 980,
+    upvotes: 256,
+    rating: 4.7,
+    votes: 156,
+    author: "Devraj Singh",
+    avatar: "https://i.pravatar.cc/64?img=12",
+    date: "5 days ago",
+    uploadedAt: 1737705600,
+  },
+  {
+    id: "organic-chem",
+    title: "Organic Chemistry — Reaction Mechanisms",
+    excerpt: "Every reaction you'll need for the exam, drawn step-by-step with arrows and mechanisms.",
+    cover: "https://picsum.photos/seed/ns-note-3/800/500",
+    course: "bsc", courseLabel: "B.Sc.",
+    semester: 2,
+    subject: "Chemistry",
+    type: "handwritten",
+    typeLabel: "Handwritten",
+    pages: 36,
+    size: "15 MB",
+    downloads: 640,
+    upvotes: 168,
+    rating: 4.6,
+    votes: 98,
+    author: "Meera Iyer",
+    avatar: "https://i.pravatar.cc/64?img=32",
+    date: "1 week ago",
+    uploadedAt: 1737273600,
+  },
+  {
+    id: "fin-acc",
+    title: "Financial Accounting — Solved Past Papers",
+    excerpt: "Five years of past papers solved end-to-end with working notes. Perfect for practice.",
+    cover: "https://picsum.photos/seed/ns-note-4/800/500",
+    course: "bcom", courseLabel: "B.Com.",
+    semester: 3,
+    subject: "Accounting",
+    type: "solved",
+    typeLabel: "Solved papers",
+    pages: 54,
+    size: "6 MB",
+    downloads: 720,
+    upvotes: 287,
+    rating: 4.9,
+    votes: 187,
+    author: "Kabir Malhotra",
+    avatar: "https://i.pravatar.cc/64?img=51",
+    date: "1 week ago",
+    uploadedAt: 1737273600,
+  },
+  {
+    id: "mod-hist",
+    title: "Modern Indian History — Timeline Notes",
+    excerpt: "Everything from 1857 to 1947 condensed into a clean timeline you can actually remember.",
+    cover: "https://picsum.photos/seed/ns-note-5/800/500",
+    course: "ba", courseLabel: "B.A.",
+    semester: 1,
+    subject: "History",
+    type: "typed",
+    typeLabel: "Typed notes",
+    pages: 28,
+    size: "4 MB",
+    downloads: 510,
+    upvotes: 122,
+    rating: 4.5,
+    votes: 72,
+    author: "Farah Sheikh",
+    avatar: "https://i.pravatar.cc/64?img=44",
+    date: "2 weeks ago",
+    uploadedAt: 1736668800,
+  },
+  {
+    id: "os-cheat",
+    title: "Operating Systems — Unit-wise Cheat Sheet",
+    excerpt: "Process scheduling, deadlocks, memory management, file systems — all summarised in one PDF.",
+    cover: "https://picsum.photos/seed/ns-note-6/800/500",
+    course: "btech", courseLabel: "B.Tech",
+    semester: 5,
+    subject: "CS",
+    type: "pdf",
+    typeLabel: "PDF",
+    pages: 22,
+    size: "3 MB",
+    downloads: 890,
+    upvotes: 243,
+    rating: 4.8,
+    votes: 143,
+    author: "Rohan Gupta",
+    avatar: "https://i.pravatar.cc/64?img=19",
+    date: "2 weeks ago",
+    uploadedAt: 1736668800,
+  },
+  {
+    id: "digital-elec",
+    title: "Digital Electronics — Complete Handwritten Notes",
+    excerpt: "Logic gates, K-maps, sequential circuits, and every worked example from the syllabus.",
+    cover: "https://picsum.photos/seed/ns-note-7/800/500",
+    course: "btech", courseLabel: "B.Tech",
+    semester: 4,
+    subject: "ECE",
+    type: "handwritten",
+    typeLabel: "Handwritten",
+    pages: 60,
+    size: "18 MB",
+    downloads: 445,
+    upvotes: 118,
+    rating: 4.6,
+    votes: 68,
+    author: "Simran Kaur",
+    avatar: "https://i.pravatar.cc/64?img=9",
+    date: "3 weeks ago",
+    uploadedAt: 1736064000,
+  },
+  {
+    id: "micro-econ",
+    title: "Micro Economics — Unit 1 to 3 Summary",
+    excerpt: "Demand, supply, elasticity, and market structures condensed into 30 pages you can actually finish.",
+    cover: "https://picsum.photos/seed/ns-note-8/800/500",
+    course: "bba", courseLabel: "BBA",
+    semester: 2,
+    subject: "Economics",
+    type: "typed",
+    typeLabel: "Typed notes",
+    pages: 30,
+    size: "5 MB",
+    downloads: 320,
+    upvotes: 87,
+    rating: 4.4,
+    votes: 47,
+    author: "Aditya Joshi",
+    avatar: "https://i.pravatar.cc/64?img=14",
+    date: "3 weeks ago",
+    uploadedAt: 1736064000,
+  },
+  {
+    id: "eng-lit",
+    title: "English Literature — Poetry Analysis Notes",
+    excerpt: "Every poem from the syllabus with themes, symbols, and quote banks for the exam.",
+    cover: "https://picsum.photos/seed/ns-note-9/800/500",
+    course: "ba", courseLabel: "B.A.",
+    semester: 2,
+    subject: "English",
+    type: "typed",
+    typeLabel: "Typed notes",
+    pages: 42,
+    size: "6 MB",
+    downloads: 280,
+    upvotes: 74,
+    rating: 4.5,
+    votes: 42,
+    author: "Neha Prasad",
+    avatar: "https://i.pravatar.cc/64?img=29",
+    date: "4 weeks ago",
+    uploadedAt: 1735459200,
+  },
+  {
+    id: "phys-mech",
+    title: "Mechanics — Unit Notes with Diagrams",
+    excerpt: "Every derivation, every diagram, clean and legible. Perfect for quick revision.",
+    cover: "https://picsum.photos/seed/ns-note-10/800/500",
+    course: "bsc", courseLabel: "B.Sc.",
+    semester: 1,
+    subject: "Physics",
+    type: "handwritten",
+    typeLabel: "Handwritten",
+    pages: 35,
+    size: "11 MB",
+    downloads: 390,
+    upvotes: 102,
+    rating: 4.7,
+    votes: 58,
+    author: "Yash Thakur",
+    avatar: "https://i.pravatar.cc/64?img=8",
+    date: "1 month ago",
+    uploadedAt: 1734854400,
+  },
+  {
+    id: "corp-acc",
+    title: "Corporate Accounting — Solved Problems",
+    excerpt: "Amalgamation, absorption, and consolidation — every type of problem solved step by step.",
+    cover: "https://picsum.photos/seed/ns-note-11/800/500",
+    course: "bcom", courseLabel: "B.Com.",
+    semester: 4,
+    subject: "Accounting",
+    type: "solved",
+    typeLabel: "Solved papers",
+    pages: 46,
+    size: "5 MB",
+    downloads: 265,
+    upvotes: 68,
+    rating: 4.6,
+    votes: 34,
+    author: "Sana Sheikh",
+    avatar: "https://i.pravatar.cc/64?img=41",
+    date: "1 month ago",
+    uploadedAt: 1734854400,
+  },
+  {
+    id: "ml-basics",
+    title: "Machine Learning Basics — Intro Notes",
+    excerpt: "From linear regression to basic neural networks — enough to get you through Unit 1 to 4.",
+    cover: "https://picsum.photos/seed/ns-note-12/800/500",
+    course: "btech", courseLabel: "B.Tech",
+    semester: 8,
+    subject: "CS",
+    type: "typed",
+    typeLabel: "Typed notes",
+    pages: 62,
+    size: "9 MB",
+    downloads: 415,
+    upvotes: 128,
+    rating: 4.7,
+    votes: 62,
+    author: "Ishaan Kulkarni",
+    avatar: "https://i.pravatar.cc/64?img=22",
+    date: "1 month ago",
+    uploadedAt: 1734854400,
+  },
+];
+
+const stats = [
+  { label: "Notes uploaded",     value: 24600, suffix: "+" },
+  { label: "Downloads served",   value: 189000, suffix: "+" },
+  { label: "Active contributors", value: 3150,  suffix: "+" },
+  { label: "Courses covered",    value: 42,    suffix: "+" },
+];
+%>
+
+<!-- =========================================
+     Hero — Notes index
+========================================= -->
+<section class="relative overflow-hidden bg-[#FBFAF7] dark:bg-slate-950">
+  <div class="pointer-events-none absolute -top-32 -left-24 h-72 w-72 rounded-full bg-[#0878E8]/10 blur-3xl sm:-left-32 sm:h-96 sm:w-96"></div>
+  <div class="pointer-events-none absolute -bottom-40 -right-24 h-72 w-72 rounded-full bg-amber-400/10 blur-3xl sm:-right-32 sm:h-96 sm:w-96"></div>
+
+  <div class="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
+    <div class="mx-auto max-w-3xl text-center">
+      <span class="inline-flex items-center gap-2 rounded-full border border-[#0878E8]/25 bg-[#0878E8]/5 px-3 py-1 text-xs font-medium text-[#0878E8] sm:text-sm" data-reveal>
+        <i class="fa-solid fa-book-open-reader"></i> Notes library
+      </span>
+
+      <h1 class="mt-5 text-3xl leading-tight text-[#022E5A] dark:text-white sm:text-4xl md:text-5xl" data-reveal data-reveal-delay="80">
+        Every note you need, sorted by course
+      </h1>
+
+      <p class="mx-auto mt-5 max-w-2xl text-base text-slate-600 dark:text-slate-300 sm:text-lg" data-reveal data-reveal-delay="160">
+        Free notebook scans, handwritten notes, and solved papers uploaded by students.
+        Filter by course, semester, and type — download what you need instantly.
+      </p>
+
+      <form id="notes-search-form" class="mx-auto mt-8 max-w-2xl" data-reveal data-reveal-delay="240" onsubmit="return false;">
+        <div class="relative">
+          <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input
+            id="notes-search"
+            type="search"
+            placeholder="Search by subject, title, or course…"
+            aria-label="Search notes"
+            class="w-full rounded-full border border-slate-300 bg-white py-3.5 pl-11 pr-32 text-sm text-slate-900
+                   placeholder-slate-400 shadow-sm transition-colors
+                   focus:border-[#0878E8] focus:outline-none focus:ring-2 focus:ring-[#0878E8]/25
+                   dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:placeholder-slate-500"
+          />
+          <a href="/upload"
+             class="absolute right-1.5 top-1/2 hidden -translate-y-1/2 items-center gap-2 rounded-full bg-[#0878E8] px-5 py-2.5 text-sm font-semibold text-white
+                    shadow-sm transition-all hover:bg-[#0668CC] hover:-translate-y-0.5 sm:inline-flex">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Upload notes
+          </a>
+        </div>
+      </form>
+
+      <div class="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-slate-500 dark:text-slate-400" data-reveal data-reveal-delay="300">
+        <span class="flex items-center gap-1.5">
+          <i class="fa-solid fa-file-pdf text-[#0878E8]"></i> 24,600+ notes
+        </span>
+        <span class="flex items-center gap-1.5">
+          <i class="fa-solid fa-download text-[#0878E8]"></i> 189k+ downloads
+        </span>
+        <span class="flex items-center gap-1.5">
+          <i class="fa-solid fa-users text-[#0878E8]"></i> 3,150+ contributors
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================
+     Filters + Notes grid
+========================================= -->
+<section class="border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+  <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+
+    <div class="grid gap-8 lg:grid-cols-12 lg:gap-8">
+
+      <!-- Sidebar -->
+      <aside class="lg:col-span-3" data-reveal>
+        <div class="lg:sticky lg:top-24 space-y-6">
+
+          <div class="rounded-2xl bg-[#FBFAF7] p-5 ring-1 ring-slate-200/70 dark:bg-slate-950 dark:ring-slate-800">
+            <h3 class="text-[11px] font-semibold uppercase tracking-widest text-slate-400">Course</h3>
+            <ul class="mt-3 space-y-1.5">
+              <% courses.forEach(function (c) { %>
+                <li>
+                  <button type="button"
+                          class="notes-filter-btn"
+                          data-filter-type="course"
+                          data-filter-value="<%= c.id %>"
+                          aria-pressed="<%= c.id === 'all' ? 'true' : 'false' %>">
+                    <i class="fa-solid <%= c.icon %>"></i>
+                    <span><%= c.label %></span>
+                  </button>
+                </li>
+              <% }) %>
+            </ul>
+          </div>
+
+          <div class="rounded-2xl bg-[#FBFAF7] p-5 ring-1 ring-slate-200/70 dark:bg-slate-950 dark:ring-slate-800">
+            <h3 class="text-[11px] font-semibold uppercase tracking-widest text-slate-400">Semester</h3>
+            <div class="mt-3 flex flex-wrap gap-2">
+              <% semesters.forEach(function (s, i) { %>
+                <button type="button"
+                        class="notes-sem-pill"
+                        data-filter-type="semester"
+                        data-filter-value="<%= s === 'All' ? 'all' : s %>"
+                        aria-pressed="<%= i === 0 ? 'true' : 'false' %>">
+                  <%= s %>
+                </button>
+              <% }) %>
+            </div>
+          </div>
+
+          <div class="rounded-2xl bg-[#FBFAF7] p-5 ring-1 ring-slate-200/70 dark:bg-slate-950 dark:ring-slate-800">
+            <h3 class="text-[11px] font-semibold uppercase tracking-widest text-slate-400">File type</h3>
+            <ul class="mt-3 space-y-1.5">
+              <% fileTypes.forEach(function (f, i) { %>
+                <li>
+                  <button type="button"
+                          class="notes-filter-btn"
+                          data-filter-type="type"
+                          data-filter-value="<%= f.id %>"
+                          aria-pressed="<%= i === 0 ? 'true' : 'false' %>">
+                    <i class="fa-regular fa-circle-check"></i>
+                    <span><%= f.label %></span>
+                  </button>
+                </li>
+              <% }) %>
+            </ul>
+          </div>
+
+          <button type="button" id="notes-clear-all"
+                  class="w-full rounded-full border border-slate-300 px-4 py-2.5 text-sm font-semibold text-[#022E5A]
+                         transition-colors hover:bg-slate-900/5 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-white/10">
+            <i class="fa-solid fa-rotate-right mr-1.5"></i> Clear all filters
+          </button>
+        </div>
+      </aside>
+
+      <!-- Grid -->
+      <div class="lg:col-span-9" data-reveal data-reveal-delay="100">
+
+        <div class="flex flex-col gap-3 border-b border-slate-200 pb-4 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
+          <p class="text-sm text-slate-500 dark:text-slate-400">
+            Showing <span id="notes-count-visible" class="font-semibold text-[#022E5A] dark:text-white"><%= notes.length %></span>
+            of <%= notes.length %> notes
+          </p>
+
+          <div class="flex items-center gap-2">
+            <div class="relative">
+              <label for="notes-sort" class="sr-only">Sort by</label>
+              <select id="notes-sort"
+                      class="appearance-none rounded-full border border-slate-300 bg-white py-2 pl-3.5 pr-9 text-xs font-medium text-slate-700
+                             transition-colors focus:border-[#0878E8] focus:outline-none focus:ring-2 focus:ring-[#0878E8]/25
+                             dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+                <% sortOptions.forEach(function (o, i) { %>
+                  <option value="<%= o.id %>" <%= i === 0 ? 'selected' : '' %>><%= o.label %></option>
+                <% }) %>
+              </select>
+              <i class="fa-solid fa-chevron-down pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-400"></i>
+            </div>
+
+            <div class="hidden overflow-hidden rounded-full border border-slate-300 dark:border-slate-700 sm:flex">
+              <button type="button" id="view-grid" aria-label="Grid view" aria-pressed="true"
+                      class="notes-view-btn">
+                <i class="fa-solid fa-grip"></i>
+              </button>
+              <button type="button" id="view-list" aria-label="List view" aria-pressed="false"
+                      class="notes-view-btn">
+                <i class="fa-solid fa-list"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes container -->
+        <div id="notes-container" class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" data-view="grid">
+          <% notes.forEach(function (note, i) { %>
+            <article
+              class="note-card group flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200/70
+                     transition-all hover:-translate-y-1 hover:shadow-lg dark:bg-slate-900 dark:ring-slate-800"
+              data-note-id="<%= note.id %>"
+              data-course="<%= note.course %>"
+              data-semester="<%= note.semester %>"
+              data-type="<%= note.type %>"
+              data-title="<%= note.title.toLowerCase() %>"
+              data-subject="<%= note.subject.toLowerCase() %>"
+              data-course-label="<%= note.courseLabel.toLowerCase() %>"
+              data-downloads="<%= note.downloads %>"
+              data-rating="<%= note.rating %>"
+              data-pages="<%= note.pages %>"
+              data-uploaded="<%= note.uploadedAt %>"
+              data-reveal data-reveal-delay="<%= (i % 3) * 60 %>"
+            >
+              <div class="relative overflow-hidden h-44 sm:h-48">
+                <img src="<%= note.cover %>" alt=""
+                     class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+
+                <span class="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-red-500 shadow-sm backdrop-blur dark:bg-slate-900/90">
+                  <i class="fa-solid fa-file-pdf"></i> PDF
+                </span>
+
+                <span class="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur">
+                  <i class="fa-solid fa-download"></i> <span class="note-download-count"><%= note.downloads.toLocaleString() %></span>
+                </span>
+
+                <% if (note.featured) { %>
+                  <span class="absolute -right-9 top-3 rotate-45 bg-amber-500 px-9 py-1 text-[9px] font-bold uppercase tracking-wider text-white shadow-md">
+                    Featured
+                  </span>
+                <% } %>
+              </div>
+
+              <div class="flex flex-1 flex-col p-5">
+                <div class="flex items-center flex-wrap gap-1.5">
+                  <span class="rounded-full bg-[#0878E8]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#0878E8]">
+                    <%= note.courseLabel %>
+                  </span>
+                  <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                    Sem <%= note.semester %>
+                  </span>
+                  <span class="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                    <%= note.typeLabel %>
+                  </span>
+                </div>
+
+                <a href="/notes/<%= note.id %>" class="block">
+                  <h3 class="mt-3 line-clamp-2 text-base font-semibold text-[#022E5A] transition-colors group-hover:text-[#0878E8] dark:text-white">
+                    <%= note.title %>
+                  </h3>
+                  <p class="mt-2 line-clamp-2 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
+                    <%= note.excerpt %>
+                  </p>
+                </a>
+
+                <!-- Meta row -->
+                <div class="mt-3 flex items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400">
+                  <span class="flex items-center gap-1">
+                    <i class="fa-regular fa-file-lines"></i> <%= note.pages %> pages
+                  </span>
+                  <span class="flex items-center gap-1">
+                    <i class="fa-regular fa-hard-drive"></i> <%= note.size %>
+                  </span>
+                  <span class="flex items-center gap-1 text-amber-500">
+                    <i class="fa-solid fa-star"></i> <%= note.rating %>
+                  </span>
+                </div>
+
+                <!-- ============ ACTION BAR ============ -->
+                <!-- Thumbs-up + Save + Download, aligned to the same row -->
+                <div class="mt-4 flex items-center justify-between gap-2 rounded-xl bg-slate-50 px-3 py-2 dark:bg-slate-800/50">
+                  <div class="flex items-center gap-1">
+                    <!-- Thumbs up -->
+                    <button type="button"
+                            class="note-upvote-btn group/btn flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-semibold text-slate-500
+                                   transition-colors hover:bg-[#0878E8]/10 hover:text-[#0878E8]"
+                            aria-label="Upvote this note"
+                            aria-pressed="false">
+                      <i class="fa-regular fa-thumbs-up text-sm"></i>
+                      <span class="note-upvote-count"><%= note.upvotes %></span>
+                    </button>
+
+                    <!-- Save -->
+                    <button type="button"
+                            class="note-save-btn flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-semibold text-slate-500
+                                   transition-colors hover:bg-amber-500/10 hover:text-amber-600"
+                            aria-label="Save this note"
+                            aria-pressed="false">
+                      <i class="fa-regular fa-bookmark text-sm"></i>
+                      <span class="note-save-label">Save</span>
+                    </button>
+                  </div>
+
+                  <a href="/notes/<%= note.id %>/download"
+                     class="note-download-btn inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#0878E8] px-3.5 py-1.5 text-xs font-semibold text-white
+                            transition-colors hover:bg-[#0668CC]">
+                    <i class="fa-solid fa-download"></i> Download
+                  </a>
+                </div>
+
+                <!-- Author -->
+                <div class="mt-3 flex items-center gap-2">
+                  <img src="<%= note.avatar %>" alt="" class="h-6 w-6 shrink-0 rounded-full" />
+                  <p class="truncate text-[11px] text-slate-500 dark:text-slate-400">
+                    by <span class="font-medium text-slate-700 dark:text-slate-200"><%= note.author %></span> · <%= note.date %>
+                  </p>
+                </div>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+
+        <!-- Empty state -->
+        <div id="notes-empty" class="hidden py-16 text-center">
+          <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500">
+            <i class="fa-solid fa-magnifying-glass text-xl"></i>
+          </div>
+          <h3 class="mt-4 text-base font-semibold text-[#022E5A] dark:text-white">No notes match those filters</h3>
+          <p class="mt-1.5 text-sm text-slate-500 dark:text-slate-400">Try a different course or clear your filters.</p>
+          <button type="button" id="notes-empty-clear"
+            class="mt-5 inline-flex items-center gap-2 rounded-full bg-[#0878E8] px-5 py-2.5 text-sm font-semibold text-white
+                   transition-colors hover:bg-[#0668CC]">
+            <i class="fa-solid fa-rotate-right"></i> Clear filters
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================
+     Stats strip
+========================================= -->
+<section class="border-y border-slate-200 bg-[#FBFAF7] dark:border-slate-800 dark:bg-slate-950">
+  <div class="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 py-10 sm:gap-8 sm:px-6 sm:py-12 md:grid-cols-4 lg:px-8">
+    <% stats.forEach(function (s, i) { %>
+      <div class="text-center" data-reveal data-reveal-delay="<%= i * 80 %>">
+        <p class="text-2xl font-bold tabular-nums text-[#022E5A] dark:text-white sm:text-4xl">
+          <span class="stat-count" data-target="<%= s.value %>" data-suffix="<%= s.suffix %>">0</span>
+        </p>
+        <p class="mt-1.5 text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400 sm:mt-2 sm:text-sm"><%= s.label %></p>
+      </div>
+    <% }) %>
+  </div>
+</section>
+
+<!-- =========================================
+     Final CTA
+========================================= -->
+<section class="bg-white dark:bg-slate-900">
+  <div class="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6 sm:py-20 lg:px-8" data-reveal>
+    <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#0878E8]/10 text-[#0878E8]">
+      <i class="fa-solid fa-cloud-arrow-up text-2xl"></i>
+    </div>
+    <h2 class="mt-5 text-2xl text-[#022E5A] dark:text-white sm:text-3xl">Have notes others could use?</h2>
+    <p class="mt-3 text-sm text-slate-500 dark:text-slate-400 sm:text-base">
+      Upload your notebook scans or PDFs once. They'll help thousands of students prepare better for their exams.
+    </p>
+    <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+      <button type="button" data-open-modal="signup"
+        class="inline-flex items-center gap-2 rounded-full bg-[#0878E8] px-7 py-3 text-sm font-semibold text-white
+               shadow-sm transition-all hover:bg-[#0668CC] hover:shadow-md hover:-translate-y-0.5">
+        <i class="fa-solid fa-cloud-arrow-up"></i> Upload notes
+      </button>
+      <a href="/about"
+        class="rounded-full border border-slate-300 px-7 py-3 text-sm font-semibold text-[#022E5A]
+               transition-colors hover:bg-slate-900/5 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-white/10">
+        Learn how it works
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================
+     Page-specific styles
+========================================= -->
+<style>
+  html, body { overflow-x: clip; max-width: 100%; }
+
+  /* ---------- Sidebar filter buttons ---------- */
+  .notes-filter-btn {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 0.7rem;
+    border-radius: 0.6rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: rgb(51 65 85);
+    background: transparent;
+    transition: all 0.15s ease;
+    text-align: left;
+  }
+  .dark .notes-filter-btn { color: rgb(203 213 225); }
+  .notes-filter-btn i { color: rgb(148 163 184); font-size: 0.8rem; transition: color 0.15s ease; }
+  .notes-filter-btn:hover { background: rgba(8, 120, 232, 0.06); color: #0878E8; }
+  .notes-filter-btn:hover i { color: #0878E8; }
+  .notes-filter-btn[aria-pressed="true"] {
+    background: #0878E8;
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 0 6px 16px -6px rgba(8, 120, 232, 0.5);
+  }
+  .notes-filter-btn[aria-pressed="true"] i { color: #fff; }
+
+  /* ---------- Semester pills ---------- */
+  .notes-sem-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.25rem;
+    padding: 0.4rem 0.7rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgb(71 85 105);
+    background: rgb(241 245 249);
+    transition: all 0.15s ease;
+    cursor: pointer;
+  }
+  .dark .notes-sem-pill { background: rgb(30 41 59); color: rgb(148 163 184); }
+  .notes-sem-pill:hover { background: rgba(8, 120, 232, 0.1); color: #0878E8; }
+  .notes-sem-pill[aria-pressed="true"] {
+    background: #0878E8;
+    color: #fff;
+    box-shadow: 0 6px 16px -6px rgba(8, 120, 232, 0.5);
+  }
+
+  /* ---------- View toggle ---------- */
+  .notes-view-btn {
+    display: flex;
+    height: 2.25rem;
+    width: 2.5rem;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    color: rgb(100 116 139);
+    font-size: 0.8rem;
+    transition: all 0.15s ease;
+  }
+  .dark .notes-view-btn { background: rgb(15 23 42); color: rgb(148 163 184); }
+  .notes-view-btn:hover { color: #0878E8; }
+  .notes-view-btn[aria-pressed="true"] { background: #0878E8; color: #fff; }
+
+  /* ---------- Grid vs list ---------- */
+  #notes-container[data-view="list"] {
+    display: flex !important;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  #notes-container[data-view="list"] .note-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @media (min-width: 640px) {
+    #notes-container[data-view="list"] .note-card {
+      grid-template-columns: 200px 1fr;
+    }
+    #notes-container[data-view="list"] .note-card > div:first-child {
+      height: 100%;
+      min-height: 140px;
+    }
+    #notes-container[data-view="list"] .note-card h3 { font-size: 1rem; }
+    #notes-container[data-view="list"] .note-card p {
+      -webkit-line-clamp: 1;
+      line-clamp: 1;
+    }
+  }
+
+  .note-card.is-filtered-out { display: none; }
+
+  /* ============================================================
+     UPVOTE (thumbs-up) button
+  ============================================================ */
+  .note-upvote-btn[aria-pressed="true"] {
+    background: rgba(8, 120, 232, 0.12);
+    color: #0878E8;
+  }
+  .note-upvote-btn[aria-pressed="true"] i {
+    color: #0878E8;
+  }
+  /* Pop animation when clicked */
+  @keyframes noteUpvotePop {
+    0%   { transform: scale(1); }
+    45%  { transform: scale(1.25); }
+    100% { transform: scale(1); }
+  }
+  .note-upvote-btn.is-popping i {
+    animation: noteUpvotePop 0.3s ease;
+  }
+
+  /* ============================================================
+     SAVE (bookmark) button
+  ============================================================ */
+  .note-save-btn[aria-pressed="true"] {
+    background: rgba(245, 158, 11, 0.12);
+    color: #d97706;
+  }
+  .note-save-btn[aria-pressed="true"] i {
+    color: #d97706;
+  }
+  .dark .note-save-btn[aria-pressed="true"] {
+    background: rgba(245, 158, 11, 0.18);
+    color: #fbbf24;
+  }
+  .dark .note-save-btn[aria-pressed="true"] i { color: #fbbf24; }
+
+  @keyframes noteSavePop {
+    0%   { transform: scale(1); }
+    45%  { transform: scale(1.2); }
+    100% { transform: scale(1); }
+  }
+  .note-save-btn.is-popping i {
+    animation: noteSavePop 0.3s ease;
+  }
+
+  /* ---------- Download press feedback ---------- */
+  .note-download-btn:active { transform: scale(0.96); }
+
+  /* ---------- Reduced motion ---------- */
+  @media (prefers-reduced-motion: reduce) {
+    .note-card, .notes-filter-btn, .notes-sem-pill, .notes-view-btn,
+    .note-download-btn, .note-upvote-btn, .note-save-btn {
+      transition: none !important;
+      transform: none !important;
+      animation: none !important;
+    }
+  }
+
+  .sr-only {
+    position: absolute; width: 1px; height: 1px;
+    padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+  }
+</style>
+
+<!-- =========================================
+     Page-specific scripts
+========================================= -->
+<script>
+  (function () {
+    /* ============================================================
+       FILTER / SORT / VIEW  (unchanged from before)
+    ============================================================ */
+    var state = {
+      course: 'all',
+      semester: 'all',
+      type: 'all',
+      query: '',
+      sort: 'popular',
+      view: 'grid'
+    };
+
+    var container = document.getElementById('notes-container');
+    var emptyEl   = document.getElementById('notes-empty');
+    var countEl   = document.getElementById('notes-count-visible');
+    var searchEl  = document.getElementById('notes-search');
+    var sortEl    = document.getElementById('notes-sort');
+    var cards     = container ? Array.from(container.querySelectorAll('.note-card')) : [];
+
+    function applyFilters() {
+      var q = state.query.trim().toLowerCase();
+      var visible = 0;
+
+      cards.forEach(function (card) {
+        var course = card.dataset.course || '';
+        var sem    = card.dataset.semester || '';
+        var type   = card.dataset.type || '';
+        var title  = card.dataset.title || '';
+        var subj   = card.dataset.subject || '';
+        var courseLabel = card.dataset.courseLabel || '';
+
+        var matchesCourse   = state.course === 'all'   || course === state.course;
+        var matchesSemester = state.semester === 'all' || sem === state.semester;
+        var matchesType     = state.type === 'all'     || type === state.type;
+        var matchesQuery    = !q || title.indexOf(q) !== -1 || subj.indexOf(q) !== -1 || courseLabel.indexOf(q) !== -1;
+
+        var show = matchesCourse && matchesSemester && matchesType && matchesQuery;
+        card.classList.toggle('is-filtered-out', !show);
+        if (show) visible++;
+      });
+
+      if (countEl) countEl.textContent = visible;
+      if (emptyEl) emptyEl.classList.toggle('hidden', visible > 0);
+      if (container) container.classList.toggle('hidden', visible === 0);
+    }
+
+    function sortCards() {
+      if (!container || !cards.length) return;
+      var sorted = cards.slice().sort(function (a, b) {
+        if (state.sort === 'popular')  return (+b.dataset.downloads) - (+a.dataset.downloads);
+        if (state.sort === 'recent')   return (+b.dataset.uploaded)  - (+a.dataset.uploaded);
+        if (state.sort === 'rating')   return (+b.dataset.rating)    - (+a.dataset.rating);
+        if (state.sort === 'pages')    return (+b.dataset.pages)     - (+a.dataset.pages);
+        return 0;
+      });
+      sorted.forEach(function (c) { container.appendChild(c); });
+    }
+
+    document.querySelectorAll('.notes-filter-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var type = btn.dataset.filterType;
+        var value = btn.dataset.filterValue;
+        state[type] = value;
+        document.querySelectorAll('.notes-filter-btn[data-filter-type="' + type + '"]').forEach(function (b) {
+          b.setAttribute('aria-pressed', String(b === btn));
+        });
+        applyFilters();
+      });
+    });
+
+    document.querySelectorAll('.notes-sem-pill').forEach(function (pill) {
+      pill.addEventListener('click', function () {
+        state.semester = pill.dataset.filterValue;
+        document.querySelectorAll('.notes-sem-pill').forEach(function (p) {
+          p.setAttribute('aria-pressed', String(p === pill));
+        });
+        applyFilters();
+      });
+    });
+
+    if (searchEl) {
+      var debounce = null;
+      searchEl.addEventListener('input', function () {
+        clearTimeout(debounce);
+        debounce = setTimeout(function () {
+          state.query = searchEl.value;
+          applyFilters();
+        }, 180);
+      });
+    }
+
+    if (sortEl) {
+      sortEl.addEventListener('change', function () {
+        state.sort = sortEl.value;
+        sortCards();
+      });
+      sortCards();
+    }
+
+    var viewGridBtn = document.getElementById('view-grid');
+    var viewListBtn = document.getElementById('view-list');
+
+    function setView(v) {
+      state.view = v;
+      if (container) container.dataset.view = v;
+      if (viewGridBtn) viewGridBtn.setAttribute('aria-pressed', String(v === 'grid'));
+      if (viewListBtn) viewListBtn.setAttribute('aria-pressed', String(v === 'list'));
+      try { localStorage.setItem('ns-notes-view', v); } catch (e) {}
+    }
+
+    if (viewGridBtn) viewGridBtn.addEventListener('click', function () { setView('grid'); });
+    if (viewListBtn) viewListBtn.addEventListener('click', function () { setView('list'); });
+
+    try {
+      var savedView = localStorage.getItem('ns-notes-view');
+      if (savedView === 'list' || savedView === 'grid') setView(savedView);
+    } catch (e) {}
+
+    function clearAll() {
+      state.course = 'all';
+      state.semester = 'all';
+      state.type = 'all';
+      state.query = '';
+      if (searchEl) searchEl.value = '';
+      document.querySelectorAll('.notes-filter-btn').forEach(function (b) {
+        b.setAttribute('aria-pressed', String(b.dataset.filterValue === 'all'));
+      });
+      document.querySelectorAll('.notes-sem-pill').forEach(function (p) {
+        p.setAttribute('aria-pressed', String(p.dataset.filterValue === 'all'));
+      });
+      applyFilters();
+    }
+
+    var clearBtn = document.getElementById('notes-clear-all');
+    var emptyClear = document.getElementById('notes-empty-clear');
+    if (clearBtn) clearBtn.addEventListener('click', clearAll);
+    if (emptyClear) emptyClear.addEventListener('click', clearAll);
+
+    /* ============================================================
+       UPVOTE (thumbs-up) + SAVE (bookmark) — persisted in localStorage
+       ------------------------------------------------------------
+       Each note card has data-note-id. We keep two sets:
+         ns-upvotes → array of note ids the user upvoted
+         ns-saves   → array of note ids the user saved
+       On page load, we restore the visual state + counters.
+
+       When the real backend exists, replace the persist() call
+       with a fetch() to /api/notes/:id/upvote and /api/notes/:id/save,
+       and swap localStorage reads for server-provided `upvotedByMe`
+       and `savedByMe` flags passed through res.render().
+    ============================================================ */
+    var STORAGE_UPVOTES = 'ns-upvotes';
+    var STORAGE_SAVES   = 'ns-saves';
+
+    function readSet(key) {
+      try {
+        var raw = localStorage.getItem(key);
+        return raw ? new Set(JSON.parse(raw)) : new Set();
+      } catch (e) { return new Set(); }
+    }
+    function writeSet(key, set) {
+      try { localStorage.setItem(key, JSON.stringify(Array.from(set))); } catch (e) {}
+    }
+
+    var upvotedIds = readSet(STORAGE_UPVOTES);
+    var savedIds   = readSet(STORAGE_SAVES);
+
+    /* ---------- Upvote buttons ---------- */
+    document.querySelectorAll('.note-upvote-btn').forEach(function (btn) {
+      var card = btn.closest('.note-card');
+      if (!card) return;
+      var id = card.dataset.noteId;
+      var iconEl = btn.querySelector('i');
+      var countEl = btn.querySelector('.note-upvote-count');
+
+      // Restore state if previously upvoted
+      if (upvotedIds.has(id)) {
+        btn.setAttribute('aria-pressed', 'true');
+        iconEl.classList.remove('fa-regular');
+        iconEl.classList.add('fa-solid');
+      }
+
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var isUpvoted = btn.getAttribute('aria-pressed') === 'true';
+        var currentCount = Number(countEl.textContent) || 0;
+
+        if (isUpvoted) {
+          // Undo upvote
+          btn.setAttribute('aria-pressed', 'false');
+          iconEl.classList.add('fa-regular');
+          iconEl.classList.remove('fa-solid');
+          countEl.textContent = String(Math.max(0, currentCount - 1));
+          upvotedIds.delete(id);
+        } else {
+          // Add upvote
+          btn.setAttribute('aria-pressed', 'true');
+          iconEl.classList.remove('fa-regular');
+          iconEl.classList.add('fa-solid');
+          countEl.textContent = String(currentCount + 1);
+          upvotedIds.add(id);
+        }
+
+        // Pop animation
+        btn.classList.add('is-popping');
+        setTimeout(function () { btn.classList.remove('is-popping'); }, 320);
+
+        writeSet(STORAGE_UPVOTES, upvotedIds);
+
+        /* TODO: replace with a real API call
+        fetch('/api/notes/' + id + '/upvote', {
+          method: isUpvoted ? 'DELETE' : 'POST',
+          headers: { 'Accept': 'application/json' }
+        });
+        */
+      });
+    });
+
+    /* ---------- Save buttons ---------- */
+    document.querySelectorAll('.note-save-btn').forEach(function (btn) {
+      var card = btn.closest('.note-card');
+      if (!card) return;
+      var id = card.dataset.noteId;
+      var iconEl = btn.querySelector('i');
+      var labelEl = btn.querySelector('.note-save-label');
+
+      function paint(saved) {
+        btn.setAttribute('aria-pressed', String(saved));
+        if (saved) {
+          iconEl.classList.remove('fa-regular');
+          iconEl.classList.add('fa-solid');
+          if (labelEl) labelEl.textContent = 'Saved';
+        } else {
+          iconEl.classList.add('fa-regular');
+          iconEl.classList.remove('fa-solid');
+          if (labelEl) labelEl.textContent = 'Save';
+        }
+      }
+
+      // Restore state if previously saved
+      paint(savedIds.has(id));
+
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var isSaved = btn.getAttribute('aria-pressed') === 'true';
+        if (isSaved) {
+          savedIds.delete(id);
+          paint(false);
+        } else {
+          savedIds.add(id);
+          paint(true);
+        }
+
+        btn.classList.add('is-popping');
+        setTimeout(function () { btn.classList.remove('is-popping'); }, 320);
+
+        writeSet(STORAGE_SAVES, savedIds);
+
+        /* TODO: replace with a real API call
+        fetch('/api/notes/' + id + '/save', {
+          method: isSaved ? 'DELETE' : 'POST',
+          headers: { 'Accept': 'application/json' }
+        });
+        */
+      });
+    });
+
+    /* ============================================================
+       Stats count-up
+    ============================================================ */
+    (function statCounters() {
+      var els = document.querySelectorAll('.stat-count');
+      if (!els.length) return;
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function animate(el) {
+        var target = Number(el.dataset.target) || 0;
+        var suffix = el.dataset.suffix || '';
+        if (reduce) { el.textContent = target.toLocaleString() + suffix; return; }
+        var start = performance.now();
+        var duration = 1800;
+        function frame(now) {
+          var p = Math.min((now - start) / duration, 1);
+          var eased = 1 - Math.pow(1 - p, 3);
+          var value = Math.floor(eased * target);
+          el.textContent = value.toLocaleString() + (p === 1 ? suffix : '');
+          if (p < 1) requestAnimationFrame(frame);
+          else el.textContent = target.toLocaleString() + suffix;
+        }
+        requestAnimationFrame(frame);
+      }
+
+      var io = new IntersectionObserver(function (entries, obs) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { animate(e.target); obs.unobserve(e.target); }
+        });
+      }, { threshold: 0.4 });
+      els.forEach(function (el) { io.observe(el); });
+    })();
+
+    /* ============================================================
+       Guard: no auto-scroll on load
+    ============================================================ */
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    window.addEventListener('load', function () {
+      if (!sessionStorage.getItem('ns-notes-visited')) {
+        window.scrollTo(0, 0);
+        sessionStorage.setItem('ns-notes-visited', '1');
+      }
+    });
+  })();
+</script>

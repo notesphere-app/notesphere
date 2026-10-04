@@ -1,0 +1,735 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+  <!-- Header -->
+  <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">System Overview & Analytics</p>
+        </div>
+        <div class="mt-3 sm:mt-0 flex items-center space-x-4">
+          <span class="text-sm text-gray-500 dark:text-gray-400">
+            Last updated: <span id="currentTime"><%= new Date().toLocaleTimeString() %></span>
+          </span>
+          <button onclick="refreshDashboard()" 
+                  class="px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors flex items-center text-sm">
+            <i class="fas fa-sync-alt mr-2"></i>Refresh
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <!-- Total Users -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Users</p>
+            <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2"><%= stats.totalUsers || 0 %></p>
+            <div class="flex items-center mt-2">
+              <span class="text-xs <%= stats.userGrowth && stats.userGrowth >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' %>">
+                <i class="fas fa-<%= stats.userGrowth && stats.userGrowth >= 0 ? 'arrow-up' : 'arrow-down' %> mr-1"></i>
+                <%= stats.userGrowth || 0 %>%
+              </span>
+              <span class="text-xs text-gray-500 dark:text-gray-400 ml-2">from last month</span>
+            </div>
+          </div>
+          <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+            <i class="fas fa-users text-blue-600 dark:text-blue-400 text-xl"></i>
+          </div>
+        </div>
+        <div class="mt-4">
+          <a href="/admin/users" class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium">
+            View all users →
+          </a>
+        </div>
+      </div>
+
+      <!-- Total Courses -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Courses</p>
+            <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2"><%= stats.totalCourses || 0 %></p>
+            <div class="flex items-center mt-2">
+              <span class="text-xs <%= stats.courseGrowth && stats.courseGrowth >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' %>">
+                <i class="fas fa-<%= stats.courseGrowth && stats.courseGrowth >= 0 ? 'arrow-up' : 'arrow-down' %> mr-1"></i>
+                <%= stats.courseGrowth || 0 %>%
+              </span>
+              <span class="text-xs text-gray-500 dark:text-gray-400 ml-2">from last month</span>
+            </div>
+          </div>
+          <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
+            <i class="fas fa-graduation-cap text-green-600 dark:text-green-400 text-xl"></i>
+          </div>
+        </div>
+        <div class="mt-4">
+          <a href="/admin/courses" class="text-sm text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 font-medium">
+            Manage courses →
+          </a>
+        </div>
+      </div>
+
+      <!-- Total Revenue -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Revenue</p>
+            <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">₹<%= stats.totalRevenue || 0 %></p>
+            <div class="flex items-center mt-2">
+              <span class="text-xs <%= stats.revenueGrowth && stats.revenueGrowth >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' %>">
+                <i class="fas fa-<%= stats.revenueGrowth && stats.revenueGrowth >= 0 ? 'arrow-up' : 'arrow-down' %> mr-1"></i>
+                <%= stats.revenueGrowth || 0 %>%
+              </span>
+              <span class="text-xs text-gray-500 dark:text-gray-400 ml-2">from last month</span>
+            </div>
+          </div>
+          <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
+            <i class="fas fa-rupee-sign text-purple-600 dark:text-purple-400 text-xl"></i>
+          </div>
+        </div>
+        <div class="mt-4">
+          <a href="/admin/transactions" class="text-sm text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-medium">
+            View transactions →
+          </a>
+        </div>
+      </div>
+
+      <!-- Pending Actions -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Pending Actions</p>
+            <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2"><%= stats.pendingActions || 0 %></p>
+            <div class="flex items-center mt-2">
+              <span class="text-xs text-yellow-600 dark:text-yellow-400">
+                <i class="fas fa-clock mr-1"></i>
+                Needs attention
+              </span>
+            </div>
+          </div>
+          <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900 rounded-lg flex items-center justify-center">
+            <i class="fas fa-exclamation-triangle text-yellow-600 dark:text-yellow-400 text-xl"></i>
+          </div>
+        </div>
+        <div class="mt-4">
+          <a href="/admin/pending" class="text-sm text-yellow-600 dark:text-yellow-400 hover:text-yellow-800 dark:hover:text-yellow-300 font-medium">
+            Review actions →
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+      <!-- User Growth Chart -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">User Growth</h3>
+          <select class="text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-1 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+            <option>Last 7 days</option>
+            <option>Last 30 days</option>
+            <option>Last 90 days</option>
+          </select>
+        </div>
+        <div class="h-64">
+          <canvas id="userGrowthChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Revenue Chart -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Revenue Overview</h3>
+          <select class="text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-1 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+            <option>Monthly</option>
+            <option>Quarterly</option>
+            <option>Yearly</option>
+          </select>
+        </div>
+        <div class="h-64">
+          <canvas id="revenueChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity & Quick Actions -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Recent Activity -->
+      <div class="lg:col-span-2">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Recent Activity</h3>
+            <a href="/admin-logs" class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium">
+              View all logs →
+            </a>
+          </div>
+          
+          <div class="space-y-4">
+            <% if(recentActivities && recentActivities.length > 0) { %>
+              <% recentActivities.forEach(activity => { %>
+                <div class="flex items-start space-x-4 p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-colors">
+                  <div class="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center 
+                    <% switch(activity.type) {
+                      case 'user': %>bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400<% break;
+                      case 'course': %>bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400<% break;
+                      case 'payment': %>bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-400<% break;
+                      case 'system': %>bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400<% break;
+                      default: %>bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400<% break;
+                    } %>">
+                    <i class="fas 
+                      <% switch(activity.type) {
+                        case 'user': %>fa-user<% break;
+                        case 'course': %>fa-book<% break;
+                        case 'payment': %>fa-rupee-sign<% break;
+                        case 'system': %>fa-cog<% break;
+                        default: %>fa-bell<% break;
+                      } %>">
+                    </i>
+                  </div>
+                  
+                  <div class="flex-1 min-w-0">
+                    <div class="flex justify-between items-start">
+                      <p class="text-gray-800 dark:text-gray-200 font-medium"><%= activity.title %></p>
+                      <span class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap ml-2">
+                        <%= moment(activity.timestamp).fromNow() %>
+                      </span>
+                    </div>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 mt-1"><%= activity.description %></p>
+                    <% if(activity.user) { %>
+                      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        By: <%= activity.user.name %> (<%= activity.user.email %>)
+                      </p>
+                    <% } %>
+                  </div>
+                </div>
+              <% }); %>
+            <% } else { %>
+              <div class="text-center py-8">
+                <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <i class="fas fa-history text-gray-400 dark:text-gray-500 text-xl"></i>
+                </div>
+                <p class="text-gray-600 dark:text-gray-300">No recent activity</p>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Quick Actions</h3>
+          
+          <div class="space-y-3">
+            <a href="/admin/users/new" 
+               class="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-xl transition-colors group">
+              <div class="flex items-center">
+                <div class="w-10 h-10 bg-blue-100 dark:bg-blue-800 rounded-lg flex items-center justify-center mr-4 group-hover:bg-blue-200 dark:group-hover:bg-blue-700">
+                  <i class="fas fa-user-plus text-blue-600 dark:text-blue-400"></i>
+                </div>
+                <span class="font-medium text-gray-800 dark:text-gray-200">Add New User</span>
+              </div>
+              <i class="fas fa-chevron-right text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400"></i>
+            </a>
+            
+            <a href="/courses/new" 
+               class="flex items-center justify-between p-4 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/40 rounded-xl transition-colors group">
+              <div class="flex items-center">
+                <div class="w-10 h-10 bg-green-100 dark:bg-green-800 rounded-lg flex items-center justify-center mr-4 group-hover:bg-green-200 dark:group-hover:bg-green-700">
+                  <i class="fas fa-plus-circle text-green-600 dark:text-green-400"></i>
+                </div>
+                <span class="font-medium text-gray-800 dark:text-gray-200">Create Course</span>
+              </div>
+              <i class="fas fa-chevron-right text-gray-400 group-hover:text-green-600 dark:group-hover:text-green-400"></i>
+            </a>
+            
+            <a href="/admin/contacts" 
+               class="flex items-center justify-between p-4 bg-yellow-50 dark:bg-yellow-900/20 hover:bg-yellow-100 dark:hover:bg-yellow-900/40 rounded-xl transition-colors group">
+              <div class="flex items-center">
+                <div class="w-10 h-10 bg-yellow-100 dark:bg-yellow-800 rounded-lg flex items-center justify-center mr-4 group-hover:bg-yellow-200 dark:group-hover:bg-yellow-700">
+                  <i class="fas fa-inbox text-yellow-600 dark:text-yellow-400"></i>
+                </div>
+                <span class="font-medium text-gray-800 dark:text-gray-200">View Messages</span>
+              </div>
+              <i class="fas fa-chevron-right text-gray-400 group-hover:text-yellow-600 dark:group-hover:text-yellow-400"></i>
+            </a>
+            
+            <a href="/admin/analytics" 
+               class="flex items-center justify-between p-4 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/40 rounded-xl transition-colors group">
+              <div class="flex items-center">
+                <div class="w-10 h-10 bg-purple-100 dark:bg-purple-800 rounded-lg flex items-center justify-center mr-4 group-hover:bg-purple-200 dark:group-hover:bg-purple-700">
+                  <i class="fas fa-chart-bar text-purple-600 dark:text-purple-400"></i>
+                </div>
+                <span class="font-medium text-gray-800 dark:text-gray-200">Advanced Analytics</span>
+              </div>
+              <i class="fas fa-chevron-right text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400"></i>
+            </a>
+            
+            <a href="/admin/backup" 
+               class="flex items-center justify-between p-4 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-xl transition-colors group">
+              <div class="flex items-center">
+                <div class="w-10 h-10 bg-red-100 dark:bg-red-800 rounded-lg flex items-center justify-center mr-4 group-hover:bg-red-200 dark:group-hover:bg-red-700">
+                  <i class="fas fa-database text-red-600 dark:text-red-400"></i>
+                </div>
+                <span class="font-medium text-gray-800 dark:text-gray-200">System Backup</span>
+              </div>
+              <i class="fas fa-chevron-right text-gray-400 group-hover:text-red-600 dark:group-hover:text-red-400"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- System Status -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 mt-6">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">System Status</h3>
+          
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="w-2 h-2 rounded-full bg-green-500 mr-3 animate-pulse"></div>
+                <span class="text-gray-700 dark:text-gray-300">Database</span>
+              </div>
+              <span class="text-sm text-green-600 dark:text-green-400 font-medium">Online</span>
+            </div>
+            
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="w-2 h-2 rounded-full bg-green-500 mr-3 animate-pulse"></div>
+                <span class="text-gray-700 dark:text-gray-300">Server</span>
+              </div>
+              <span class="text-sm text-green-600 dark:text-green-400 font-medium">Normal Load</span>
+            </div>
+            
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="w-2 h-2 rounded-full bg-blue-500 mr-3"></div>
+                <span class="text-gray-700 dark:text-gray-300">Uptime</span>
+              </div>
+              <span class="text-sm text-gray-600 dark:text-gray-400"><%= stats.uptime || '99.9%' %></span>
+            </div>
+            
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="w-2 h-2 rounded-full bg-blue-500 mr-3"></div>
+                <span class="text-gray-700 dark:text-gray-300">Active Sessions</span>
+              </div>
+              <span class="text-sm text-gray-600 dark:text-gray-400"><%= stats.activeSessions || 0 %></span>
+            </div>
+          </div>
+          
+          <div class="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700">
+            <button onclick="runSystemCheck()" 
+                    class="w-full text-center py-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors font-medium">
+              <i class="fas fa-sync-alt mr-2"></i>Run System Check
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Users Table -->
+    <div class="mt-8">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Recent Users</h3>
+          <a href="/admin/users" class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium">
+            View all users →
+          </a>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead class="bg-gray-50 dark:bg-gray-700">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  User
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  Role
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  Status
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  Joined
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              <% if(recentUsers && recentUsers.length > 0) { %>
+                <% recentUsers.forEach(user => { %>
+                  <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="flex items-center">
+                        <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mr-3">
+                          <span class="text-sm font-medium text-blue-600 dark:text-blue-400">
+                            <%= user.name.charAt(0).toUpperCase() %>
+                          </span>
+                        </div>
+                        <div>
+                          <div class="text-sm font-medium text-gray-900 dark:text-white"><%= user.name %></div>
+                          <div class="text-sm text-gray-500 dark:text-gray-400"><%= user.email %></div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span class="px-2 py-1 text-xs rounded-full 
+                        <%= user.role === 'admin' ? 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-300' : 
+                           user.role === 'teacher' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300' : 
+                           'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300' %>">
+                        <%= user.role.toUpperCase() %>
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span class="px-2 py-1 text-xs rounded-full 
+                        <%= user.isVerified ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300' : 
+                           'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300' %>">
+                        <%= user.isVerified ? 'Verified' : 'Pending' %>
+                      </span>
+                      <% if(user.isBlocked) { %>
+                        <span class="ml-2 px-2 py-1 text-xs rounded-full bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300">
+                          Blocked
+                        </span>
+                      <% } %>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      <%= moment(user.createdAt).format('MMM D, YYYY') %>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <button onclick="viewUser('<%= user._id %>')" 
+                              class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-3">
+                        <i class="fas fa-eye"></i>
+                      </button>
+                      <button onclick="editUser('<%= user._id %>')" 
+                              class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 mr-3">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <% if(user.isBlocked) { %>
+                        <button onclick="toggleUserBlock('<%= user._id %>', false)" 
+                                class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300">
+                          <i class="fas fa-unlock"></i>
+                        </button>
+                      <% } else { %>
+                        <button onclick="toggleUserBlock('<%= user._id %>', true)" 
+                                class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300">
+                          <i class="fas fa-ban"></i>
+                        </button>
+                      <% } %>
+                    </td>
+                  </tr>
+                <% }); %>
+              <% } else { %>
+                <tr>
+                  <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                    <i class="fas fa-users text-2xl mb-2 block"></i>
+                    No users found
+                  </td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// Update current time
+function updateTime() {
+  const now = new Date();
+  document.getElementById('currentTime').textContent = now.toLocaleTimeString();
+}
+setInterval(updateTime, 1000);
+
+// Refresh dashboard
+function refreshDashboard() {
+  const btn = event.target;
+  const originalText = btn.innerHTML;
+  
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Refreshing...';
+  btn.disabled = true;
+  
+  // Simulate API call
+  setTimeout(() => {
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+    showNotification('Dashboard refreshed successfully!', 'success');
+    
+    // In real implementation, you would fetch new data
+    // fetch('/admin/dashboard/data')
+    //   .then(response => response.json())
+    //   .then(data => {
+    //     // Update charts and stats
+    //     updateCharts(data);
+    //   });
+  }, 1000);
+}
+
+// Initialize Charts
+function initCharts() {
+  // User Growth Chart
+  const userCtx = document.getElementById('userGrowthChart').getContext('2d');
+  const userGrowthChart = new Chart(userCtx, {
+    type: 'line',
+    data: {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+      datasets: [{
+        label: 'New Users',
+        data: [65, 59, 80, 81, 56, 55, 40],
+        borderColor: 'rgb(59, 130, 246)',
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        tension: 0.4,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(0, 0, 0, 0.05)'
+          }
+        },
+        x: {
+          grid: {
+            display: false
+          }
+        }
+      }
+    }
+  });
+
+  // Revenue Chart
+  const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+  const revenueChart = new Chart(revenueCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+      datasets: [{
+        label: 'Revenue (₹)',
+        data: [12000, 19000, 15000, 25000, 22000, 30000, 28000],
+        backgroundColor: 'rgba(139, 92, 246, 0.7)',
+        borderColor: 'rgb(139, 92, 246)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(0, 0, 0, 0.05)'
+          }
+        },
+        x: {
+          grid: {
+            display: false
+          }
+        }
+      }
+    }
+  });
+}
+
+// User management functions
+function viewUser(userId) {
+  window.location.href = `/admin/users/${userId}`;
+}
+
+function editUser(userId) {
+  window.location.href = `/admin/users/${userId}/edit`;
+}
+
+function toggleUserBlock(userId, block) {
+  if (confirm(`Are you sure you want to ${block ? 'block' : 'unblock'} this user?`)) {
+    fetch(`/admin/users/${userId}/block`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        //'X-CSRF-Token': ' csrfToken %>'
+      },
+      body: JSON.stringify({ block: block })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showNotification(`User ${block ? 'blocked' : 'unblocked'} successfully!`, 'success');
+        setTimeout(() => location.reload(), 1000);
+      } else {
+        showNotification(data.message || 'Operation failed', 'error');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showNotification('An error occurred', 'error');
+    });
+  }
+}
+
+// System check
+function runSystemCheck() {
+  const btn = event.target;
+  const originalText = btn.innerHTML;
+  
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Checking...';
+  btn.disabled = true;
+  
+  // Simulate system check
+  setTimeout(() => {
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+    showNotification('System check completed. All systems are operational.', 'success');
+  }, 2000);
+}
+
+// Notification function
+function showNotification(message, type = 'info') {
+  const notification = document.createElement('div');
+  notification.className = `fixed top-4 right-4 px-6 py-4 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300 ${type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'} text-white`;
+  notification.innerHTML = `
+    <div class="flex items-center">
+      <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'} mr-3"></i>
+      <span>${message}</span>
+    </div>
+  `;
+  
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    notification.classList.remove('translate-x-full');
+  }, 10);
+  
+  setTimeout(() => {
+    notification.classList.add('translate-x-full');
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+  initCharts();
+  
+  // Add dark mode support for charts
+  if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    Chart.defaults.color = '#9CA3AF';
+    Chart.defaults.borderColor = '#374151';
+  }
+});
+</script>
+
+<style>
+/* Custom styles */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Smooth transitions */
+.transition-all {
+  transition: all 0.3s ease-in-out;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #2d3748;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #4a5568;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #718096;
+}
+
+/* Loading spinner animation */
+.fa-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Pulse animation for status indicators */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .notification-toast {
+    left: 4px;
+    right: 4px;
+    top: auto;
+    bottom: 4px;
+    transform: translateY(100%);
+  }
+  
+  .notification-toast:not(.translate-x-full) {
+    transform: translateY(0);
+  }
+}
+
+/* Table responsive */
+@media (max-width: 768px) {
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+</style>

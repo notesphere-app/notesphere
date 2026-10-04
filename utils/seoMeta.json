@@ -1,0 +1,79 @@
+{
+  "/": {
+    "title": "NoteSphere — Free Student Notes, Study Material & PDFs",
+    "description": "Download free class notes, handwritten PDFs, and study material shared by students. Browse by course — B.Tech, B.A, B.Sc, B.Com, BBA.",
+    "keywords": "student notes, free study material, PDF notes download, class notes sharing, B.Tech notes, B.A notes, B.Sc notes, B.Com notes, NoteSphere"
+  },
+
+  "/notes": {
+    "title": "Browse Notes by Course | NoteSphere",
+    "description": "Find free class notes by course and year — B.Tech, B.A, B.Sc, B.Com, BBA. Download PDFs shared by students, no signup required.",
+    "keywords": "browse notes, B.Tech notes, B.A notes, B.Sc notes, B.Com notes, BBA notes, course-wise notes, semester notes, download notes PDF"
+  },
+
+  "/notes/new": {
+    "title": "Upload Your Notes | NoteSphere",
+    "description": "Share your class notes or handwritten PDFs with thousands of students. Upload takes less than a minute and is free forever.",
+    "keywords": "upload notes, share class notes, upload PDF notes, contribute notes, NoteSphere upload"
+  },
+
+  "/profile": {
+    "title": "My Profile | NoteSphere",
+    "description": "Manage your NoteSphere profile, see the notes you've uploaded, and track your downloads and upvotes.",
+    "keywords": "NoteSphere profile, my account, my uploaded notes"
+  },
+
+  "/saved": {
+    "title": "Saved Notes | NoteSphere",
+    "description": "All the notes you've bookmarked on NoteSphere, in one place, ready to download whenever you need them.",
+    "keywords": "saved notes, bookmarked notes, my saved PDFs, NoteSphere saved"
+  },
+
+  "/login": {
+    "title": "Login | NoteSphere",
+    "description": "Log in to your NoteSphere account to upload notes, save your favorites, and pick up right where you left off.",
+    "keywords": "NoteSphere login, student notes login, sign in"
+  },
+
+  "/signup": {
+    "title": "Sign Up Free | NoteSphere",
+    "description": "Create a free NoteSphere account to upload notes, save favorites, and join thousands of students sharing study material.",
+    "keywords": "NoteSphere sign up, create free account, student notes account"
+  },
+
+  "/about": {
+    "title": "About NoteSphere — Notes Shared by Students, for Students",
+    "description": "Learn how NoteSphere started as a free, student-built library of notes, PDFs, and study guides — and where it's headed next.",
+    "keywords": "about NoteSphere, student notes platform, free study material, our story"
+  },
+
+  "/contact": {
+    "title": "Contact Us | NoteSphere",
+    "description": "Have a question, found an issue, or want to report a note? Get in touch with the NoteSphere team.",
+    "keywords": "contact NoteSphere, support, report a note, feedback"
+  },
+
+  "/blogs": {
+    "title": "NoteSphere Blog — Study Tips & Note-Taking Guides",
+    "description": "Study strategies, note-taking methods, and real stories from students who use NoteSphere to prepare for exams.",
+    "keywords": "study tips, note-taking guides, exam preparation, student blog, NoteSphere blog"
+  },
+
+  "/careers": {
+    "title": "Careers at NoteSphere — Join Our Team",
+    "description": "We're building the largest free library of student notes. See open roles and what it's like to work at NoteSphere.",
+    "keywords": "NoteSphere careers, jobs, hiring, student startup jobs"
+  },
+
+  "/privacy": {
+    "title": "Privacy Policy | NoteSphere",
+    "description": "Read how NoteSphere collects, uses, and protects your data when you browse, upload, or download notes.",
+    "keywords": "NoteSphere privacy policy, data protection, user privacy"
+  },
+
+  "/terms": {
+    "title": "Terms of Service | NoteSphere",
+    "description": "The terms and conditions for using NoteSphere to upload, download, and share student notes and study material.",
+    "keywords": "NoteSphere terms of service, terms and conditions, usage policy"
+  }
+}

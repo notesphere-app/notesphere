@@ -1,0 +1,478 @@
+<% layout("/layouts/boilerplate") -%>
+
+<div class="min-h-screen bg-gradient-to-b from-gray-50 to-white py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-10">
+      <h1 class="text-3xl font-bold text-gray-900 sm:text-4xl">
+        Edit Blog
+      </h1>
+      <p class="mt-3 text-lg text-gray-600">
+        Update your blog content, category and details below.
+      </p>
+    </div>
+
+    <!-- Form Card -->
+    <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 md:p-10 border border-gray-100">
+      <form 
+        action="/blogs/<%= blog._id %>?_method=PUT" 
+        method="POST" 
+        class="space-y-8"
+        enctype="multipart/form-data"
+      >
+        <!-- Title -->
+        <div>
+          <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
+            Title <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            name="title"
+            id="title"
+            value="<%= blog.title %>"
+            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+            placeholder="Enter blog title..."
+            required
+          >
+          <p class="mt-2 text-sm text-gray-500">
+            A clear and engaging title that captures attention
+          </p>
+        </div>
+
+        <!-- Category -->
+        <div>
+          <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
+            Category <span class="text-red-500">*</span>
+          </label>
+          <select 
+            name="category" 
+            id="category" 
+            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors appearance-none bg-white"
+            required
+          >
+            <option value="">Select a category</option>
+<option value="Technology" <%= blog.category === 'Technology' ? 'selected' : '' %>>Technology</option>
+<option value="Programming" <%= blog.category === 'Programming' ? 'selected' : '' %>>Programming</option>
+<option value="Web Development" <%= blog.category === 'Web Development' ? 'selected' : '' %>>Web Development</option>
+<option value="Cyber Security" <%= blog.category === 'Cyber Security' ? 'selected' : '' %>>Cyber Security</option>
+<option value="Machine Learning" <%= blog.category === 'Machine Learning' ? 'selected' : '' %>>Machine Learning</option>
+<option value="Artificial Intelligence" <%= blog.category === 'Artificial Intelligence' ? 'selected' : '' %>>Artificial Intelligence</option>
+<option value="Data Science" <%= blog.category === 'Data Science' ? 'selected' : '' %>>Data Science</option>
+<option value="Startups & Entrepreneurship" <%= blog.category === 'Startups & Entrepreneurship' ? 'selected' : '' %>>Startups & Entrepreneurship</option>
+<option value="Digital Marketing" <%= blog.category === 'Digital Marketing' ? 'selected' : '' %>>Digital Marketing</option>
+<option value="Jobs & Careers" <%= blog.category === 'Jobs & Careers' ? 'selected' : '' %>>Jobs & Careers</option>
+<option value="Education & Learning" <%= blog.category === 'Education & Learning' ? 'selected' : '' %>>Education & Learning</option>
+<option value="Others" <%= blog.category === 'Others' ? 'selected' : '' %>>Others</option>
+
+          </select>
+          <p class="mt-2 text-sm text-gray-500">
+            Choose the most relevant category for your blog
+          </p>
+        </div>
+
+        <!-- Short Description -->
+        <div>
+          <label for="shortdescription" class="block text-sm font-medium text-gray-700 mb-2">
+            Short Description <span class="text-red-500">*</span>
+          </label>
+          <textarea
+            name="shortdescription"
+            id="shortdescription"
+            rows="3"
+            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-y"
+            placeholder="A short summary of the blog (appears in blog listings)..."
+            required
+          ><%= blog.shortdescription %></textarea>
+          <p class="mt-2 text-sm text-gray-500">
+            150-200 characters recommended for best display
+          </p>
+        </div>
+
+        <!-- Current Image Preview -->
+        <% if (originalImageUrl) { %>
+          <div class="bg-gray-50 rounded-xl p-6">
+            <label class="block text-sm font-medium text-gray-700 mb-4">
+              Current Image
+            </label>
+            <div class="flex flex-col sm:flex-row items-start gap-6">
+              <div class="w-full sm:w-48 h-48 rounded-xl overflow-hidden border border-gray-200 bg-gray-100 flex-shrink-0">
+                <img 
+                  src="<%= originalImageUrl %>" 
+                  alt="<%= blog.imageTitle || 'Blog image' %>"
+                  class="w-full h-full object-cover"
+                >
+              </div>
+              <div class="flex-1">
+                <div class="space-y-4">
+                  <div>
+                    <h4 class="text-sm font-medium text-gray-700">Current Image Details</h4>
+                    <p class="text-sm text-gray-600 mt-1">
+                      This image is currently displayed with your blog. Upload a new image below if you want to change it.
+                    </p>
+                  </div>
+                  <% if (blog.imageTitle) { %>
+                    <div>
+                      <h4 class="text-sm font-medium text-gray-700">Current Alt Text</h4>
+                      <p class="text-sm text-gray-600 mt-1">
+                        <%= blog.imageTitle %>
+                      </p>
+                    </div>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% } %>
+
+        <!-- Upload New Image -->
+        <div class="space-y-6">
+          <!-- Image Upload -->
+          <div>
+            <label for="image" class="block text-sm font-medium text-gray-700 mb-2">
+              Upload New Image
+              <span class="text-gray-500 font-normal">(Optional)</span>
+            </label>
+            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-blue-400 transition-colors">
+              <div class="space-y-1 text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                  <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <div class="flex text-sm text-gray-600">
+                  <label for="image" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                    <span>Upload a file</span>
+                    <input id="image" name="image" type="file" class="sr-only" accept="image/*">
+                  </label>
+                  <p class="pl-1">or drag and drop</p>
+                </div>
+                <p class="text-xs text-gray-500">
+                  PNG, JPG, GIF up to 5MB
+                </p>
+              </div>
+            </div>
+            <p class="mt-2 text-sm text-gray-500">
+              Recommended size: 1200×630px for optimal display
+            </p>
+          </div>
+
+          <!-- Image Alt Text -->
+          <div>
+            <label for="imageTitle" class="block text-sm font-medium text-gray-700 mb-2">
+              Image Alt Text
+              <span class="text-gray-500 font-normal">(Optional)</span>
+            </label>
+            <input
+              type="text"
+              name="imageTitle"
+              id="imageTitle"
+              value="<%= blog.imageTitle || '' %>"
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              placeholder="Describe the image for SEO and accessibility..."
+            >
+            <p class="mt-2 text-sm text-gray-500">
+              This helps with search engines and screen readers. Example: "Person writing code on laptop"
+            </p>
+          </div>
+        </div>
+
+        <!-- Keywords -->
+        <div>
+          <label for="Keywords" class="block text-sm font-medium text-gray-700 mb-2">
+            Keywords <span class="text-red-500">*</span>
+          </label>
+          <textarea
+            name="Keywords"
+            id="Keywords"
+            rows="2"
+            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-y"
+            placeholder="Enter keywords separated by commas (e.g., machine learning, Python basics, career tips, engineering exams)"
+            required
+          ><%= blog.Keywords %></textarea>
+          <p class="mt-2 text-sm text-gray-500">
+            Separate keywords with commas. These help readers find your content
+          </p>
+        </div>
+
+        <!-- Full Content -->
+        <div>
+          <label for="content" class="block text-sm font-medium text-gray-700 mb-2">
+            Content <span class="text-red-500">*</span>
+          </label>
+          <textarea
+            name="content"
+            id="content"
+            rows="12"
+            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-y font-mono text-sm"
+            placeholder="Write your full blog content here... Use Markdown formatting"
+            required
+          ><%- blog.content %></textarea>
+          <div class="mt-3 flex flex-wrap gap-3">
+            <div class="flex items-center text-sm text-gray-600">
+              <i class="fas fa-bold mr-1"></i>
+              <span>**Bold**</span>
+            </div>
+            <div class="flex items-center text-sm text-gray-600">
+              <i class="fas fa-italic mr-1"></i>
+              <span>*Italic*</span>
+            </div>
+            <div class="flex items-center text-sm text-gray-600">
+              <i class="fas fa-link mr-1"></i>
+              <span>[Link](url)</span>
+            </div>
+            <div class="flex items-center text-sm text-gray-600">
+              <i class="fas fa-list-ul mr-1"></i>
+              <span>- List item</span>
+            </div>
+            <div class="flex items-center text-sm text-gray-600">
+              <i class="fas fa-heading mr-1"></i>
+              <span>## Heading</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+          <button
+            type="submit"
+            class="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium py-3 px-6 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+          >
+            <i class="fas fa-save mr-2"></i>
+            Update Blog
+          </button>
+          <a
+            href="/blogs/<%= blog._id %>"
+            class="flex-1 bg-gray-100 text-gray-700 font-medium py-3 px-6 rounded-xl hover:bg-gray-200 transition-colors text-center"
+          >
+            <i class="fas fa-times mr-2"></i>
+            Cancel
+          </a>
+        </div>
+      </form>
+    </div>
+
+    <!-- Help Tips -->
+    <div class="mt-8 bg-blue-50 rounded-xl p-6 border border-blue-100">
+      <div class="flex items-start">
+        <div class="flex-shrink-0">
+          <i class="fas fa-lightbulb text-blue-600 text-xl"></i>
+        </div>
+        <div class="ml-4">
+          <h3 class="text-lg font-medium text-blue-900">Editing Tips</h3>
+          <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="text-sm text-blue-800">
+              <p class="font-medium">✓ Title & Description</p>
+              <p class="mt-1">Make them compelling to increase readership</p>
+            </div>
+            <div class="text-sm text-blue-800">
+              <p class="font-medium">✓ Keywords</p>
+              <p class="mt-1">Use specific terms your audience searches for</p>
+            </div>
+            <div class="text-sm text-blue-800">
+              <p class="font-medium">✓ Images</p>
+              <p class="mt-1">High-quality images improve engagement by 47%</p>
+            </div>
+            <div class="text-sm text-blue-800">
+              <p class="font-medium">✓ Content</p>
+              <p class="mt-1">Use subheadings and paragraphs for readability</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript for Form Enhancement -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Prevent multiple submissions
+  const form = document.querySelector('form');
+  const submitBtn = form.querySelector('button[type="submit"]');
+  
+  form.addEventListener('submit', function(e) {
+    if (submitBtn.classList.contains('submitting')) {
+      e.preventDefault();
+      return;
+    }
+    
+    submitBtn.classList.add('submitting');
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Updating...';
+    submitBtn.disabled = true;
+  });
+
+  // File upload preview
+  const fileInput = document.getElementById('image');
+  if (fileInput) {
+    fileInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          // Create preview if it doesn't exist
+          let previewContainer = document.querySelector('.image-preview');
+          if (!previewContainer) {
+            previewContainer = document.createElement('div');
+            previewContainer.className = 'mt-4 image-preview';
+            
+            const currentImageContainer = document.querySelector('.bg-gray-50.rounded-xl');
+            if (currentImageContainer) {
+              currentImageContainer.insertAdjacentElement('afterend', previewContainer);
+            } else {
+              fileInput.parentNode.parentNode.insertAdjacentElement('afterend', previewContainer);
+            }
+          }
+          
+          previewContainer.innerHTML = `
+            <div class="bg-green-50 rounded-xl p-6 border border-green-200">
+              <div class="flex items-center justify-between mb-4">
+                <h4 class="text-sm font-medium text-green-900">New Image Preview</h4>
+                <button type="button" onclick="this.closest('.image-preview').remove()" class="text-green-700 hover:text-green-900">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              <div class="flex items-center gap-4">
+                <div class="w-32 h-32 rounded-lg overflow-hidden border border-green-300">
+                  <img src="${e.target.result}" alt="Preview" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm text-green-800">
+                    <strong>File:</strong> ${file.name}<br>
+                    <strong>Size:</strong> ${(file.size / 1024).toFixed(2)} KB<br>
+                    <strong>Type:</strong> ${file.type}
+                  </p>
+                  <p class="text-xs text-green-600 mt-2">
+                    This image will replace the current one when you update the blog.
+                  </p>
+                </div>
+              </div>
+            </div>
+          `;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
+  // Character counter for short description
+  const shortDesc = document.getElementById('shortdescription');
+  if (shortDesc) {
+    const counter = document.createElement('div');
+    counter.className = 'text-xs text-gray-500 mt-1 text-right';
+    shortDesc.parentNode.appendChild(counter);
+    
+    function updateCounter() {
+      const length = shortDesc.value.length;
+      counter.textContent = `${length} characters`;
+      
+      if (length < 150) {
+        counter.className = 'text-xs text-yellow-600 mt-1 text-right';
+      } else if (length > 200) {
+        counter.className = 'text-xs text-red-600 mt-1 text-right';
+      } else {
+        counter.className = 'text-xs text-green-600 mt-1 text-right';
+      }
+    }
+    
+    shortDesc.addEventListener('input', updateCounter);
+    updateCounter();
+  }
+
+  // Form validation styling
+  const inputs = form.querySelectorAll('input, textarea, select');
+  inputs.forEach(input => {
+    input.addEventListener('invalid', function(e) {
+      e.preventDefault();
+      this.classList.add('border-red-500', 'ring-2', 'ring-red-200');
+    });
+    
+    input.addEventListener('input', function() {
+      if (this.classList.contains('border-red-500')) {
+        this.classList.remove('border-red-500', 'ring-2', 'ring-red-200');
+      }
+    });
+  });
+});
+</script>
+
+<!-- Custom Styles -->
+<style>
+/* Custom select arrow */
+select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* Remove default focus outline and add custom */
+select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Textarea resize handle */
+textarea::-webkit-resizer {
+  border-width: 8px;
+  border-style: solid;
+  border-color: transparent #d1d5db #d1d5db transparent;
+}
+
+/* Smooth transitions */
+input, textarea, select, button {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Form validation error styling */
+.border-red-500 {
+  border-color: #ef4444 !important;
+}
+
+.ring-red-200 {
+  --tw-ring-color: rgba(254, 202, 202, 0.5) !important;
+}
+
+/* Gradient border for card */
+.bg-white {
+  position: relative;
+}
+
+.bg-white::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(45deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+  border-radius: 1rem;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.bg-white:hover::before {
+  opacity: 1;
+}
+
+/* Custom scrollbar */
+textarea {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db transparent;
+}
+
+textarea::-webkit-scrollbar {
+  width: 6px;
+}
+
+textarea::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+textarea::-webkit-scrollbar-thumb {
+  background-color: #d1d5db;
+  border-radius: 20px;
+}
+
+textarea::-webkit-scrollbar-thumb:hover {
+  background-color: #9ca3af;
+}
+</style>

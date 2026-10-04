@@ -1,0 +1,501 @@
+<% layout("/layouts/boilerplate") -%>
+<%
+const lastUpdated = "September 27, 2026";
+const effectiveDate = "October 1, 2026";
+
+const toc = [
+  { id: "intro",     label: "Introduction",                   icon: "fa-circle-info" },
+  { id: "collect",   label: "Information we collect",         icon: "fa-database" },
+  { id: "use",       label: "How we use your information",    icon: "fa-gears" },
+  { id: "sharing",   label: "When we share your information", icon: "fa-share-nodes" },
+  { id: "cookies",   label: "Cookies & local storage",        icon: "fa-cookie-bite" },
+  { id: "uploads",   label: "Your uploaded notes",            icon: "fa-cloud-arrow-up" },
+  { id: "security",  label: "How we protect your data",       icon: "fa-shield-halved" },
+  { id: "retention", label: "How long we keep your data",     icon: "fa-clock-rotate-left" },
+  { id: "rights",    label: "Your rights",                    icon: "fa-user-shield" },
+  { id: "children",  label: "Children's privacy",             icon: "fa-child-reaching" },
+  { id: "changes",   label: "Changes to this policy",         icon: "fa-pen-to-square" },
+  { id: "contact",   label: "Contact us",                     icon: "fa-envelope" },
+];
+
+const highlights = [
+  { icon: "fa-eye-slash",          title: "No ads, no tracking",  desc: "We don't sell your data or show you ads. Full stop." },
+  { icon: "fa-lock",               title: "Your notes are yours", desc: "You own everything you upload. Delete it any time." },
+  { icon: "fa-user-check",         title: "Minimal collection",   desc: "We only ask for what's needed to run the service." },
+  { icon: "fa-right-from-bracket", title: "Leave with your data", desc: "Export or delete your account in two clicks." },
+];
+%>
+
+<!-- =========================================
+     Hero
+========================================= -->
+<section class="relative overflow-hidden bg-[#FBFAF7] dark:bg-slate-950">
+  <div class="pointer-events-none absolute -top-32 -left-24 h-72 w-72 rounded-full bg-[#0878E8]/10 blur-3xl sm:-left-32 sm:h-96 sm:w-96"></div>
+  <div class="pointer-events-none absolute -bottom-40 -right-24 h-72 w-72 rounded-full bg-amber-400/10 blur-3xl sm:-right-32 sm:h-96 sm:w-96"></div>
+
+  <div class="relative mx-auto max-w-4xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+    <div class="text-center">
+      <span class="inline-flex items-center gap-2 rounded-full border border-[#0878E8]/25 bg-[#0878E8]/5 px-3 py-1 text-xs font-medium text-[#0878E8] sm:text-sm" data-reveal>
+        <i class="fa-solid fa-shield-halved"></i> Legal
+      </span>
+
+      <h1 class="mt-5 text-3xl leading-tight text-[#022E5A] dark:text-white sm:text-4xl md:text-5xl" data-reveal data-reveal-delay="80">
+        Privacy Policy
+      </h1>
+
+      <p class="mx-auto mt-5 max-w-2xl text-base text-slate-600 dark:text-slate-300 sm:text-lg" data-reveal data-reveal-delay="160">
+        Plain-language explanation of what we collect, why we collect it,
+        and how you stay in control of your data on NoteSphere.
+      </p>
+
+      <div class="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-slate-500 dark:text-slate-400" data-reveal data-reveal-delay="200">
+        <span class="flex items-center gap-1.5">
+          <i class="fa-regular fa-calendar"></i> Effective:
+          <strong class="font-semibold text-[#022E5A] dark:text-white"><%= effectiveDate %></strong>
+        </span>
+        <span class="hidden text-slate-300 dark:text-slate-600 sm:inline">·</span>
+        <span class="flex items-center gap-1.5">
+          <i class="fa-regular fa-clock"></i> Last updated:
+          <strong class="font-semibold text-[#022E5A] dark:text-white"><%= lastUpdated %></strong>
+        </span>
+        <span class="hidden text-slate-300 dark:text-slate-600 sm:inline">·</span>
+        <span class="flex items-center gap-1.5">
+          <i class="fa-regular fa-file-lines"></i> ~6 min read
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================
+     Highlights
+========================================= -->
+<section class="border-y border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+  <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
+    <div class="grid gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
+      <% highlights.forEach(function (h, i) { %>
+        <div class="rounded-2xl bg-[#FBFAF7] p-5 ring-1 ring-slate-200/70 transition-all
+                    hover:-translate-y-1 hover:shadow-md dark:bg-slate-950 dark:ring-slate-800"
+             data-reveal data-reveal-delay="<%= i * 70 %>">
+          <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0878E8]/10 text-[#0878E8]">
+            <i class="fa-solid <%= h.icon %>"></i>
+          </div>
+          <h3 class="mt-3 text-sm font-semibold text-[#022E5A] dark:text-white"><%= h.title %></h3>
+          <p class="mt-1.5 text-xs leading-relaxed text-slate-500 dark:text-slate-400"><%= h.desc %></p>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================
+     Body: TOC + content
+========================================= -->
+<section class="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+  <div class="grid gap-8 lg:grid-cols-12 lg:gap-10">
+
+    <!-- TOC -->
+    <aside class="lg:col-span-4 xl:col-span-3">
+      <div class="lg:sticky lg:top-24">
+        <div class="rounded-2xl bg-[#FBFAF7] p-5 ring-1 ring-slate-200/70 dark:bg-slate-950 dark:ring-slate-800">
+          <h2 class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-slate-400">
+            <i class="fa-solid fa-list-ul text-[#0878E8]"></i> On this page
+          </h2>
+
+          <nav aria-label="Table of contents" class="mt-3">
+            <ul class="space-y-0.5">
+              <% toc.forEach(function (item) { %>
+                <li>
+                  <a href="#<%= item.id %>"
+                     class="privacy-toc-link flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-[#0878E8]/5 hover:text-[#0878E8] dark:text-slate-300"
+                     data-toc-target="<%= item.id %>">
+                    <i class="fa-solid <%= item.icon %> w-3.5 text-center text-[10px] text-slate-400"></i>
+                    <span><%= item.label %></span>
+                  </a>
+                </li>
+              <% }) %>
+            </ul>
+          </nav>
+        </div>
+
+        <div class="mt-5 rounded-2xl bg-gradient-to-br from-[#022E5A] via-[#053A72] to-[#0878E8] p-5 text-white shadow-lg">
+          <div class="flex items-center gap-2 text-emerald-300">
+            <span class="h-2 w-2 animate-pulse rounded-full bg-emerald-400"></span>
+            <span class="text-[10px] font-semibold uppercase tracking-widest">Privacy questions?</span>
+          </div>
+          <h3 class="mt-3 text-sm font-semibold">Talk to us directly</h3>
+          <p class="mt-1.5 text-xs text-white/80">
+            If anything here is unclear, or you want your data removed, write to us.
+          </p>
+          <a href="mailto:privacy@notesphere.app"
+             class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-4 py-2.5 text-xs font-semibold text-[#022E5A] transition-transform hover:-translate-y-0.5">
+            <i class="fa-solid fa-envelope"></i> privacy@notesphere.app
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Content -->
+    <div class="lg:col-span-8 xl:col-span-9">
+      <article class="space-y-10 text-[0.95rem] leading-relaxed text-slate-700 dark:text-slate-300">
+
+        <!-- 1. Introduction -->
+        <section id="intro" class="scroll-mt-28">
+          <h2 class="mb-4 flex items-center gap-2.5 text-xl font-bold text-[#022E5A] dark:text-white sm:text-2xl">
+            <span class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#0878E8]/10 text-sm text-[#0878E8] sm:h-9 sm:w-9">
+              <i class="fa-solid fa-circle-info"></i>
+            </span>
+            1. Introduction
+          </h2>
+          <p class="mb-4">
+            NoteSphere ("we", "us", or "our") runs a free, community-driven library of
+            student-uploaded notes at <a href="/" class="font-medium text-[#0878E8] underline underline-offset-2 hover:text-[#054a99] dark:text-[#5CA6F0]">notesphere.app</a>.
+            This Privacy Policy explains what information we collect when you use the site,
+            why we collect it, and what control you have over it.
+          </p>
+          <p class="mb-4">
+            We've written this in plain language on purpose. If you ever want the
+            legal-formal version, write to us and we'll send it. In short:
+            <strong class="font-semibold text-[#022E5A] dark:text-white">we collect the minimum we need, we never sell your data, and you can ask us to delete everything at any time.</strong>
+          </p>
+          <p>By using NoteSphere you agree to this policy. If you don't agree, please don't use the service.</p>
+        </section>
+
+        <!-- 2. Information we collect -->
+        <section id="collect" class="scroll-mt-28 border-t border-slate-200 pt-10 dark:border-slate-800">
+          <h2 class="mb-4 flex items-center gap-2.5 text-xl font-bold text-[#022E5A] dark:text-white sm:text-2xl">
+            <span class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#0878E8]/10 text-sm text-[#0878E8] sm:h-9 sm:w-9">
+              <i class="fa-solid fa-database"></i>
+            </span>
+            2. Information we collect
+          </h2>
+          <p class="mb-4">We collect only what's needed to run NoteSphere:</p>
+
+          <h3 class="mt-6 mb-2 text-base font-semibold text-[#022E5A] dark:text-white">a) Information you give us</h3>
+          <ul class="mb-4 space-y-2">
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]">
+              <strong class="font-semibold text-[#022E5A] dark:text-white">Account details</strong> — your name, email address, and a hashed password (we never store passwords in plain text).
+            </li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]">
+              <strong class="font-semibold text-[#022E5A] dark:text-white">Notes you upload</strong> — the PDF files, titles, subjects, and any tags you attach to them.
+            </li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]">
+              <strong class="font-semibold text-[#022E5A] dark:text-white">Messages to us</strong> — anything you send via our contact form or email.
+            </li>
+          </ul>
+
+          <h3 class="mt-6 mb-2 text-base font-semibold text-[#022E5A] dark:text-white">b) Information we collect automatically</h3>
+          <ul class="mb-4 space-y-2">
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]">
+              <strong class="font-semibold text-[#022E5A] dark:text-white">Basic usage data</strong> — pages visited, notes downloaded, and features used, tied to your account only for your own "recently viewed" list.
+            </li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]">
+              <strong class="font-semibold text-[#022E5A] dark:text-white">Device and browser info</strong> — general type (mobile/desktop), browser name, and language. Not a fingerprint — just enough to make the site work well on your device.
+            </li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]">
+              <strong class="font-semibold text-[#022E5A] dark:text-white">Server logs</strong> — IP address and timestamps, kept for a short period to detect abuse and fix bugs.
+            </li>
+          </ul>
+
+          <h3 class="mt-6 mb-2 text-base font-semibold text-[#022E5A] dark:text-white">c) What we deliberately do NOT collect</h3>
+          <ul class="space-y-2">
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]">No advertising identifiers. We don't run ads and we don't sell data to anyone who does.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]">No location tracking. We don't ask for GPS or read your precise location.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]">No contacts, photos, or files from your device beyond the ones you explicitly upload.</li>
+          </ul>
+        </section>
+
+        <!-- 3. How we use -->
+        <section id="use" class="scroll-mt-28 border-t border-slate-200 pt-10 dark:border-slate-800">
+          <h2 class="mb-4 flex items-center gap-2.5 text-xl font-bold text-[#022E5A] dark:text-white sm:text-2xl">
+            <span class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#0878E8]/10 text-sm text-[#0878E8] sm:h-9 sm:w-9">
+              <i class="fa-solid fa-gears"></i>
+            </span>
+            3. How we use your information
+          </h2>
+          <p class="mb-4">We use your information only for these purposes:</p>
+          <ul class="mb-4 space-y-2">
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">To run the service</strong> — create your account, sign you in, and let you upload and download notes.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">To show your notes to others</strong> — when you upload a note publicly, it appears in the library under your chosen display name.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">To improve the site</strong> — understand which features help students, so we can remove what doesn't.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">To keep the community safe</strong> — detect spam, abuse, and illegal content.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">To reply to you</strong> — respond when you contact us.</li>
+          </ul>
+          <p>
+            We will <strong class="font-semibold text-[#022E5A] dark:text-white">never</strong> use your data for advertising, profiling, or any purpose you wouldn't expect when you signed up.
+          </p>
+        </section>
+
+        <!-- 4. Sharing -->
+        <section id="sharing" class="scroll-mt-28 border-t border-slate-200 pt-10 dark:border-slate-800">
+          <h2 class="mb-4 flex items-center gap-2.5 text-xl font-bold text-[#022E5A] dark:text-white sm:text-2xl">
+            <span class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#0878E8]/10 text-sm text-[#0878E8] sm:h-9 sm:w-9">
+              <i class="fa-solid fa-share-nodes"></i>
+            </span>
+            4. When we share your information
+          </h2>
+          <p class="mb-4">Short answer: <strong class="font-semibold text-[#022E5A] dark:text-white">almost never, and never for money.</strong> The only situations where your data leaves our servers are:</p>
+
+          <div class="my-4 space-y-3">
+            <div class="flex items-start gap-3 rounded-xl border border-slate-200 bg-[#FBFAF7] p-4 dark:border-slate-800 dark:bg-slate-950">
+              <i class="fa-solid fa-circle-check mt-1 text-emerald-500"></i>
+              <div>
+                <p class="font-semibold text-[#022E5A] dark:text-white">Service providers we rely on</p>
+                <p class="mt-1 text-sm">A short list of vendors who help us run the site — for example, cloud hosting (files), and an email provider (password resets). They only see what's strictly necessary, and they're contractually forbidden from using it for anything else.</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3 rounded-xl border border-slate-200 bg-[#FBFAF7] p-4 dark:border-slate-800 dark:bg-slate-950">
+              <i class="fa-solid fa-scale-balanced mt-1 text-amber-500"></i>
+              <div>
+                <p class="font-semibold text-[#022E5A] dark:text-white">If the law requires it</p>
+                <p class="mt-1 text-sm">If a court order or a valid legal request compels us, we'll disclose only what's specifically required. Where we're allowed to, we'll tell you first.</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3 rounded-xl border border-slate-200 bg-[#FBFAF7] p-4 dark:border-slate-800 dark:bg-slate-950">
+              <i class="fa-solid fa-triangle-exclamation mt-1 text-rose-500"></i>
+              <div>
+                <p class="font-semibold text-[#022E5A] dark:text-white">To stop serious harm</p>
+                <p class="mt-1 text-sm">In the rare case where someone's safety is at risk, or the service is being abused at scale, we may act to protect users.</p>
+              </div>
+            </div>
+          </div>
+
+          <p>We do not, and will not, sell your personal data, rent it, or trade it for marketing purposes.</p>
+        </section>
+
+        <!-- 5. Cookies -->
+        <section id="cookies" class="scroll-mt-28 border-t border-slate-200 pt-10 dark:border-slate-800">
+          <h2 class="mb-4 flex items-center gap-2.5 text-xl font-bold text-[#022E5A] dark:text-white sm:text-2xl">
+            <span class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#0878E8]/10 text-sm text-[#0878E8] sm:h-9 sm:w-9">
+              <i class="fa-solid fa-cookie-bite"></i>
+            </span>
+            5. Cookies &amp; local storage
+          </h2>
+          <p class="mb-4">We use two things to remember your preferences between visits:</p>
+          <ul class="mb-4 space-y-2">
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">Cookies</strong> — small files sent by the server. We use one for your login session (so you stay signed in), and nothing else.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">Local storage</strong> — stored on your device, not sent to us. We use it to remember your dark/light theme choice, whether you've seen a teaser, your notes view preference (grid or list), and your upvotes/saves on notes you haven't logged in for.</li>
+          </ul>
+          <p class="mb-4"><strong class="font-semibold text-[#022E5A] dark:text-white">No advertising cookies. No third-party tracking scripts. No analytics that profiles you across other sites.</strong> If we ever need a cookie for a new feature, we'll say so in this section before shipping it.</p>
+          <p>You can clear cookies and local storage at any time from your browser settings. Doing so will sign you out and reset your saved preferences.</p>
+        </section>
+
+        <!-- 6. Uploads -->
+        <section id="uploads" class="scroll-mt-28 border-t border-slate-200 pt-10 dark:border-slate-800">
+          <h2 class="mb-4 flex items-center gap-2.5 text-xl font-bold text-[#022E5A] dark:text-white sm:text-2xl">
+            <span class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#0878E8]/10 text-sm text-[#0878E8] sm:h-9 sm:w-9">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+            </span>
+            6. Your uploaded notes
+          </h2>
+          <p class="mb-4"><strong class="font-semibold text-[#022E5A] dark:text-white">You own the notes you upload.</strong> We don't claim any ownership over the content. Here's exactly what happens when you upload:</p>
+          <ul class="mb-4 space-y-2">
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]">Your file is stored securely on our servers or on a trusted cloud storage provider.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]">If you mark a note as <em>public</em>, anyone can download it. If you keep it <em>private</em>, only you can see it.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]">Your display name and avatar are shown next to public notes. Your email is never shown publicly.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]">You can delete a note at any time, and it's removed from the library immediately.</li>
+          </ul>
+          <p>Please don't upload material you don't have the right to share — for example, someone else's copyrighted textbook scan, or a professor's private slides without permission. If you do, we may remove it after a report.</p>
+        </section>
+
+        <!-- 7. Security -->
+        <section id="security" class="scroll-mt-28 border-t border-slate-200 pt-10 dark:border-slate-800">
+          <h2 class="mb-4 flex items-center gap-2.5 text-xl font-bold text-[#022E5A] dark:text-white sm:text-2xl">
+            <span class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#0878E8]/10 text-sm text-[#0878E8] sm:h-9 sm:w-9">
+              <i class="fa-solid fa-shield-halved"></i>
+            </span>
+            7. How we protect your data
+          </h2>
+          <ul class="mb-4 space-y-2">
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">Encryption in transit</strong> — all traffic to and from NoteSphere runs over HTTPS.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">Password hashing</strong> — passwords are hashed with a modern algorithm. Even we can't read them.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">Access controls</strong> — only a small number of team members can access production systems, and only for operational reasons.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">Backups</strong> — encrypted backups are taken regularly so we can recover from failures.</li>
+          </ul>
+          <p>No online service can promise 100% security. If we ever discover a breach that affects you, we'll tell you as soon as we can, and explain what happened.</p>
+        </section>
+
+        <!-- 8. Retention -->
+        <section id="retention" class="scroll-mt-28 border-t border-slate-200 pt-10 dark:border-slate-800">
+          <h2 class="mb-4 flex items-center gap-2.5 text-xl font-bold text-[#022E5A] dark:text-white sm:text-2xl">
+            <span class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#0878E8]/10 text-sm text-[#0878E8] sm:h-9 sm:w-9">
+              <i class="fa-solid fa-clock-rotate-left"></i>
+            </span>
+            8. How long we keep your data
+          </h2>
+          <ul class="space-y-2">
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">Account data</strong> — kept while your account is active. If you delete your account, it's removed within 30 days.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">Uploaded notes</strong> — deleted immediately when you delete them or your account. Backups cycle out within 30 days.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">Server logs</strong> — rotated out automatically after 30 days.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">Contact messages</strong> — kept for up to 12 months so we can reference prior conversations, then deleted.</li>
+          </ul>
+        </section>
+
+        <!-- 9. Rights -->
+        <section id="rights" class="scroll-mt-28 border-t border-slate-200 pt-10 dark:border-slate-800">
+          <h2 class="mb-4 flex items-center gap-2.5 text-xl font-bold text-[#022E5A] dark:text-white sm:text-2xl">
+            <span class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#0878E8]/10 text-sm text-[#0878E8] sm:h-9 sm:w-9">
+              <i class="fa-solid fa-user-shield"></i>
+            </span>
+            9. Your rights
+          </h2>
+          <p class="mb-4">Regardless of where you live, we give you these controls:</p>
+          <ul class="mb-4 space-y-2">
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">Access</strong> — see everything we hold about you. Download a copy from your account settings, or email us and we'll send it.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">Correct</strong> — edit your name, email, or profile at any time.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">Delete</strong> — delete individual notes, or your whole account, from the settings page. No "contact support to cancel" runaround.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">Export</strong> — export your notes, your saved list, and your profile as a ZIP file.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">Object</strong> — write to us if you think we're handling something wrong. We'll look into it, and we'll respond within 30 days.</li>
+          </ul>
+          <p>If you're in the EU/UK (GDPR), California (CCPA), or another region with specific data-protection laws, you have additional rights — including the right to lodge a complaint with your local data authority. Email us and we'll help you exercise them.</p>
+        </section>
+
+        <!-- 10. Children -->
+        <section id="children" class="scroll-mt-28 border-t border-slate-200 pt-10 dark:border-slate-800">
+          <h2 class="mb-4 flex items-center gap-2.5 text-xl font-bold text-[#022E5A] dark:text-white sm:text-2xl">
+            <span class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#0878E8]/10 text-sm text-[#0878E8] sm:h-9 sm:w-9">
+              <i class="fa-solid fa-child-reaching"></i>
+            </span>
+            10. Children's privacy
+          </h2>
+          <p>NoteSphere is built for college and university students. We don't knowingly collect data from children under 13 (or under 16 in some regions). If you believe a child has created an account, please write to us and we'll remove it promptly.</p>
+        </section>
+
+        <!-- 11. Changes -->
+        <section id="changes" class="scroll-mt-28 border-t border-slate-200 pt-10 dark:border-slate-800">
+          <h2 class="mb-4 flex items-center gap-2.5 text-xl font-bold text-[#022E5A] dark:text-white sm:text-2xl">
+            <span class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#0878E8]/10 text-sm text-[#0878E8] sm:h-9 sm:w-9">
+              <i class="fa-solid fa-pen-to-square"></i>
+            </span>
+            11. Changes to this policy
+          </h2>
+          <p class="mb-4">If we make a meaningful change to how we handle your data, we'll:</p>
+          <ul class="mb-4 space-y-2">
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]">Update the "Last updated" date at the top of this page.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]">Show a notice in the app the next time you sign in.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]">Email you if the change is significant.</li>
+          </ul>
+          <p>Continuing to use NoteSphere after a change means you accept the updated policy. If you don't, you can delete your account at any time.</p>
+        </section>
+
+        <!-- 12. Contact -->
+        <section id="contact" class="scroll-mt-28 border-t border-slate-200 pt-10 dark:border-slate-800">
+          <h2 class="mb-4 flex items-center gap-2.5 text-xl font-bold text-[#022E5A] dark:text-white sm:text-2xl">
+            <span class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#0878E8]/10 text-sm text-[#0878E8] sm:h-9 sm:w-9">
+              <i class="fa-solid fa-envelope"></i>
+            </span>
+            12. Contact us
+          </h2>
+          <p class="mb-4">For anything related to this policy or your data, write to us:</p>
+
+          <div class="mt-4 grid gap-3 sm:grid-cols-2">
+            <a href="mailto:privacy@notesphere.app"
+               class="group flex items-center gap-3.5 rounded-2xl border border-slate-200 bg-[#FBFAF7] p-4 transition-all hover:-translate-y-0.5 hover:border-[#0878E8] hover:shadow-md dark:border-slate-800 dark:bg-slate-950">
+              <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#0878E8]/10 text-[#0878E8]">
+                <i class="fa-solid fa-envelope"></i>
+              </div>
+              <div class="min-w-0">
+                <p class="text-[11px] font-semibold uppercase tracking-widest text-slate-400">Privacy</p>
+                <p class="mt-0.5 break-all text-sm font-semibold text-[#022E5A] group-hover:text-[#0878E8] dark:text-white">privacy@notesphere.app</p>
+              </div>
+            </a>
+
+            <a href="mailto:legal@notesphere.app"
+               class="group flex items-center gap-3.5 rounded-2xl border border-slate-200 bg-[#FBFAF7] p-4 transition-all hover:-translate-y-0.5 hover:border-[#0878E8] hover:shadow-md dark:border-slate-800 dark:bg-slate-950">
+              <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#0878E8]/10 text-[#0878E8]">
+                <i class="fa-solid fa-scale-balanced"></i>
+              </div>
+              <div class="min-w-0">
+                <p class="text-[11px] font-semibold uppercase tracking-widest text-slate-400">Legal</p>
+                <p class="mt-0.5 break-all text-sm font-semibold text-[#022E5A] group-hover:text-[#0878E8] dark:text-white">legal@notesphere.app</p>
+              </div>
+            </a>
+          </div>
+
+          <p class="mt-6">We aim to respond to every message within <strong class="font-semibold text-[#022E5A] dark:text-white">2 business days</strong>, and to any data request within <strong class="font-semibold text-[#022E5A] dark:text-white">30 days</strong> as required by law.</p>
+
+          <div class="mt-10 flex flex-wrap items-center gap-3 border-t border-slate-200 pt-6 dark:border-slate-800">
+            <a href="/terms"
+               class="inline-flex items-center gap-2 rounded-full border border-slate-300 px-5 py-2.5 text-sm font-semibold text-[#022E5A] transition-colors hover:bg-slate-900/5 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-white/10">
+              <i class="fa-solid fa-file-contract"></i> Read Terms of Service
+            </a>
+            <button type="button" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+              class="inline-flex items-center gap-2 rounded-full bg-[#0878E8] px-5 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-[#0668CC]">
+              <i class="fa-solid fa-arrow-up-long"></i> Back to top
+            </button>
+          </div>
+        </section>
+
+      </article>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function () {
+    /* Scroll-spy for TOC */
+    (function scrollSpy() {
+      var links = Array.from(document.querySelectorAll('.privacy-toc-link'));
+      if (!links.length || !('IntersectionObserver' in window)) return;
+
+      var sections = links.map(function (l) {
+        return document.getElementById(l.dataset.tocTarget);
+      }).filter(Boolean);
+      if (!sections.length) return;
+
+      var currentId = sections[0].id;
+
+      function setActive(id) {
+        if (id === currentId) return;
+        currentId = id;
+        links.forEach(function (l) {
+          var isActive = l.dataset.tocTarget === id;
+          l.classList.toggle('bg-[#0878E8]/10', isActive);
+          l.classList.toggle('text-[#0878E8]', isActive);
+          l.classList.toggle('font-semibold', isActive);
+        });
+      }
+
+      var io = new IntersectionObserver(function (entries) {
+        var visible = entries
+          .filter(function (e) { return e.isIntersecting; })
+          .sort(function (a, b) { return a.boundingClientRect.top - b.boundingClientRect.top; });
+        if (visible.length) setActive(visible[0].target.id);
+      }, { rootMargin: '-88px 0px -60% 0px', threshold: 0 });
+
+      sections.forEach(function (s) { io.observe(s); });
+      setActive(sections[0].id);
+    })();
+
+    /* Smooth-scroll TOC links with navbar offset */
+    document.querySelectorAll('.privacy-toc-link').forEach(function (link) {
+      link.addEventListener('click', function (e) {
+        var target = document.getElementById(link.dataset.tocTarget);
+        if (!target) return;
+        e.preventDefault();
+        var top = target.getBoundingClientRect().top + window.scrollY - 88;
+        window.scrollTo({ top: top, behavior: 'smooth' });
+        history.replaceState(null, '', '#' + target.id);
+      });
+    });
+
+    /* No auto-scroll on load */
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    window.addEventListener('load', function () {
+      if (location.hash) {
+        var target = document.getElementById(location.hash.slice(1));
+        if (target) {
+          var top = target.getBoundingClientRect().top + window.scrollY - 88;
+          window.scrollTo({ top: top, behavior: 'auto' });
+          return;
+        }
+      }
+      if (!sessionStorage.getItem('ns-privacy-visited')) {
+        window.scrollTo(0, 0);
+        sessionStorage.setItem('ns-privacy-visited', '1');
+      }
+    });
+  })();
+</script>

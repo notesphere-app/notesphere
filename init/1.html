@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Internship Offer Letter - Rani Kumari</title>
+    <style>
+:root {
+    --brand-blue: #2c7da0;
+    --text-dark: #333;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.4;
+    color: var(--text-dark);
+    margin: 0;
+    padding: 0;
+    font-size: 13px;
+    background-color: #f4f4f4;
+}
+
+.letter-container {
+    width: 210mm;
+    height: 297mm;              /* fixed height instead of min-height */
+    margin: auto;
+    background: #fff;
+    padding: 20mm;
+    box-sizing: border-box;
+    border-top: 8px solid var(--brand-blue);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;  /* pushes footer to bottom */
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.logo {
+    max-width: 70px;
+    margin-bottom: 5px;
+}
+
+.company-name {
+    font-size: 22px;
+    font-weight: bold;
+    color: var(--brand-blue);
+    letter-spacing: 2px;
+}
+
+.tagline {
+    font-size: 11px;
+    color: #666;
+}
+
+.offer-title {
+    text-align: center;
+    font-size: 18px;
+    text-decoration: underline;
+    margin: 15px 0;
+    font-weight: bold;
+}
+
+.content p {
+    margin-bottom: 8px;
+}
+
+.section-title {
+    font-weight: bold;
+    margin-top: 15px;
+    color: var(--brand-blue);
+}
+
+ul {
+    margin-top: 5px;
+    margin-bottom: 10px;
+    padding-left: 18px;
+}
+
+.signature-section {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 35px;
+}
+
+.sig-box {
+    width: 240px;
+    text-align: center;
+}
+
+.signature-name {
+    font-family: 'Great Vibes', cursive;
+    font-size: 26px;
+    color: #1a3c6e;
+    margin-bottom: 4px;
+}
+
+.printed-name {
+    border-top: 1px solid #000;
+    padding-top: 6px;
+    font-weight: bold;
+}
+
+.designation {
+    font-size: 12px;
+}
+
+.email {
+    font-size: 11px;
+    color: #555;
+}
+
+.footer {
+    border-top: 1px solid #eee;
+    padding-top: 6px;
+    font-size: 11px;
+    display: flex;
+    justify-content: space-between;
+}
+
+@page {
+    size: A4;
+    margin: 0;
+}
+
+@media print {
+    body {
+        background: none;
+    }
+
+    .letter-container {
+        box-shadow: none;
+        margin: 0;
+    }
+}
+</style>
+	<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="letter-container">
+
+    <div class="header">
+        <img src="/public/images/logo.png" alt="RootShield Logo" class="logo">
+        <div class="company-name">Root Shield </div>
+        <div class="tagline">Secure. Protect. Root.</div>
+    </div>
+
+    <div class="offer-title">INTERNSHIP OFFER LETTER</div>
+
+    <div class="content">
+
+        <p><strong>Date:</strong> 24 February 2026</p>
+
+        <p>To,<br>
+        <strong>Rani Kumari</strong></p>
+
+        <p>Dear Rani Kumari,</p>
+
+        <p>
+            We are pleased to offer you an Internship at <strong>Root Shield</strong> 
+            for the role of <strong>Web Developer Intern</strong>.
+        </p>
+
+        <div class="section-title">Internship Details</div>
+        <ul>
+            <li><strong>Duration:</strong> 3 Months</li>
+            <li><strong>Start Date:</strong> 24 February 2026</li>
+            <li><strong>Work Mode:</strong> Remote</li>
+            <li><strong>Working Hours:</strong> Flexible</li>
+        </ul>
+
+        <div class="section-title">Learning & Benefits</div>
+        <ul>
+            <li>Certificate of Internship upon successful completion</li>
+            <li>Letter of Recommendation (based on performance)</li>
+            <li>Mentorship and hands-on experience on real projects</li>
+            <li>Opportunity for future engagement based on performance</li>
+        </ul>
+
+        <div class="section-title">Responsibilities</div>
+        <p>
+            You will assist with tasks related to your role and actively participate 
+            in assigned projects. Detailed responsibilities will be shared during onboarding.
+        </p>
+
+        <div class="section-title">Conduct & Confidentiality</div>
+        <p>
+            You are expected to maintain professional conduct and keep all company-related 
+            information confidential during and after the internship.
+        </p>
+
+        <div class="section-title">Termination</div>
+        <p>
+            Either party may terminate this internship with 7 days prior notice.
+        </p>
+
+        <div class="section-title">Acceptance</div>
+        <p>
+            Please confirm your acceptance of this offer by replying to this email.
+            We look forward to having you on board and wish you a valuable learning 
+            experience with Root Shield Academy.
+        </p>
+
+    </div>
+
+    <div class="signature-section">
+
+    <!-- HR Signature -->
+    <div class="sig-box">
+        <div class="signature-name">Shrija Shukla</div>
+        <div class="printed-name">Shrija Shukla</div>
+        <div class="designation">HR, Root Shield</div>
+        <div class="email">info@rootshield.in</div>
+    </div>
+
+    <!-- Candidate Signature -->
+    <!-- <div class="sig-box">
+        <div class="signature-space"></div>
+        <div class="printed-name">Rani Kumari</div>
+        <div class="designation">Candidate Acceptance</div>
+    </div> -->
+
+</div>
+
+    <div class="footer">
+        <div><strong>Website:</strong> rootshield.in</div>
+        <div><strong>Email:</strong> info@rootshield.in</div>
+    </div>
+
+</div>
+
+</body>
+</html>

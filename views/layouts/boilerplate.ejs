@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+
+  <!-- Blocking theme script: must run before first paint, before any
+       stylesheet, so there is no light->dark flash on reload. Reads the
+       SAME "theme" key that navbar.ejs writes to — this is the fix for
+       the toggle "sometimes not working": the old head script checked
+       localStorage.theme while the navbar checked "notesphere-theme", so
+       the two never agreed with each other. -->
+  <script>
+    (function () {
+      var stored = localStorage.getItem("theme");
+      var systemDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      var isDark = stored ? stored === "dark" : systemDark;
+      document.documentElement.classList.toggle("dark", isDark);
+    })();
+  </script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <title><%= meta.title %></title>
+
+  <link rel="manifest" href="/manifest.json">
+  <!-- Primary Meta Tags -->
+  <meta name="title" content="<%= meta.title %>" />
+  <meta name="description" content="<%= meta.description %>" />
+  <meta name="keywords" content="<%= meta.keywords %>" />
+  <meta name="author" content="Saurabh Mishra" />
+  <meta name="robots" content="index, follow" />
+
+  <!-- Open Graph / Facebook / LinkedIn / WhatsApp -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="<%= requestUrl %>" />
+  <meta property="og:title" content="<%= meta.title %>" />
+  <meta property="og:description" content="<%= meta.description %>" />
+  <meta property="og:image" content="<%= meta.image || '/images/logo.png' %>" />
+  <meta property="og:site_name" content="NoteSphere" />
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="<%= requestUrl %>" />
+  <meta property="twitter:title" content="<%= meta.title %>" />
+  <meta property="twitter:description" content="<%= meta.description %>" />
+  <meta property="twitter:image" content="<%= meta.image || '/images/logo.png' %>" />
+
+  <!-- Favicons -->
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png" />
+  <link rel="manifest" href="/images/site.webmanifest" />
+  <link rel="mask-icon" href="/images/safari-pinned-tab.svg" color="#0878E8" />
+  <meta name="msapplication-TileColor" content="#022E5A" />
+  <meta name="theme-color" content="#0878E8" />
+
+  <meta name="google-site-verification" content="8n3XxgtF0QHGEe4Ivf9u4TMHAvFjcWXOGrzaGNSMMXY" />
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+
+  <!-- Google Fonts: Lora is the main site-wide face — a serif built for
+       reading, not a handwriting font, so it stays legible at any size
+       while still feeling like real writing rather than a plain UI sans.
+       Plus Jakarta Sans stays loaded as a fallback. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,500;1,600&family=Plus+Jakarta+Sans:wght@200;400;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Compiled CSS -->
+  <link rel="stylesheet" href="/css/output.css" />
+
+  <!-- Smooth Theme Transition -->
+  <style>
+    html, body {
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    /* Site-wide reading font. Uses !important because Tailwind's compiled
+       .font-sans utility (output.css) has higher selector specificity
+       than a plain "body" rule — for a permanent fix without the
+       override, add Lora as the first font in theme.fontFamily.sans
+       inside tailwind.config.js and rebuild output.css instead. */
+    body, button, input, textarea, select {
+      font-family: 'Lora', 'Plus Jakarta Sans', system-ui, serif !important;
+    }
+
+    /* Shared scroll-reveal animation (our own, replacing AOS). Any element
+       with data-reveal starts hidden/offset and fades up into place the
+       first time it enters the viewport; see the script at the bottom of
+       this file. Respects reduced-motion and works with no JS at all if
+       the script fails to load, since is-visible is added immediately for
+       browsers without IntersectionObserver support. */
+    [data-reveal] {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    [data-reveal].is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      [data-reveal] { transition: none; transform: none; opacity: 1; }
+    }
+  </style>
+
+  <!-- <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/service-worker.js");
+    }
+  </script> -->
+
+  <!-- Google Adsense script -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7690683875434042"
+       crossorigin="anonymous"></script>
+
+</head>
+
+<body class="font-sans bg-[#FBFAF7] dark:bg-slate-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+
+  <!-- Navbar (stays mounted during client-side navigation) -->
+  <%- include("../includes/navbar.ejs") %>
+
+  <!-- Flash Messages + Page Content.
+       id="app-main" is the ONLY part spa-nav.js swaps when the user
+       clicks an internal link — navbar, footer and chatbot are never
+       re-rendered, so the chat conversation and theme survive. -->
+  <main id="app-main" class="w-full min-h-screen">
+    <%- include("../includes/flash.ejs") %>
+    <%- body %>
+  </main>
+
+  <!-- Footer -->
+  <%- include("../includes/footer.ejs") %>
+
+  <!-- NoteSphere Assistant (chat widget) -->
+  <%- include("../includes/chatbot.ejs") %>
+
+  <!-- App Script -->
+  <script src="/js/script.js"></script>
+
+  <!-- Scroll-reveal: our own replacement for AOS. Add data-reveal (and
+       optionally data-reveal-delay="150" for staggering) to any element
+       on any page and it will fade/slide into view once, the first time
+       it's scrolled into the viewport.
+
+       Exposed as window.NS.initReveal(root) so spa-nav.js can call it
+       again after swapping in a new page — without that, freshly
+       injected [data-reveal] elements would stay at opacity:0 forever
+       because this observer only ran once, at initial page load. -->
+  <script>
+    (function () {
+      window.NS = window.NS || {};
+
+      var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var io = null;
+
+      if (!reduceMotion && "IntersectionObserver" in window) {
+        io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (!entry.isIntersecting) return;
+            var delay = Number(entry.target.dataset.revealDelay) || 0;
+            setTimeout(function () { entry.target.classList.add("is-visible"); }, delay);
+            io.unobserve(entry.target);
+          });
+        }, { threshold: 0.15 });
+      }
+
+      window.NS.initReveal = function (root) {
+        var items = (root || document).querySelectorAll("[data-reveal]:not(.is-visible)");
+        items.forEach(function (el) {
+          if (io) io.observe(el);
+          else el.classList.add("is-visible");
+        });
+      };
+
+      window.NS.initReveal(document);
+    })();
+  </script>
+
+  <!-- Client-side page navigation (swaps only #app-main). Move this file
+       into your utils/public JS folder and update the src to match. -->
+  <script src="/js/spa-nav.js" defer></script>
+
+</body>
+</html>

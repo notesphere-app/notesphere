@@ -1,0 +1,806 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex justify-between items-center">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Newsletter Subscribers</h1>
+          <p class="text-gray-600 mt-2">Manage your email subscribers and newsletter list</p>
+        </div>
+        <div class="flex items-center space-x-4">
+          <!-- Export Button -->
+          <button onclick="exportSubscribers()" 
+                  class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+            <i class="fas fa-download mr-2"></i> Export CSV
+          </button>
+          <!-- Add Subscriber Button -->
+          <button onclick="openAddSubscriberModal()" 
+                  class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <i class="fas fa-plus mr-2"></i> Add Subscriber
+          </button>
+        </div>
+      </div>
+      
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
+        <div class="bg-white rounded-lg shadow p-4">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 bg-blue-100 rounded-lg p-3">
+              <i class="fas fa-users text-blue-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-500">Total Subscribers</p>
+              <p class="text-2xl font-semibold text-gray-900"><%= subscribers.length %></p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-4">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 bg-green-100 rounded-lg p-3">
+              <i class="fas fa-check-circle text-green-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-500">Active Subscribers</p>
+              <p class="text-2xl font-semibold text-gray-900">
+                <%= subscribers.filter(s => s.isActive).length %>
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-4">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 bg-red-100 rounded-lg p-3">
+              <i class="fas fa-ban text-red-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-500">Inactive</p>
+              <p class="text-2xl font-semibold text-gray-900">
+                <%= subscribers.filter(s => !s.isActive).length %>
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-4">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 bg-purple-100 rounded-lg p-3">
+              <i class="fas fa-calendar-alt text-purple-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-500">New This Month</p>
+              <p class="text-2xl font-semibold text-gray-900">
+                <% 
+                  const thisMonth = new Date().getMonth();
+                  const thisYear = new Date().getFullYear();
+                  const newThisMonth = subscribers.filter(s => {
+                    const subDate = new Date(s.subscribedAt);
+                    return subDate.getMonth() === thisMonth && 
+                           subDate.getFullYear() === thisYear &&
+                           s.isActive;
+                  }).length;
+                %>
+                <%= newThisMonth %>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters and Actions -->
+    <div class="bg-white rounded-lg shadow mb-6 p-4">
+      <div class="flex flex-col md:flex-row md:items-center justify-between space-y-4 md:space-y-0">
+        <div class="flex space-x-4">
+          <button id="filterAll" 
+                  onclick="filterSubscribers('all')"
+                  class="px-4 py-2 rounded-lg bg-blue-100 text-blue-700">
+            All Subscribers
+          </button>
+          <button id="filterActive" 
+                  onclick="filterSubscribers('active')"
+                  class="px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100">
+            Active Only
+          </button>
+          <button id="filterInactive" 
+                  onclick="filterSubscribers('inactive')"
+                  class="px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100">
+            Inactive Only
+          </button>
+        </div>
+        
+        <div class="flex space-x-3">
+          <!-- Search -->
+          <div class="relative">
+            <input type="text" 
+                   id="searchSubscribers" 
+                   placeholder="Search subscribers..." 
+                   class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full md:w-64"
+                   oninput="searchSubscribers()">
+            <div class="absolute left-3 top-2.5">
+              <i class="fas fa-search text-gray-400"></i>
+            </div>
+          </div>
+          
+          <!-- Sort Options -->
+          <select id="sortSubscribers" 
+                  onchange="sortSubscribers()"
+                  class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="email-asc">Email A-Z</option>
+            <option value="email-desc">Email Z-A</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Subscribers List -->
+    <% if(subscribers.length > 0){ %>
+      <div class="bg-white rounded-lg shadow overflow-hidden">
+        <!-- Bulk Actions -->
+        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+          <div class="flex items-center space-x-4">
+            <input type="checkbox" 
+                   id="selectAll" 
+                   onchange="toggleSelectAll()"
+                   class="h-4 w-4 text-blue-600 rounded focus:ring-blue-500">
+            <label for="selectAll" class="text-sm text-gray-700">Select All</label>
+            
+            <select id="bulkAction" 
+                    class="border border-gray-300 rounded-lg px-3 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option value="">Bulk Actions</option>
+              <option value="activate">Activate Selected</option>
+              <option value="deactivate">Deactivate Selected</option>
+              <option value="delete">Delete Selected</option>
+            </select>
+            
+            <button onclick="applyBulkAction()" 
+                    class="px-4 py-1 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700">
+              Apply
+            </button>
+          </div>
+          
+          <div class="text-sm text-gray-600">
+            Showing <span id="showingCount"><%= subscribers.length %></span> of <%= subscribers.length %> subscribers
+          </div>
+        </div>
+        
+        <!-- Table -->
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">
+                  <input type="checkbox" class="h-4 w-4 text-blue-600 rounded focus:ring-blue-500">
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Email
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Subscribed Date
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200" id="subscribersTable">
+              <% for(let subscriber of subscribers){ %>
+                <tr data-email="<%= subscriber.email.toLowerCase() %>" 
+                    data-status="<%= subscriber.isActive ? 'active' : 'inactive' %>"
+                    class="hover:bg-gray-50 transition-colors duration-150">
+                  <!-- Checkbox -->
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <input type="checkbox" 
+                           value="<%= subscriber._id %>"
+                           class="subscriber-checkbox h-4 w-4 text-blue-600 rounded focus:ring-blue-500">
+                  </td>
+                  
+                  <!-- Email -->
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-envelope text-blue-600"></i>
+                      </div>
+                      <div class="ml-4">
+                        <div class="text-sm font-medium text-gray-900">
+                          <%= subscriber.email %>
+                        </div>
+                        <div class="text-xs text-gray-500">
+                          ID: <%= subscriber._id.toString().slice(-8) %>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  
+                  <!-- Status -->
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-3 py-1 text-xs font-medium rounded-full 
+                      <%= subscriber.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %>">
+                      <%= subscriber.isActive ? 'Active' : 'Inactive' %>
+                    </span>
+                    <% if(new Date(subscriber.subscribedAt) > new Date(Date.now() - 7*24*60*60*1000)) { %>
+                      <span class="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
+                        New
+                      </span>
+                    <% } %>
+                  </td>
+                  
+                  <!-- Date -->
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">
+                      <%= new Date(subscriber.subscribedAt).toLocaleDateString() %>
+                    </div>
+                    <div class="text-xs text-gray-500">
+                      <%= new Date(subscriber.subscribedAt).toLocaleTimeString() %>
+                    </div>
+                  </td>
+                  
+                  <!-- Actions -->
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div class="flex space-x-3">
+                      <!-- Toggle Status -->
+                      <form action="/admin/subscribers/<%= subscriber._id %>/toggle-status?_method=PATCH" 
+                            method="POST" 
+                            class="inline">
+                        <input type="hidden" name="_method" value="PATCH">
+                        <button type="submit" 
+                                class="<%= subscriber.isActive ? 'text-yellow-600 hover:text-yellow-900' : 'text-green-600 hover:text-green-900' %>">
+                          <i class="fas fa-<%= subscriber.isActive ? 'ban' : 'check-circle' %> mr-1"></i>
+                          <%= subscriber.isActive ? 'Deactivate' : 'Activate' %>
+                        </button>
+                      </form>
+                      
+                      <!-- Send Email -->
+                      <button onclick="sendEmailToSubscriber('<%= subscriber.email %>')" 
+                              class="text-blue-600 hover:text-blue-900">
+                        <i class="fas fa-paper-plane mr-1"></i> Email
+                      </button>
+                      
+                      <!-- Delete -->
+                      <form action="/admin/subscribers/<%= subscriber._id %>?_method=DELETE" 
+                            method="POST" 
+                            class="inline">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button type="submit" 
+                                onclick="return confirm('Are you sure you want to delete this subscriber?')"
+                                class="text-red-600 hover:text-red-900">
+                          <i class="fas fa-trash mr-1"></i> Delete
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <!-- Pagination -->
+      <div class="mt-6 flex items-center justify-between">
+        <div class="text-sm text-gray-700">
+          Showing <span class="font-medium" id="visibleCount"><%= subscribers.length %></span> of 
+          <span class="font-medium"><%= subscribers.length %></span> subscribers
+        </div>
+        <div class="flex space-x-2">
+          <button onclick="prevPage()" 
+                  class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+            Previous
+          </button>
+          <button onclick="nextPage()" 
+                  class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50">
+            Next
+          </button>
+        </div>
+      </div>
+    <% } else { %>
+      <!-- Empty State -->
+      <div class="text-center py-16">
+        <div class="mx-auto w-24 h-24 text-gray-400 mb-4">
+          <i class="fas fa-users-slash text-6xl"></i>
+        </div>
+        <h3 class="text-xl font-medium text-gray-900 mb-2">No subscribers yet</h3>
+        <p class="text-gray-500 max-w-md mx-auto mb-6">
+          Your newsletter subscribers will appear here. You can also manually add subscribers using the button below.
+        </p>
+        <button onclick="openAddSubscriberModal()" 
+                class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+          <i class="fas fa-plus mr-2"></i> Add First Subscriber
+        </button>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<!-- Add Subscriber Modal -->
+<div id="addSubscriberModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+    <div class="flex justify-between items-center p-6 border-b border-gray-200">
+      <h3 class="text-2xl font-bold text-gray-900">Add New Subscriber</h3>
+      <button onclick="closeAddSubscriberModal()" class="text-gray-400 hover:text-gray-600">
+        <i class="fas fa-times text-2xl"></i>
+      </button>
+    </div>
+    
+    <form id="addSubscriberForm" class="p-6">
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
+          <input type="email" 
+                 name="email" 
+                 required
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                 placeholder="subscriber@example.com">
+          <p class="text-xs text-gray-500 mt-1">Email must be unique and valid</p>
+        </div>
+        
+        <div>
+          <label class="flex items-center space-x-3">
+            <input type="checkbox" 
+                   name="isActive" 
+                   checked
+                   class="h-4 w-4 text-blue-600 rounded focus:ring-blue-500">
+            <span class="text-sm text-gray-700">Active Subscriber</span>
+          </label>
+          <p class="text-xs text-gray-500 mt-1">Inactive subscribers won't receive newsletters</p>
+        </div>
+      </div>
+      
+      <div class="mt-8 flex justify-end space-x-4">
+        <button type="button" 
+                onclick="closeAddSubscriberModal()"
+                class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+          Cancel
+        </button>
+        <button type="submit" 
+                class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+          Add Subscriber
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Send Email Modal -->
+<div id="sendEmailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full">
+    <div class="flex justify-between items-center p-6 border-b border-gray-200">
+      <h3 class="text-2xl font-bold text-gray-900">Send Email</h3>
+      <button onclick="closeSendEmailModal()" class="text-gray-400 hover:text-gray-600">
+        <i class="fas fa-times text-2xl"></i>
+      </button>
+    </div>
+    
+    <form id="sendEmailForm" class="p-6">
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Recipient</label>
+          <input type="text" 
+                 id="recipientEmail" 
+                 readonly
+                 class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Subject *</label>
+          <input type="text" 
+                 name="subject" 
+                 required
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                 placeholder="Newsletter or update...">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Message *</label>
+          <textarea name="message" 
+                    rows="6"
+                    required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Write your email content here..."></textarea>
+        </div>
+        
+        <div class="flex items-center space-x-3">
+          <input type="checkbox" 
+                 name="sendCopy" 
+                 class="h-4 w-4 text-blue-600 rounded focus:ring-blue-500">
+          <span class="text-sm text-gray-700">Send a copy to myself</span>
+        </div>
+      </div>
+      
+      <div class="mt-8 flex justify-end space-x-4">
+        <button type="button" 
+                onclick="closeSendEmailModal()"
+                class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+          Cancel
+        </button>
+        <button type="submit" 
+                class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+          <i class="fas fa-paper-plane mr-2"></i> Send Email
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// Current state
+let currentFilter = 'all';
+let currentSort = 'newest';
+let currentPage = 1;
+const itemsPerPage = 10;
+let selectedSubscribers = new Set();
+
+// DOM Elements
+const subscribersTable = document.getElementById('subscribersTable');
+const searchInput = document.getElementById('searchSubscribers');
+const sortSelect = document.getElementById('sortSubscribers');
+const selectAllCheckbox = document.getElementById('selectAll');
+
+// Filter subscribers
+function filterSubscribers(filter) {
+  currentFilter = filter;
+  
+  // Update button styles
+  document.getElementById('filterAll').className = 
+    `px-4 py-2 rounded-lg ${filter === 'all' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'}`;
+  document.getElementById('filterActive').className = 
+    `px-4 py-2 rounded-lg ${filter === 'active' ? 'bg-green-100 text-green-700' : 'text-gray-700 hover:bg-gray-100'}`;
+  document.getElementById('filterInactive').className = 
+    `px-4 py-2 rounded-lg ${filter === 'inactive' ? 'bg-red-100 text-red-700' : 'text-gray-700 hover:bg-gray-100'}`;
+  
+  updateTable();
+}
+
+// Search subscribers
+function searchSubscribers() {
+  updateTable();
+}
+
+// Sort subscribers
+function sortSubscribers() {
+  currentSort = sortSelect.value;
+  updateTable();
+}
+
+// Update table based on filters, search, and sort
+function updateTable() {
+  const rows = Array.from(subscribersTable.querySelectorAll('tr'));
+  const searchTerm = searchInput.value.toLowerCase();
+  
+  let visibleRows = rows.filter(row => {
+    const email = row.dataset.email;
+    const status = row.dataset.status;
+    
+    // Apply filter
+    if (currentFilter === 'active' && status !== 'active') return false;
+    if (currentFilter === 'inactive' && status !== 'inactive') return false;
+    
+    // Apply search
+    if (searchTerm && !email.includes(searchTerm)) return false;
+    
+    return true;
+  });
+  
+  // Apply sorting
+  visibleRows.sort((a, b) => {
+    const emailA = a.dataset.email;
+    const emailB = b.dataset.email;
+    const dateA = new Date(a.querySelector('td:nth-child(4) div:first-child').textContent);
+    const dateB = new Date(b.querySelector('td:nth-child(4) div:first-child').textContent);
+    
+    switch(currentSort) {
+      case 'newest':
+        return dateB - dateA;
+      case 'oldest':
+        return dateA - dateB;
+      case 'email-asc':
+        return emailA.localeCompare(emailB);
+      case 'email-desc':
+        return emailB.localeCompare(emailA);
+      default:
+        return 0;
+    }
+  });
+  
+  // Hide all rows first
+  rows.forEach(row => row.style.display = 'none');
+  
+  // Show only visible rows
+  visibleRows.forEach(row => row.style.display = '');
+  
+  // Update counts
+  document.getElementById('showingCount').textContent = visibleRows.length;
+  document.getElementById('visibleCount').textContent = visibleRows.length;
+  
+  // Update select all checkbox
+  updateSelectAllCheckbox();
+}
+
+// Toggle select all
+function toggleSelectAll() {
+  const checkboxes = document.querySelectorAll('.subscriber-checkbox');
+  const isChecked = selectAllCheckbox.checked;
+  
+  checkboxes.forEach(checkbox => {
+    if (checkbox.closest('tr').style.display !== 'none') {
+      checkbox.checked = isChecked;
+      if (isChecked) {
+        selectedSubscribers.add(checkbox.value);
+      } else {
+        selectedSubscribers.delete(checkbox.value);
+      }
+    }
+  });
+}
+
+// Update select all checkbox state
+function updateSelectAllCheckbox() {
+  const visibleCheckboxes = Array.from(document.querySelectorAll('.subscriber-checkbox'))
+    .filter(cb => cb.closest('tr').style.display !== 'none');
+  
+  if (visibleCheckboxes.length === 0) {
+    selectAllCheckbox.checked = false;
+    selectAllCheckbox.indeterminate = false;
+    return;
+  }
+  
+  const checkedCount = visibleCheckboxes.filter(cb => cb.checked).length;
+  selectAllCheckbox.checked = checkedCount === visibleCheckboxes.length;
+  selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < visibleCheckboxes.length;
+}
+
+// Apply bulk action
+async function applyBulkAction() {
+  const action = document.getElementById('bulkAction').value;
+  const selectedIds = Array.from(selectedSubscribers);
+  
+  if (!action || selectedIds.length === 0) {
+    alert('Please select an action and at least one subscriber');
+    return;
+  }
+  
+  if (action === 'delete' && !confirm(`Are you sure you want to delete ${selectedIds.length} subscriber(s)?`)) {
+    return;
+  }
+  
+  try {
+    const response = await fetch('/admin/subscribers/bulk-action', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action,
+        subscriberIds: selectedIds
+      })
+    });
+    
+    if (response.ok) {
+      alert(`${selectedIds.length} subscriber(s) updated successfully`);
+      location.reload();
+    } else {
+      alert('Failed to apply bulk action');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Failed to apply bulk action');
+  }
+}
+
+// Export subscribers to CSV
+function exportSubscribers() {
+  const rows = [
+    ['Email', 'Status', 'Subscribed Date', 'Subscribed Time']
+  ];
+  
+  document.querySelectorAll('#subscribersTable tr').forEach(row => {
+    if (row.style.display !== 'none') {
+      const email = row.querySelector('td:nth-child(2) div:first-child').textContent;
+      const status = row.querySelector('td:nth-child(3) span:first-child').textContent;
+      const date = row.querySelector('td:nth-child(4) div:first-child').textContent;
+      const time = row.querySelector('td:nth-child(4) div:last-child').textContent;
+      rows.push([email, status, date, time]);
+    }
+  });
+  
+  const csvContent = rows.map(row => row.join(',')).join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `subscribers-${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  window.URL.revokeObjectURL(url);
+}
+
+// Add Subscriber Modal
+function openAddSubscriberModal() {
+  const modal = document.getElementById('addSubscriberModal');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+
+function closeAddSubscriberModal() {
+  const modal = document.getElementById('addSubscriberModal');
+  modal.classList.remove('flex');
+  modal.classList.add('hidden');
+  document.getElementById('addSubscriberForm').reset();
+}
+
+// Send Email Modal
+function sendEmailToSubscriber(email) {
+  document.getElementById('recipientEmail').value = email;
+  const modal = document.getElementById('sendEmailModal');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+
+function closeSendEmailModal() {
+  const modal = document.getElementById('sendEmailModal');
+  modal.classList.remove('flex');
+  modal.classList.add('hidden');
+  document.getElementById('sendEmailForm').reset();
+}
+
+// Event Listeners
+document.addEventListener('DOMContentLoaded', function() {
+  // Handle individual checkbox clicks
+  document.querySelectorAll('.subscriber-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+      if (this.checked) {
+        selectedSubscribers.add(this.value);
+      } else {
+        selectedSubscribers.delete(this.value);
+      }
+      updateSelectAllCheckbox();
+    });
+  });
+  
+  // Add subscriber form submission
+  document.getElementById('addSubscriberForm')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    
+    try {
+      const response = await fetch('/admin/subscribers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.get('email'),
+          isActive: formData.get('isActive') === 'on'
+        })
+      });
+      
+      if (response.ok) {
+        alert('Subscriber added successfully');
+        closeAddSubscriberModal();
+        location.reload();
+      } else {
+        const error = await response.json();
+        alert(error.message || 'Failed to add subscriber');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Failed to add subscriber');
+    }
+  });
+  
+  // Send email form submission
+  document.getElementById('sendEmailForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const recipient = document.getElementById('recipientEmail').value;
+    const subject = formData.get('subject');
+    const message = formData.get('message');
+    
+    const mailtoLink = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+    if (formData.get('sendCopy') === 'on') {
+      window.open(mailtoLink + '&cc=your-email@example.com');
+    } else {
+      window.open(mailtoLink);
+    }
+    
+    closeSendEmailModal();
+  });
+  
+  // Close modals on escape
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeAddSubscriberModal();
+      closeSendEmailModal();
+    }
+  });
+});
+
+// Pagination functions
+function prevPage() {
+  if (currentPage > 1) {
+    currentPage--;
+    updatePagination();
+  }
+}
+
+function nextPage() {
+  currentPage++;
+  updatePagination();
+}
+
+function updatePagination() {
+  // Implement pagination logic here
+  console.log('Page:', currentPage);
+}
+
+// Initialize
+updateTable();
+</script>
+
+<style>
+/* Custom scrollbar */
+#subscribersTable::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+#subscribersTable::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+#subscribersTable::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+#subscribersTable::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Modal animations */
+#addSubscriberModal > div,
+#sendEmailModal > div {
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Table row hover effect */
+tbody tr {
+  transition: all 0.2s ease;
+}
+
+tbody tr:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Status badges animation */
+span[class*="bg-"] {
+  transition: all 0.3s ease;
+}
+
+/* Loading state */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+</style>

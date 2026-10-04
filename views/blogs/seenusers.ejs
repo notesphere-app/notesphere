@@ -1,0 +1,82 @@
+<% layout("/layouts/boilerplate") -%>
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-10 col-lg-8">
+      
+      <!-- Page Header -->
+      <div class="text-center mb-5">
+        <h2 class="fw-bold">Viewers of: "<%= blog.title %>"</h2>
+        <p class="text-muted">Explore detailed information of everyone who viewed this blog.</p>
+      </div>
+
+
+      <!-- Back Link -->
+      <div class=" mt-2 mb-2">
+        <a href="/thecubicals/blogs/<%= blog.id && blog.id.trim() !== "" ? blog.id : blog._id %>" class="btn btn-outline-dark btn-sm">
+          <i class="bi bi-arrow-left me-1"></i>Back to Blog
+        </a>
+      </div>
+
+      <!-- Viewer Cards -->
+      <% if (viewers.length > 0) { %>
+        <% viewers.forEach((user, index) => { %>
+      
+          <div class="card shadow-sm mb-4 border-0">
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <h5 class="fw-semibold mb-1">
+                    <i class="bi bi-person-circle me-2 text-primary"></i><%= user.name || user.username %>
+                  </h5>
+                  <p class="text-muted mb-2 small"><%= user.email || 'No email provided' %></p>
+
+                  <div class="row text-muted small">
+                    <div class="col-6 col-sm-4 mb-1"><strong>Gender:</strong> <%= user.gender || 'N/A' %></div>
+                    <div class="col-6 col-sm-4 mb-1"><strong>Age:</strong> <%= user.age || 'N/A' %></div>
+                    <div class="col-6 col-sm-4 mb-1"><strong>Country:</strong> <%= user.country || 'N/A' %></div>
+                    <div class="col-6 col-sm-4 mb-1"><strong>State:</strong> <%= user.state || 'N/A' %></div>
+                    <div class="col-6 col-sm-4 mb-1"><strong>Profession:</strong> <%= user.profession || 'N/A' %></div>
+                    <div class="col-6 col-sm-4 mb-1"><strong>Interest:</strong> <%= user.category || 'N/A' %></div>
+                  </div>
+                </div>
+
+                <div class="text-end">
+                  <span class="badge bg-success px-3 py-2">👁 Viewed</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="alert alert-info text-center">No viewers have seen this blog yet.</div>
+      <% } %>
+
+    </div>
+<!-- Pagination -->
+<% if (totalPages > 1) { %>
+  <nav aria-label="Viewers Pagination" class="mt-4">
+    <ul class="pagination justify-content-center">
+      <% if (currentPage > 1) { %>
+        <li class="page-item">
+          <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
+        </li>
+      <% } %>
+
+      <% for (let i = 1; i <= totalPages; i++) { %>
+        <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+          <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+        </li>
+      <% } %>
+
+      <% if (currentPage < totalPages) { %>
+        <li class="page-item">
+          <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
+        </li>
+      <% } %>
+    </ul>
+  </nav>
+<% } %>
+
+  </div>
+</div>

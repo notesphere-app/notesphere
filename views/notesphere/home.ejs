@@ -1,0 +1,1352 @@
+<% layout("/layouts/boilerplate") -%>
+<%
+/* ============================================================
+   DUMMY DATA — swap with controller data later:
+   res.render('pages/home', { trendingNotes, latestBlogs, stats, testimonials })
+============================================================ */
+
+const stats = [
+  { label: "Notes uploaded",     value: 24600, suffix: "+" },
+  { label: "Active contributors", value: 3150,  suffix: "+" },
+  { label: "Downloads served",   value: 189000, suffix: "+" },
+  { label: "Courses covered",    value: 42,    suffix: "+" },
+];
+
+const trendingNotes = [
+  {
+    title: "Engineering Mathematics I — Complete Unit 1 to 5",
+    excerpt: "Handwritten notes covering all five units with solved examples. Great for last-minute revision before the semester exam.",
+    cover: "https://picsum.photos/seed/notesphere-1/800/500",
+    tag: "Mathematics",
+    author: "Ananya Rao",
+    avatar: "https://i.pravatar.cc/64?img=47",
+    date: "3 days ago",
+    pages: "48 pages",
+    downloads: "1.2k",
+    downloadsNum: 1200,
+    upvotes: 342,
+    recency: 0,
+    featured: true,
+  },
+  {
+    title: "Data Structures — Full Semester Notebook",
+    excerpt: "Clean digital notes on arrays, linked lists, trees, graphs, and sorting. Includes 30+ solved problems.",
+    cover: "https://picsum.photos/seed/notesphere-2/480/280",
+    tag: "CS",
+    author: "Devraj Singh",
+    avatar: "https://i.pravatar.cc/64?img=12",
+    date: "5 days ago",
+    pages: "72 pages",
+    downloads: "980",
+    downloadsNum: 980,
+    upvotes: 288,
+    recency: 1,
+  },
+  {
+    title: "Organic Chemistry — Reaction Mechanisms",
+    excerpt: "Every reaction you'll need for the exam, drawn step-by-step with arrows and mechanisms.",
+    cover: "https://picsum.photos/seed/notesphere-3/480/280",
+    tag: "Chemistry",
+    author: "Meera Iyer",
+    avatar: "https://i.pravatar.cc/64?img=32",
+    date: "1 week ago",
+    pages: "36 pages",
+    downloads: "640",
+    downloadsNum: 640,
+    upvotes: 201,
+    recency: 2,
+  },
+  {
+    title: "Financial Accounting — Solved Past Papers",
+    excerpt: "Five years of past papers solved end-to-end with working notes. Perfect for practice.",
+    cover: "https://picsum.photos/seed/notesphere-4/480/280",
+    tag: "Accounting",
+    author: "Kabir Malhotra",
+    avatar: "https://i.pravatar.cc/64?img=51",
+    date: "1 week ago",
+    pages: "54 pages",
+    downloads: "720",
+    downloadsNum: 720,
+    upvotes: 176,
+    recency: 2,
+  },
+  {
+    title: "Modern Indian History — Timeline Notes",
+    excerpt: "Everything from 1857 to 1947 condensed into a clean timeline you can actually remember.",
+    cover: "https://picsum.photos/seed/notesphere-5/480/280",
+    tag: "History",
+    author: "Farah Sheikh",
+    avatar: "https://i.pravatar.cc/64?img=44",
+    date: "2 weeks ago",
+    pages: "28 pages",
+    downloads: "510",
+    downloadsNum: 510,
+    upvotes: 134,
+    recency: 3,
+  }
+];
+
+const features = [
+  { icon: "fa-cloud-arrow-up", title: "Upload in seconds", desc: "Drag a PDF, add a title, subject, and semester. Your notes go live for thousands of students instantly." },
+  { icon: "fa-magnifying-glass", title: "Find exactly what you need", desc: "Filter by course, semester, subject, or file type. Every note is tagged so you never waste time hunting." },
+  { icon: "fa-download", title: "Download or read online", desc: "Grab the PDF, or preview it in the browser before you commit. No signup wall for public notes." },
+  { icon: "fa-star", title: "Rated by students", desc: "Upvote notes that helped you. The highest-rated ones rise to the top, so quality takes care of itself." },
+];
+
+const latestBlogs = [
+  {
+    title: "How I scored 9.2 CGPA using only shared notes",
+    excerpt: "I stopped handwriting everything and started downloading what seniors had already made. Here's the routine I followed for every exam.",
+    cover: "https://picsum.photos/seed/ns-blog-1/800/500",
+    author: "Priya Nair",
+    avatar: "https://i.pravatar.cc/64?img=25",
+    date: "Sep 21, 2026",
+    likes: 128,
+    comments: 24,
+  },
+  {
+    title: "Why handwritten notes still beat typed ones for revision",
+    excerpt: "Digital is faster, but paper forces your brain to slow down. A short case for mixing the two.",
+    cover: "https://picsum.photos/seed/ns-blog-2/800/500",
+    author: "Arjun Verma",
+    avatar: "https://i.pravatar.cc/64?img=15",
+    date: "Sep 18, 2026",
+    likes: 96,
+    comments: 11,
+  },
+  {
+    title: "The unspoken rule every study group should follow",
+    excerpt: "One person uploads per subject, everyone else reviews. It saves hundreds of hours of duplicate work.",
+    cover: "https://picsum.photos/seed/ns-blog-3/800/500",
+    author: "Sana Sheikh",
+    avatar: "https://i.pravatar.cc/64?img=41",
+    date: "Sep 14, 2026",
+    likes: 74,
+    comments: 9,
+  },
+  {
+    title: "A semester of shared class notes, one year later",
+    excerpt: "What held up, what got abandoned, and what we'd set up differently if we started again.",
+    cover: "https://picsum.photos/seed/ns-blog-4/800/500",
+    author: "Ishaan Kulkarni",
+    avatar: "https://i.pravatar.cc/64?img=22",
+    date: "Sep 10, 2026",
+    likes: 61,
+    comments: 7,
+  },
+  {
+    title: "How to check if a PDF is actually worth downloading",
+    excerpt: "Page count, handwriting quality, whether it covers the full syllabus — a quick checklist before you commit.",
+    cover: "https://picsum.photos/seed/ns-blog-5/800/500",
+    author: "Divya Menon",
+    avatar: "https://i.pravatar.cc/64?img=36",
+    date: "Sep 6, 2026",
+    likes: 103,
+    comments: 15,
+  },
+];
+
+const testimonials = [
+  { quote: "I needed an entire semester of DBMS notes at 11pm before the exam. Someone had uploaded exactly what I needed. Passed with 82%.", name: "Rhea Kapoor", role: "B.Tech, 3rd Year", avatar: "https://i.pravatar.cc/64?img=5" },
+  { quote: "Uploaded my handwritten Math notes once and they've been downloaded 4,000+ times. Feels good knowing I helped juniors.", name: "Yash Thakur", role: "B.Sc, Graduated 2025", avatar: "https://i.pravatar.cc/64?img=8" },
+  { quote: "The semester-wise filters are the best part. I found every note I needed for my subject in under two minutes.", name: "Nikhil Bansal", role: "B.Com, 2nd Year", avatar: "https://i.pravatar.cc/64?img=33" },
+  { quote: "Our whole class uploads notes here now. Nobody has to write the same chapter twice before exams.", name: "Simran Kaur", role: "B.Tech, 2nd Year", avatar: "https://i.pravatar.cc/64?img=9" },
+  { quote: "I love that I can preview the PDF before downloading. Saved me from several useless 100-page scans.", name: "Aditya Joshi", role: "BBA, 1st Year", avatar: "https://i.pravatar.cc/64?img=14" },
+  { quote: "This is what every college needs. Free, organised, and made by students for students.", name: "Neha Prasad", role: "B.A. English, 3rd Year", avatar: "https://i.pravatar.cc/64?img=29" },
+];
+%>
+
+<!-- =========================================
+     Hero — animated "note upload" demo
+========================================= -->
+<section id="hero" class="relative overflow-hidden bg-[#FBFAF7] dark:bg-slate-950">
+  <!-- soft radial glows -->
+  <div class="pointer-events-none absolute -top-32 -left-32 h-96 w-96 rounded-full bg-[#0878E8]/10 blur-3xl"></div>
+  <div class="pointer-events-none absolute -bottom-40 -right-32 h-96 w-96 rounded-full bg-amber-400/10 blur-3xl"></div>
+
+  <div class="relative mx-auto grid grid-cols-1 max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-2 md:items-center md:gap-12 md:py-24 lg:px-8">
+
+    <div data-reveal>
+      <span class="inline-flex items-center gap-2 rounded-full border border-[#0878E8]/25 bg-[#0878E8]/5 px-3 py-1 text-xs font-medium text-[#0878E8] sm:text-sm">
+        <i class="fa-solid fa-cloud-arrow-up"></i> Community notes, free forever
+      </span>
+
+      <h1 class="mt-5 text-3xl leading-tight text-[#022E5A] dark:text-white sm:text-4xl md:text-5xl">
+        Notes that get you through the exam — shared by students like you
+      </h1>
+
+      <p class="mt-5 max-w-md text-base text-slate-600 dark:text-slate-300 sm:text-lg">
+        NoteSphere is a free library of class notes, notebook scans, and handwritten PDFs uploaded
+        by students. Find what you need, download it, and pass it on.
+      </p>
+
+      <div class="mt-8 flex flex-wrap items-center gap-3">
+        <a href="/notes"
+          class="rounded-full bg-[#0878E8] px-6 py-3 text-sm font-semibold text-white shadow-sm
+                 transition-all hover:bg-[#0668CC] hover:shadow-md hover:-translate-y-0.5">
+          <i class="fa-solid fa-magnifying-glass mr-1.5"></i> Browse notes
+        </a>
+        <button type="button" data-open-modal="signup"
+          class="rounded-full border border-slate-300 px-6 py-3 text-sm font-semibold text-[#022E5A]
+                 transition-colors hover:bg-slate-900/5 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-white/10">
+          <i class="fa-solid fa-upload mr-1.5"></i> Upload yours
+        </button>
+      </div>
+
+      <p class="mt-4 text-sm text-slate-500 dark:text-slate-400">No credit card. No signup needed to download.</p>
+    </div>
+
+    <!-- ============================================
+         Animated "note card" — fixed height, works on
+         all screen sizes. Typing runs on the title +
+         metadata, then the file "uploads".
+    ============================================= -->
+    <div class="relative mx-auto w-full max-w-md" data-reveal data-reveal-delay="150">
+      <!-- Decorative stacked papers behind -->
+      <div class="pointer-events-none absolute -inset-3 top-6 rounded-2xl bg-white shadow-xl ring-1 ring-slate-200/70 dark:bg-slate-900 dark:ring-slate-800"
+           style="transform: rotate(-5deg);"></div>
+      <div class="pointer-events-none absolute -inset-3 top-6 translate-x-3 translate-y-3 rounded-2xl bg-white shadow-xl ring-1 ring-slate-200/70 dark:bg-slate-900 dark:ring-slate-800"
+           style="transform: rotate(3deg);"></div>
+
+      <!-- Main card -->
+      <div class="relative flex h-[20rem] flex-col rounded-2xl bg-white p-5 shadow-2xl ring-1 ring-slate-200/70
+                  dark:bg-slate-900 dark:ring-slate-800 sm:h-[22rem] sm:p-6">
+
+        <!-- window chrome -->
+        <div class="flex items-center gap-2">
+          <span class="h-2.5 w-2.5 rounded-full bg-red-400"></span>
+          <span class="h-2.5 w-2.5 rounded-full bg-amber-400"></span>
+          <span class="h-2.5 w-2.5 rounded-full bg-emerald-400"></span>
+          <span class="ml-auto flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+            <span class="hero-live-dot h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+            uploading
+          </span>
+        </div>
+
+        <!-- "note preview" thumb -->
+        <div class="mt-4 flex items-center gap-3 rounded-xl bg-slate-50 p-3 dark:bg-slate-800/60">
+          <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-red-500/10 text-red-500">
+            <i class="fa-solid fa-file-pdf text-xl"></i>
+          </div>
+          <div class="min-w-0 flex-1">
+            <!-- Title — the animated line -->
+            <p id="hero-file-title" class="truncate text-sm font-semibold text-[#022E5A] dark:text-white">
+              <span class="hero-file-text"></span><span class="hero-caret" id="hero-file-caret"></span>
+            </p>
+            <!-- Meta line (static-ish, fades in) -->
+            <p id="hero-file-meta" class="mt-0.5 truncate text-xs text-slate-500 dark:text-slate-400 opacity-0 transition-opacity duration-300">
+              <span id="hero-file-pages"></span> &middot; <span id="hero-file-subject"></span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="mt-4">
+          <div class="flex items-center justify-between text-[11px] font-medium text-slate-500 dark:text-slate-400">
+            <span id="hero-progress-label">Preparing upload…</span>
+            <span id="hero-progress-pct">0%</span>
+          </div>
+          <div class="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+            <div id="hero-progress-bar" class="h-full w-0 rounded-full bg-gradient-to-r from-[#0878E8] to-[#054a99] transition-[width] duration-200 ease-out"></div>
+          </div>
+        </div>
+
+        <!-- Uploader + tags -->
+        <div class="mt-auto flex items-center justify-between gap-2 pt-4">
+          <div class="flex min-w-0 items-center gap-2">
+            <img id="hero-uploader-avatar" src="" alt="" class="h-7 w-7 shrink-0 rounded-full opacity-0 transition-opacity duration-300" />
+            <div class="min-w-0 leading-tight">
+              <p id="hero-uploader-name" class="truncate text-xs font-medium text-slate-700 opacity-0 transition-opacity duration-300 dark:text-slate-200"></p>
+              <p id="hero-uploader-when" class="text-[10px] text-slate-400 opacity-0 transition-opacity duration-300"></p>
+            </div>
+          </div>
+          <span id="hero-tag" class="shrink-0 rounded-full bg-[#0878E8]/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#0878E8] opacity-0 transition-opacity duration-300"></span>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- =========================================
+     Stats bar — animated count-up
+========================================= -->
+<section class="border-y border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+  <div class="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 py-10 sm:gap-8 sm:px-6 sm:py-12 md:grid-cols-4 lg:px-8">
+    <% stats.forEach(function (s, i) { %>
+      <div class="text-center" data-reveal data-reveal-delay="<%= i * 80 %>">
+        <p class="text-2xl font-bold tabular-nums text-[#022E5A] dark:text-white sm:text-4xl">
+          <span class="stat-count" data-target="<%= s.value %>" data-suffix="<%= s.suffix %>">0</span>
+        </p>
+        <p class="mt-1.5 text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400 sm:mt-2 sm:text-sm"><%= s.label %></p>
+      </div>
+    <% }) %>
+  </div>
+</section>
+
+<!-- =========================================
+     Trending Notes — the actual notes library
+========================================= -->
+<section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+  <div class="mb-6 flex flex-col gap-4 sm:mb-4" data-reveal>
+    <div class="flex items-end justify-between gap-4">
+      <div>
+        <h2 class="text-2xl text-[#022E5A] dark:text-white sm:text-3xl">Trending notes this week</h2>
+        <p class="mt-2 text-sm text-slate-500 dark:text-slate-400 sm:text-base">What students are downloading and upvoting right now.</p>
+      </div>
+      <a href="/notes" class="hidden shrink-0 text-sm font-semibold text-[#0878E8] hover:underline sm:block">Browse all →</a>
+    </div>
+  </div>
+
+  <!-- Search + sort controls -->
+  <div class="mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between" data-reveal data-reveal-delay="60">
+    <div class="relative w-full sm:max-w-xs">
+      <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-400"></i>
+      <input id="notes-search" type="text" placeholder="Search notes by title or subject..."
+        class="w-full rounded-full border border-slate-300 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900
+               focus:border-[#0878E8] focus:outline-none focus:ring-2 focus:ring-[#0878E8]/30
+               dark:border-slate-700 dark:bg-slate-900 dark:text-white" />
+    </div>
+    <div id="notes-sort" class="flex flex-wrap gap-2">
+      <button type="button" class="sort-chip is-active" data-sort="trending">Trending</button>
+      <button type="button" class="sort-chip" data-sort="newest">Newest</button>
+      <button type="button" class="sort-chip" data-sort="downloads">Most downloaded</button>
+    </div>
+  </div>
+
+  <div id="trending-grid" class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+    <% trendingNotes.forEach(function (note, i) { %>
+      <article
+        class="trending-card group flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200/70
+               transition-all hover:-translate-y-1 hover:shadow-lg dark:bg-slate-900 dark:ring-slate-800
+               <%= note.featured ? 'sm:col-span-2 lg:col-span-2 lg:row-span-2' : '' %>"
+        data-reveal data-reveal-delay="<%= (i % 4) * 80 %>"
+        data-order="<%= i %>"
+        data-recency="<%= note.recency %>"
+        data-downloads="<%= note.downloadsNum %>"
+        data-title="<%= note.title %>"
+        data-tag="<%= note.tag %>"
+      >
+        <div class="relative overflow-hidden <%= note.featured ? 'h-48 sm:h-56 lg:h-64' : 'h-40 sm:h-36' %>">
+          <img src="<%= note.cover %>" alt="" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+
+          <!-- PDF badge -->
+          <span class="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-red-500 shadow-sm backdrop-blur dark:bg-slate-900/90">
+            <i class="fa-solid fa-file-pdf"></i> PDF
+          </span>
+
+          <!-- Downloads chip -->
+          <span class="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur">
+            <i class="fa-solid fa-download"></i> <%= note.downloads %>
+          </span>
+        </div>
+
+        <div class="flex flex-1 flex-col p-5">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-semibold uppercase tracking-wide text-[#0878E8]"><%= note.tag %></span>
+            <% if (note.featured) { %>
+              <span class="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-600">Featured</span>
+            <% } %>
+          </div>
+
+          <h3 class="mt-2 line-clamp-2 <%= note.featured ? 'text-lg sm:text-xl' : 'text-base' %> font-semibold text-[#022E5A] dark:text-white">
+            <%= note.title %>
+          </h3>
+          <p class="mt-2 line-clamp-2 text-sm text-slate-500 dark:text-slate-400"><%= note.excerpt %></p>
+
+          <div class="mt-auto flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4 dark:border-slate-800">
+            <div class="flex min-w-0 items-center gap-2">
+              <img src="<%= note.avatar %>" alt="" class="h-7 w-7 shrink-0 rounded-full" />
+              <div class="min-w-0">
+                <p class="truncate text-xs font-medium text-slate-700 dark:text-slate-200"><%= note.author %></p>
+                <p class="text-[11px] text-slate-400"><%= note.pages %></p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <button type="button" class="note-upvote-btn flex items-center gap-1 text-xs text-slate-400 transition-colors hover:text-emerald-500">
+                <i class="fa-regular fa-thumbs-up"></i> <span class="upvote-count"><%= note.upvotes %></span>
+              </button>
+              <button type="button" class="note-save-btn text-xs text-slate-400 transition-colors hover:text-[#0878E8]" aria-label="Save note">
+                <i class="fa-regular fa-bookmark"></i>
+              </button>
+              <button type="button"
+                class="shrink-0 rounded-full bg-[#0878E8] px-3 py-1.5 text-xs font-semibold text-white
+                       transition-colors hover:bg-[#0668CC]">
+                Download
+              </button>
+            </div>
+          </div>
+        </div>
+      </article>
+    <% }) %>
+
+    <p id="notes-empty" class="col-span-full hidden py-10 text-center text-sm text-slate-400">
+      No notes match your search — try a different subject or title.
+    </p>
+  </div>
+
+  <a href="/notes" class="mt-6 block text-center text-sm font-semibold text-[#0878E8] hover:underline sm:hidden">Browse all notes →</a>
+</section>
+
+<!-- =========================================
+     Browse Notes by Course
+========================================= -->
+<section class="bg-white dark:bg-slate-900">
+  <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+    <div class="mx-auto max-w-2xl text-center" data-reveal>
+      <h2 class="text-2xl text-[#022E5A] dark:text-white sm:text-3xl">Browse notes by course</h2>
+      <p class="mt-2 text-sm text-slate-500 dark:text-slate-400 sm:text-base">Pick your course, then your year. Every subject has notes waiting.</p>
+    </div>
+
+    <div id="course-tabs" class="mt-8 flex flex-wrap justify-center gap-2 sm:gap-3" data-reveal data-reveal-delay="100">
+      <button type="button" class="course-tab" data-course="btech" aria-pressed="true"><i class="fa-solid fa-laptop-code"></i> B.Tech</button>
+      <button type="button" class="course-tab" data-course="ba" aria-pressed="false"><i class="fa-solid fa-book-open"></i> B.A.</button>
+      <button type="button" class="course-tab" data-course="bsc" aria-pressed="false"><i class="fa-solid fa-flask"></i> B.Sc.</button>
+      <button type="button" class="course-tab" data-course="bcom" aria-pressed="false"><i class="fa-solid fa-chart-line"></i> B.Com.</button>
+      <button type="button" class="course-tab" data-course="bba" aria-pressed="false"><i class="fa-solid fa-briefcase"></i> BBA</button>
+    </div>
+
+    <div id="year-tabs" class="mt-5 flex flex-wrap justify-center gap-2"></div>
+
+    <div id="course-notes-results" class="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4"></div>
+  </div>
+</section>
+
+<!-- =========================================
+     Features
+========================================= -->
+<section class="bg-[#FBFAF7] dark:bg-slate-950">
+  <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+    <div class="mx-auto max-w-2xl text-center" data-reveal>
+      <h2 class="text-2xl text-[#022E5A] dark:text-white sm:text-3xl">Built for students, by students</h2>
+      <p class="mt-3 text-sm text-slate-500 dark:text-slate-400 sm:text-base">Upload once, help thousands. Download freely, whenever you need.</p>
+    </div>
+
+    <div class="mt-10 grid grid-cols-1 gap-6 sm:mt-12 sm:grid-cols-2 sm:gap-8 lg:grid-cols-4">
+      <% features.forEach(function (f, i) { %>
+        <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200/70 transition-transform hover:-translate-y-1
+                    dark:bg-slate-900 dark:ring-slate-800"
+             data-reveal data-reveal-delay="<%= i * 100 %>">
+          <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-[#0878E8]/10 text-[#0878E8]">
+            <i class="fa-solid <%= f.icon %>"></i>
+          </div>
+          <h3 class="mt-4 font-semibold text-[#022E5A] dark:text-white"><%= f.title %></h3>
+          <p class="mt-2 text-sm leading-relaxed text-slate-500 dark:text-slate-400"><%= f.desc %></p>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================
+     Latest Blogs — split layout
+========================================= -->
+<section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+  <div class="mb-8 flex items-end justify-between gap-4 sm:mb-10" data-reveal>
+    <div>
+      <h2 class="text-2xl text-[#022E5A] dark:text-white sm:text-3xl">From the blog</h2>
+      <p class="mt-2 text-sm text-slate-500 dark:text-slate-400 sm:text-base">Study tips, note-taking ideas, and stories from students.</p>
+    </div>
+    <a href="/blogs" class="hidden text-sm font-semibold text-[#0878E8] hover:underline sm:block">Read more →</a>
+  </div>
+
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
+
+    <!-- LEFT: blog list -->
+    <div class="min-w-0 space-y-4 lg:col-span-7 lg:space-y-5">
+      <% latestBlogs.forEach(function (post, i) { %>
+        <article
+          class="blog-item group flex flex-col gap-3 overflow-hidden rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200/70
+                 transition-all hover:-translate-y-1 hover:shadow-lg
+                 dark:bg-slate-900 dark:ring-slate-800 sm:flex-row sm:gap-4"
+          data-blog-index="<%= i %>"
+          style="--blog-delay: <%= i * 90 %>ms;"
+        >
+          <div class="relative shrink-0 overflow-hidden rounded-xl <%= i === 0 ? 'h-44 w-full sm:h-32 sm:w-40 lg:h-36 lg:w-48' : 'h-36 w-full sm:h-24 sm:w-32' %>">
+            <img src="<%= post.cover %>" alt=""
+                 class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
+            <% if (i === 0) { %>
+              <span class="absolute left-3 top-3 rounded-full bg-amber-500/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white shadow-sm">Featured</span>
+            <% } %>
+          </div>
+
+          <div class="flex min-w-0 flex-1 flex-col">
+            <a href="/blogs" class="block">
+              <h3 class="line-clamp-2 <%= i === 0 ? 'text-base sm:text-base' : 'text-sm' %> font-semibold text-[#022E5A] transition-colors group-hover:text-[#0878E8] dark:text-white sm:text-base">
+                <%= post.title %>
+              </h3>
+              <p class="mt-1 line-clamp-2 text-xs text-slate-500 dark:text-slate-400 sm:text-sm"><%= post.excerpt %></p>
+            </a>
+
+            <div class="mt-3 flex flex-wrap items-center justify-between gap-2 sm:mt-auto sm:pt-3">
+              <div class="flex min-w-0 items-center gap-2">
+                <img src="<%= post.avatar %>" alt="" class="h-6 w-6 shrink-0 rounded-full sm:h-7 sm:w-7" />
+                <div class="min-w-0 leading-tight">
+                  <p class="truncate text-[11px] font-medium text-slate-700 dark:text-slate-200 sm:text-xs"><%= post.author %></p>
+                  <p class="text-[10px] text-slate-400 sm:text-[11px]"><%= post.date %></p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-3 text-xs text-slate-400 sm:text-sm">
+                <button type="button" class="like-btn flex items-center gap-1 transition-colors hover:text-rose-500">
+                  <i class="fa-regular fa-heart"></i> <span class="like-count"><%= post.likes %></span>
+                </button>
+                <span class="flex items-center gap-1"><i class="fa-regular fa-comment"></i> <%= post.comments %></span>
+                <button type="button" class="save-btn transition-colors hover:text-[#0878E8]" aria-label="Save">
+                  <i class="fa-regular fa-bookmark"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </article>
+      <% }) %>
+
+      <a href="/blogs" class="mt-2 block text-center text-sm font-semibold text-[#0878E8] hover:underline sm:hidden">Read more →</a>
+    </div>
+
+    <!-- RIGHT: animated activity panel -->
+    <aside class="min-w-0 lg:col-span-5" data-reveal data-reveal-delay="200">
+      <div class="space-y-5 lg:sticky lg:top-24">
+
+        <!-- Live activity -->
+        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#022E5A] via-[#053A72] to-[#0878E8] p-6 text-white shadow-xl">
+          <div class="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/10 blur-2xl"></div>
+          <div class="pointer-events-none absolute -bottom-16 -left-10 h-40 w-40 rounded-full bg-white/5 blur-2xl"></div>
+
+          <div class="relative flex items-center justify-between">
+            <p class="text-[11px] font-semibold uppercase tracking-widest text-white/70">Live uploads</p>
+            <span class="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-300">
+              <span class="pulse-dot h-1.5 w-1.5 rounded-full bg-emerald-400"></span> live
+            </span>
+          </div>
+
+          <h3 class="relative mt-3 text-base font-semibold sm:text-lg">Notes being shared right now</h3>
+
+          <ul id="activity-feed" class="relative mt-4 space-y-2.5 text-sm"></ul>
+
+          <div class="relative mt-5 grid grid-cols-3 gap-2 border-t border-white/15 pt-4 text-center sm:gap-3">
+            <div>
+              <p class="text-lg font-bold sm:text-xl"><span class="mini-count" data-target="42">0</span></p>
+              <p class="text-[9px] uppercase tracking-wider text-white/70 sm:text-[10px]">Uploads / hr</p>
+            </div>
+            <div>
+              <p class="text-lg font-bold sm:text-xl"><span class="mini-count" data-target="180">0</span></p>
+              <p class="text-[9px] uppercase tracking-wider text-white/70 sm:text-[10px]">Downloading</p>
+            </div>
+            <div>
+              <p class="text-lg font-bold sm:text-xl"><span class="mini-count" data-target="5">0</span>s</p>
+              <p class="text-[9px] uppercase tracking-wider text-white/70 sm:text-[10px]">Avg download</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trending tags -->
+        <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 dark:bg-slate-900 dark:ring-slate-800">
+          <p class="text-[11px] font-semibold uppercase tracking-widest text-slate-400">Trending subjects</p>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <span class="tag-chip">#dbms</span>
+            <span class="tag-chip">#maths</span>
+            <span class="tag-chip">#organic-chem</span>
+            <span class="tag-chip">#dsa</span>
+            <span class="tag-chip">#financial-accounting</span>
+            <span class="tag-chip">#modern-history</span>
+            <span class="tag-chip">#os</span>
+            <span class="tag-chip">#electrical</span>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+  </div>
+</section>
+
+<!-- =========================================
+     Testimonials — auto-scrolling marquee
+========================================= -->
+<section id="testimonials" class="overflow-hidden bg-[#022E5A] dark:bg-slate-950">
+  <div class="mx-auto max-w-7xl px-4 pt-16 sm:px-6 sm:pt-20 lg:px-8">
+    <h2 class="text-center text-2xl text-white sm:text-3xl" data-reveal>Students who found their notes here</h2>
+    <p class="mx-auto mt-3 max-w-xl text-center text-sm text-slate-300/80 sm:text-base" data-reveal data-reveal-delay="100">
+      Hover to pause and read any of them at your own pace.
+    </p>
+  </div>
+
+  <div class="testi-viewport mt-10 pb-16 sm:mt-12 sm:pb-20" id="testi-viewport" aria-label="Student testimonials, hover to pause">
+    <div class="testi-track" id="testi-track">
+      <% testimonials.forEach(function (t) { %>
+        <div class="testi-card">
+          <i class="fa-solid fa-quote-left text-[#0878E8]"></i>
+          <p class="mt-3 text-sm leading-relaxed text-slate-200">"<%= t.quote %>"</p>
+          <div class="mt-5 flex items-center gap-3">
+            <img src="<%= t.avatar %>" alt="" class="h-9 w-9 rounded-full" />
+            <div>
+              <p class="text-sm font-semibold text-white"><%= t.name %></p>
+              <p class="text-xs text-slate-400"><%= t.role %></p>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================
+     Final CTA
+========================================= -->
+<section class="bg-[#FBFAF7] dark:bg-slate-900">
+  <div class="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6 sm:py-20 lg:px-8" data-reveal>
+    <h2 class="text-2xl text-[#022E5A] dark:text-white sm:text-3xl">Have notes others could use?</h2>
+    <p class="mt-3 text-sm text-slate-500 dark:text-slate-400 sm:text-base">
+      Upload your notebook scans or PDFs once. They'll help thousands of students prepare better for their exams.
+    </p>
+    <button type="button" data-open-modal="signup"
+      class="mt-8 rounded-full bg-[#0878E8] px-8 py-3 text-sm font-semibold text-white shadow-sm
+             transition-all hover:bg-[#0668CC] hover:shadow-md hover:-translate-y-0.5">
+      <i class="fa-solid fa-cloud-arrow-up mr-1.5"></i> Upload notes
+    </button>
+  </div>
+</section>
+
+<!-- =========================================
+     Page-specific styles
+========================================= -->
+<style>
+    /* Clip slide-in transforms without creating a scroll container
+      that would prevent the navbar from sticking to the viewport. */
+    html, body { overflow-x: clip; }
+
+  /* -------- Course tabs -------- */
+  .course-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    border: 1px solid rgb(203 213 225);
+    padding: 0.45rem 0.9rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: rgb(51 65 85);
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+  @media (min-width: 640px) {
+    .course-tab { padding: 0.5rem 1.1rem; font-size: 0.875rem; }
+  }
+  .dark .course-tab { border-color: rgb(51 65 85); color: rgb(203 213 225); }
+  .course-tab[aria-pressed="true"] { background: #0878E8; border-color: #0878E8; color: white; }
+
+  .year-tab {
+    border-radius: 9999px;
+    padding: 0.4rem 0.9rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: rgb(100 116 139);
+    background: rgb(241 245 249);
+    transition: all 0.15s ease;
+  }
+  .dark .year-tab { background: rgb(30 41 59); color: rgb(148 163 184); }
+  .year-tab.is-active { background: rgba(8, 120, 232, 0.12); color: #0878E8; }
+
+  /* -------- Sort chips (Trending / Newest / Most downloaded) -------- */
+  .sort-chip {
+    border-radius: 9999px;
+    border: 1px solid rgb(203 213 225);
+    padding: 0.4rem 0.9rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgb(51 65 85);
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+  .dark .sort-chip { border-color: rgb(51 65 85); color: rgb(203 213 225); }
+  .sort-chip.is-active { background: #0878E8; border-color: #0878E8; color: white; }
+
+  /* ============================================================
+     HERO — animated typing upload card
+  ============================================================ */
+  .hero-file-text { white-space: pre-wrap; }
+
+  .hero-caret {
+    display: inline-block;
+    width: 1.5px;
+    height: 1em;
+    margin-left: 1px;
+    background: currentColor;
+    vertical-align: -0.15em;
+    animation: caretBlink 1s steps(1) infinite;
+  }
+  @keyframes caretBlink { 50% { opacity: 0; } }
+
+  .hero-live-dot {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6);
+    animation: livePulse 1.8s ease-out infinite;
+  }
+  @keyframes livePulse {
+    0%   { box-shadow: 0 0 0 0 rgba(16,185,129,0.6); }
+    100% { box-shadow: 0 0 0 8px rgba(16,185,129,0); }
+  }
+
+  /* ============================================================
+     BLOG LIST — slide in from left (smaller offset on phones so
+     nothing ever visibly touches the viewport edge)
+  ============================================================ */
+  .blog-item {
+    opacity: 0;
+    transform: translateX(-40px);
+    transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--blog-delay, 0ms);
+  }
+  @media (max-width: 640px) {
+    .blog-item { transform: translateX(-16px); }
+  }
+  .blog-item.is-in { opacity: 1; transform: translateX(0); }
+  @media (prefers-reduced-motion: reduce) {
+    .blog-item { opacity: 1; transform: none; transition: none; }
+  }
+
+  /* -------- Activity panel -------- */
+  .pulse-dot {
+    box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7);
+    animation: livePulse 1.6s ease-out infinite;
+  }
+
+  .activity-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.45rem 0.7rem;
+    border-radius: 0.6rem;
+    background: rgba(255, 255, 255, 0.06);
+    animation: activityIn 0.5s ease both;
+  }
+  @keyframes activityIn {
+    from { opacity: 0; transform: translateX(8px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  .activity-avatar {
+    display: flex;
+    height: 1.75rem; width: 1.75rem;
+    align-items: center; justify-content: center;
+    border-radius: 9999px;
+    background: rgba(255,255,255,0.15);
+    font-size: 0.7rem; font-weight: 700; color: white;
+    flex-shrink: 0;
+  }
+
+  /* -------- Trending tags -------- */
+  .tag-chip {
+    display: inline-block;
+    padding: 0.3rem 0.7rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: rgb(71 85 105);
+    background: rgb(241 245 249);
+    transition: all 0.2s ease;
+    cursor: default;
+  }
+  .dark .tag-chip { background: rgb(30 41 59); color: rgb(148 163 184); }
+  .tag-chip:hover {
+    background: rgba(8, 120, 232, 0.1);
+    color: #0878E8;
+    transform: translateY(-2px);
+  }
+
+  /* ============================================================
+     Testimonials marquee
+  ============================================================ */
+  .testi-viewport {
+    overflow: hidden;
+    position: relative;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+            mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
+  .testi-track {
+    display: flex;
+    gap: 1.25rem;
+    width: max-content;
+    padding-inline: 1.25rem;
+    animation: testiScroll 55s linear infinite;
+    will-change: transform;
+  }
+  @media (min-width: 640px) {
+    .testi-track { gap: 1.5rem; padding-inline: 1.5rem; }
+  }
+  .testi-viewport:hover .testi-track,
+  .testi-viewport:focus-within .testi-track {
+    animation-play-state: paused;
+  }
+  @keyframes testiScroll {
+    from { transform: translate3d(0, 0, 0); }
+    to   { transform: translate3d(-50%, 0, 0); }
+  }
+  .testi-card {
+    flex: 0 0 280px;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1.25rem;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    transition: background 0.25s ease, transform 0.25s ease;
+  }
+  @media (min-width: 640px) {
+    .testi-card { flex: 0 0 320px; padding: 1.5rem; }
+  }
+  @media (min-width: 1024px) {
+    .testi-card { flex: 0 0 340px; }
+  }
+  @media (max-width: 380px) {
+    .testi-card { flex: 0 0 240px; padding: 1rem; }
+  }
+  .testi-card:hover {
+    background: rgba(255, 255, 255, 0.09);
+    transform: translateY(-3px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .testi-track { animation: none; }
+  }
+
+  /* -------- Like / upvote pop -------- */
+  @keyframes likePop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+  .like-pop { animation: likePop 0.25s ease; }
+</style>
+
+<!-- =========================================
+     Page-specific scripts
+========================================= -->
+<script>
+  (function () {
+    /* ============================================================
+       FIX: Prevent page auto-scroll to testimonials on load.
+    ============================================================ */
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
+    window.addEventListener('load', function () {
+      if (location.hash) {
+        var target = document.querySelector(location.hash);
+        if (target && (target.id === 'testimonials' || target.closest('#testimonials'))) {
+          history.replaceState(null, '', location.pathname + location.search);
+        }
+      }
+      if (!sessionStorage.getItem('ns-visited')) {
+        window.scrollTo(0, 0);
+        sessionStorage.setItem('ns-visited', '1');
+      }
+      var active = document.activeElement;
+      if (active && active !== document.body &&
+          active.closest && active.closest('#testimonials')) {
+        active.blur();
+      }
+    });
+
+    /* ============================================================
+       HERO — sequential "upload" animation
+    ============================================================ */
+    (function heroUpload() {
+      var titleEl     = document.querySelector('#hero-file-title .hero-file-text');
+      var caretEl     = document.getElementById('hero-file-caret');
+      var metaEl      = document.getElementById('hero-file-meta');
+      var pagesEl     = document.getElementById('hero-file-pages');
+      var subjectEl   = document.getElementById('hero-file-subject');
+      var progressBar = document.getElementById('hero-progress-bar');
+      var progressPct = document.getElementById('hero-progress-pct');
+      var progressLbl = document.getElementById('hero-progress-label');
+      var avatarEl    = document.getElementById('hero-uploader-avatar');
+      var nameEl      = document.getElementById('hero-uploader-name');
+      var whenEl      = document.getElementById('hero-uploader-when');
+      var tagEl       = document.getElementById('hero-tag');
+
+      if (!titleEl || !progressBar) return;
+
+      var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      var uploads = [
+        {
+          file: 'DBMS — Unit 1 to 5 Handwritten Notes.pdf',
+          pages: '52 pages',
+          subject: 'B.Tech CSE · Sem 3',
+          tag: 'CS',
+          uploader: 'Devraj Singh',
+          avatar: 'https://i.pravatar.cc/64?img=12',
+          when: 'just now',
+        },
+        {
+          file: 'Engineering Maths I — Solved Examples.pdf',
+          pages: '48 pages',
+          subject: 'B.Tech · Sem 1',
+          tag: 'Maths',
+          uploader: 'Ananya Rao',
+          avatar: 'https://i.pravatar.cc/64?img=47',
+          when: '1 min ago',
+        },
+        {
+          file: 'Organic Chemistry Reaction Mechanisms.pdf',
+          pages: '36 pages',
+          subject: 'B.Sc Chemistry · Sem 2',
+          tag: 'Chemistry',
+          uploader: 'Meera Iyer',
+          avatar: 'https://i.pravatar.cc/64?img=32',
+          when: '2 min ago',
+        },
+        {
+          file: 'Financial Accounting — Solved Papers.pdf',
+          pages: '54 pages',
+          subject: 'B.Com · Sem 3',
+          tag: 'Accounting',
+          uploader: 'Kabir Malhotra',
+          avatar: 'https://i.pravatar.cc/64?img=51',
+          when: '3 min ago',
+        },
+      ];
+
+      var sleep = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
+
+      function typeText(el, text, speed) {
+        return new Promise(function (resolve) {
+          var i = 0;
+          (function step() {
+            if (i > text.length) { resolve(); return; }
+            el.textContent = text.slice(0, i);
+            i++;
+            setTimeout(step, speed);
+          })();
+        });
+      }
+
+      function fadeIn(el) {
+        el.classList.remove('opacity-0');
+        el.classList.add('opacity-100');
+      }
+
+      function reset() {
+        titleEl.textContent = '';
+        if (caretEl) caretEl.style.opacity = '';
+        metaEl.classList.add('opacity-0');
+        avatarEl.classList.add('opacity-0');
+        nameEl.classList.add('opacity-0');
+        whenEl.classList.add('opacity-0');
+        tagEl.classList.add('opacity-0');
+        progressBar.style.width = '0%';
+        progressPct.textContent = '0%';
+        progressLbl.textContent = 'Preparing upload…';
+      }
+
+      function animateProgress(label, from, to, duration) {
+        return new Promise(function (resolve) {
+          progressLbl.textContent = label;
+          var start = performance.now();
+          (function frame(now) {
+            var p = Math.min((now - start) / duration, 1);
+            var value = Math.round(from + (to - from) * p);
+            progressBar.style.width = value + '%';
+            progressPct.textContent = value + '%';
+            if (p < 1) requestAnimationFrame(frame);
+            else resolve();
+          })(performance.now());
+        });
+      }
+
+      function playUpload(u) {
+        return Promise.resolve()
+          .then(function () { reset(); return sleep(150); })
+          .then(function () { return animateProgress('Preparing upload…', 0, 25, 400); })
+          .then(function () { return typeText(titleEl, u.file, 32); })
+          .then(function () { return animateProgress('Scanning pages…', 25, 70, 500); })
+          .then(function () {
+            pagesEl.textContent = u.pages;
+            subjectEl.textContent = u.subject;
+            fadeIn(metaEl);
+            return sleep(200);
+          })
+          .then(function () { return animateProgress('Uploading…', 70, 100, 500); })
+          .then(function () {
+            progressLbl.textContent = 'Published ✓';
+            avatarEl.src = u.avatar;
+            nameEl.textContent = u.uploader + ' · ' + u.when;
+            tagEl.textContent = u.tag;
+            fadeIn(avatarEl);
+            fadeIn(nameEl);
+            fadeIn(whenEl);
+            fadeIn(tagEl);
+            if (caretEl) caretEl.style.opacity = '0';
+            return sleep(1800);
+          });
+      }
+
+      if (prefersReduced) {
+        var u = uploads[0];
+        titleEl.textContent = u.file;
+        pagesEl.textContent = u.pages;
+        subjectEl.textContent = u.subject;
+        metaEl.classList.remove('opacity-0');
+        avatarEl.src = u.avatar;
+        nameEl.textContent = u.uploader + ' · ' + u.when;
+        tagEl.textContent = u.tag;
+        avatarEl.classList.remove('opacity-0');
+        nameEl.classList.remove('opacity-0');
+        whenEl.classList.remove('opacity-0');
+        tagEl.classList.remove('opacity-0');
+        progressBar.style.width = '100%';
+        progressPct.textContent = '100%';
+        progressLbl.textContent = 'Published ✓';
+        if (caretEl) caretEl.style.opacity = '0';
+        return;
+      }
+
+      (function loop() {
+        var i = 0;
+        (function next() {
+          playUpload(uploads[i]).then(function () {
+            // Stop once this page has been swapped out by client-side navigation.
+            if (!document.body.contains(titleEl)) return;
+            i = (i + 1) % uploads.length;
+            next();
+          });
+        })();
+      })();
+    })();
+
+    /* ============================================================
+       STATS — count-up on scroll
+    ============================================================ */
+    (function statCounters() {
+      var els = document.querySelectorAll('.stat-count');
+      if (!els.length) return;
+      var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function animate(el) {
+        var target = Number(el.dataset.target) || 0;
+        var suffix = el.dataset.suffix || '';
+        if (prefersReduced) { el.textContent = target.toLocaleString() + suffix; return; }
+        var duration = 1800;
+        var start = performance.now();
+        function frame(now) {
+          var p = Math.min((now - start) / duration, 1);
+          var eased = 1 - Math.pow(1 - p, 3);
+          var value = Math.floor(eased * target);
+          el.textContent = value.toLocaleString() + (p === 1 ? suffix : '');
+          if (p < 1) requestAnimationFrame(frame);
+          else el.textContent = target.toLocaleString() + suffix;
+        }
+        requestAnimationFrame(frame);
+      }
+
+      var io = new IntersectionObserver(function (entries, obs) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { animate(e.target); obs.unobserve(e.target); }
+        });
+      }, { threshold: 0.4 });
+      els.forEach(function (el) { io.observe(el); });
+    })();
+
+    /* ============================================================
+       MINI counters in activity panel
+    ============================================================ */
+    (function miniCounters() {
+      var els = document.querySelectorAll('.mini-count');
+      if (!els.length) return;
+      var io = new IntersectionObserver(function (entries, obs) {
+        entries.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          var el = e.target;
+          var target = Number(el.dataset.target) || 0;
+          var start = performance.now();
+          var dur = 1400;
+          function frame(now) {
+            var p = Math.min((now - start) / dur, 1);
+            var eased = 1 - Math.pow(1 - p, 3);
+            el.textContent = Math.floor(eased * target);
+            if (p < 1) requestAnimationFrame(frame);
+            else el.textContent = target;
+          }
+          requestAnimationFrame(frame);
+          obs.unobserve(el);
+        });
+      }, { threshold: 0.5 });
+      els.forEach(function (el) { io.observe(el); });
+    })();
+
+    /* ============================================================
+       BLOG LIST — slide-in from left
+    ============================================================ */
+    (function blogReveal() {
+      var items = document.querySelectorAll('.blog-item');
+      if (!items.length) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        items.forEach(function (i) { i.classList.add('is-in'); });
+        return;
+      }
+      var io = new IntersectionObserver(function (entries, obs) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) {
+            e.target.classList.add('is-in');
+            obs.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+      items.forEach(function (el) { io.observe(el); });
+    })();
+
+    /* ============================================================
+       ACTIVITY FEED — rotating live uploads
+    ============================================================ */
+    (function activityFeed() {
+      var feed = document.getElementById('activity-feed');
+      if (!feed) return;
+
+      var events = [
+        { who: 'Rhea',   action: 'uploaded DBMS notes',     tag: '#dbms' },
+        { who: 'Yash',   action: 'uploaded Physics notes',  tag: '#physics' },
+        { who: 'Simran', action: 'uploaded class notes',    tag: '#chemistry' },
+        { who: 'Aditya', action: 'uploaded Accounting PDF', tag: '#accounting' },
+        { who: 'Neha',   action: 'uploaded English notes',  tag: '#english' },
+        { who: 'Devraj', action: 'uploaded DSA notes',      tag: '#dsa' },
+        { who: 'Meera',  action: 'uploaded History notes',  tag: '#history' },
+      ];
+
+      function render(list) {
+        feed.innerHTML = list.map(function (e) {
+          var initial = e.who.charAt(0).toUpperCase();
+          return '' +
+            '<li class="activity-item">' +
+              '<span class="activity-avatar">' + initial + '</span>' +
+              '<span class="min-w-0 flex-1 truncate">' +
+                '<span class="font-semibold text-white">' + e.who + '</span> ' +
+                '<span class="text-white/80">' + e.action + '</span> ' +
+                '<span class="text-white/60">' + e.tag + '</span>' +
+              '</span>' +
+            '</li>';
+        }).join('');
+      }
+
+      var i = 0;
+      function nextBatch() {
+        var batch = [];
+        for (var k = 0; k < 4; k++) batch.push(events[(i + k) % events.length]);
+        i = (i + 1) % events.length;
+        render(batch);
+      }
+      nextBatch();
+      var feedTimer = setInterval(function () {
+        // Stop once this page has been swapped out by client-side navigation.
+        if (!document.body.contains(feed)) { clearInterval(feedTimer); return; }
+        nextBatch();
+      }, 3000);
+    })();
+
+    /* ============================================================
+       TRENDING NOTES — live search + sort
+    ============================================================ */
+    (function trendingControls() {
+      var grid = document.getElementById('trending-grid');
+      var searchInput = document.getElementById('notes-search');
+      var sortEl = document.getElementById('notes-sort');
+      var emptyEl = document.getElementById('notes-empty');
+      if (!grid) return;
+
+      var cards = Array.from(grid.querySelectorAll('.trending-card'));
+
+      function applySearch() {
+        var q = (searchInput.value || '').toLowerCase().trim();
+        var anyVisible = false;
+        cards.forEach(function (card) {
+          var haystack = (card.dataset.title + ' ' + card.dataset.tag).toLowerCase();
+          var visible = !q || haystack.indexOf(q) !== -1;
+          card.style.display = visible ? '' : 'none';
+          if (visible) anyVisible = true;
+        });
+        if (emptyEl) emptyEl.classList.toggle('hidden', anyVisible);
+      }
+
+      function applySort(mode) {
+        var sorted = cards.slice().sort(function (a, b) {
+          if (mode === 'downloads') return Number(b.dataset.downloads) - Number(a.dataset.downloads);
+          if (mode === 'newest') return Number(a.dataset.recency) - Number(b.dataset.recency);
+          return Number(a.dataset.order) - Number(b.dataset.order);
+        });
+        sorted.forEach(function (card) { grid.appendChild(card); });
+        if (emptyEl) grid.appendChild(emptyEl);
+      }
+
+      if (searchInput) searchInput.addEventListener('input', applySearch);
+
+      if (sortEl) {
+        sortEl.addEventListener('click', function (e) {
+          var btn = e.target.closest('.sort-chip');
+          if (!btn) return;
+          sortEl.querySelectorAll('.sort-chip').forEach(function (b) {
+            b.classList.toggle('is-active', b === btn);
+          });
+          applySort(btn.dataset.sort);
+        });
+      }
+    })();
+
+    /* ============================================================
+       Note upvote / save (trending notes grid)
+    ============================================================ */
+    document.querySelectorAll('.note-upvote-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var icon = btn.querySelector('i');
+        var countEl = btn.querySelector('.upvote-count');
+        var nowUp = icon.classList.toggle('fa-solid');
+        icon.classList.toggle('fa-regular', !nowUp);
+        icon.classList.toggle('text-emerald-500', nowUp);
+        if (countEl) countEl.textContent = String(Number(countEl.textContent) + (nowUp ? 1 : -1));
+        btn.classList.add('like-pop');
+        setTimeout(function () { btn.classList.remove('like-pop'); }, 250);
+      });
+    });
+
+    document.querySelectorAll('.note-save-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var icon = btn.querySelector('i');
+        var nowSaved = icon.classList.toggle('fa-solid');
+        icon.classList.toggle('fa-regular', !nowSaved);
+        icon.classList.toggle('text-[#0878E8]', nowSaved);
+      });
+    });
+
+    /* ============================================================
+       Blog like / save
+    ============================================================ */
+    document.querySelectorAll(".like-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var icon = btn.querySelector("i");
+        var countEl = btn.querySelector(".like-count");
+        var nowLiked = icon.classList.toggle("fa-solid");
+        icon.classList.toggle("fa-regular", !nowLiked);
+        icon.classList.toggle("text-rose-500", nowLiked);
+        countEl.textContent = String(Number(countEl.textContent) + (nowLiked ? 1 : -1));
+        btn.classList.add("like-pop");
+        setTimeout(function () { btn.classList.remove("like-pop"); }, 250);
+      });
+    });
+
+    document.querySelectorAll(".save-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var icon = btn.querySelector("i");
+        var nowSaved = icon.classList.toggle("fa-solid");
+        icon.classList.toggle("fa-regular", !nowSaved);
+        icon.classList.toggle("text-[#0878E8]", nowSaved);
+      });
+    });
+
+    /* ============================================================
+       Course browser
+    ============================================================ */
+    var yearsByCourse = { btech: 4, ba: 3, bsc: 3, bcom: 3, bba: 3 };
+    var catalog = {
+      "btech-1": [{ subject: "Mathematics", title: "Engineering Mathematics I", pages: 42, upvotes: 88 }, { subject: "Electrical", title: "Basic Electrical Engineering", pages: 36, upvotes: 54 }],
+      "btech-2": [{ subject: "CS", title: "Data Structures Using C", pages: 58, upvotes: 121 }, { subject: "ECE", title: "Digital Electronics", pages: 44, upvotes: 67 }],
+      "btech-3": [{ subject: "CS", title: "Database Management Systems", pages: 50, upvotes: 96 }, { subject: "CS", title: "Operating Systems", pages: 47, upvotes: 89 }],
+      "btech-4": [{ subject: "CS", title: "Machine Learning Basics", pages: 60, upvotes: 143 }, { subject: "General", title: "Project Report Guidelines", pages: 20, upvotes: 31 }],
+      "ba-1": [{ subject: "History", title: "History of Modern India — Unit 1", pages: 30, upvotes: 42 }, { subject: "Pol. Science", title: "Introduction to Political Science", pages: 28, upvotes: 38 }],
+      "ba-2": [{ subject: "Sociology", title: "Sociology: Basic Concepts", pages: 33, upvotes: 29 }, { subject: "English", title: "English Literature — Poetry", pages: 25, upvotes: 51 }],
+      "ba-3": [{ subject: "Pol. Science", title: "Public Administration Notes", pages: 38, upvotes: 34 }, { subject: "Economics", title: "Economics — Micro Theory", pages: 41, upvotes: 47 }],
+      "bsc-1": [{ subject: "Physics", title: "Mechanics — Unit Notes", pages: 35, upvotes: 56 }, { subject: "Chemistry", title: "Organic Chemistry Basics", pages: 40, upvotes: 63 }],
+      "bsc-2": [{ subject: "Computer Science", title: "Data Structures (B.Sc CS)", pages: 45, upvotes: 71 }, { subject: "Botany", title: "Cell Biology Notes", pages: 32, upvotes: 26 }],
+      "bsc-3": [{ subject: "Physics", title: "Quantum Mechanics — Intro", pages: 50, upvotes: 39 }, { subject: "Mathematics", title: "Statistics for Science", pages: 36, upvotes: 44 }],
+      "bcom-1": [{ subject: "Accounting", title: "Financial Accounting Basics", pages: 34, upvotes: 62 }, { subject: "General", title: "Business Communication Notes", pages: 22, upvotes: 28 }],
+      "bcom-2": [{ subject: "Accounting", title: "Corporate Accounting", pages: 39, upvotes: 49 }, { subject: "Law", title: "Business Law Essentials", pages: 27, upvotes: 33 }],
+      "bcom-3": [{ subject: "Taxation", title: "Income Tax Law & Practice", pages: 44, upvotes: 58 }, { subject: "Accounting", title: "Cost Accounting Notes", pages: 38, upvotes: 41 }],
+      "bba-1": [{ subject: "Management", title: "Principles of Management", pages: 31, upvotes: 45 }, { subject: "Economics", title: "Business Economics", pages: 29, upvotes: 37 }],
+      "bba-2": [{ subject: "Marketing", title: "Marketing Management Notes", pages: 36, upvotes: 52 }, { subject: "Finance", title: "Financial Management Basics", pages: 33, upvotes: 40 }],
+      "bba-3": [{ subject: "HR", title: "Human Resource Management", pages: 30, upvotes: 35 }, { subject: "Management", title: "Strategic Management Notes", pages: 35, upvotes: 43 }],
+    };
+
+    var tabsEl    = document.getElementById("course-tabs");
+    var yearsEl   = document.getElementById("year-tabs");
+    var resultsEl = document.getElementById("course-notes-results");
+    var activeCourse = "btech";
+    var activeYear   = 1;
+
+    function renderYears() {
+      var total = yearsByCourse[activeCourse];
+      var html = "";
+      for (var y = 1; y <= total; y++) {
+        html += '<button type="button" class="year-tab' + (y === activeYear ? " is-active" : "") + '" data-year="' + y + '">Year ' + y + "</button>";
+      }
+      yearsEl.innerHTML = html;
+    }
+
+    function renderNotes() {
+      var notes = catalog[activeCourse + "-" + activeYear] || [];
+      resultsEl.innerHTML = notes.map(function (n) {
+        return '' +
+          '<div class="group flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 transition-all hover:-translate-y-1 hover:shadow-md dark:border-slate-800 dark:bg-slate-900">' +
+            '<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-500/10 text-red-500">' +
+              '<i class="fa-solid fa-file-pdf"></i>' +
+            '</div>' +
+            '<div class="min-w-0 flex-1">' +
+              '<p class="text-[10px] font-semibold uppercase tracking-wide text-[#0878E8]">' + n.subject + '</p>' +
+              '<p class="mt-0.5 truncate text-sm font-semibold text-[#022E5A] dark:text-white">' + n.title + '</p>' +
+              '<div class="mt-1 flex items-center justify-between gap-2">' +
+                '<p class="text-[11px] text-slate-400">' + n.pages + ' pages &middot; PDF</p>' +
+                '<button type="button" class="course-upvote-btn flex items-center gap-1 text-[11px] text-slate-400 transition-colors hover:text-emerald-500">' +
+                  '<i class="fa-regular fa-thumbs-up"></i> <span class="upvote-count">' + n.upvotes + '</span>' +
+                '</button>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+      }).join("");
+    }
+
+    if (tabsEl && yearsEl && resultsEl) {
+      tabsEl.addEventListener("click", function (e) {
+        var btn = e.target.closest(".course-tab");
+        if (!btn) return;
+        activeCourse = btn.dataset.course;
+        activeYear = 1;
+        tabsEl.querySelectorAll(".course-tab").forEach(function (b) {
+          b.setAttribute("aria-pressed", String(b === btn));
+        });
+        renderYears();
+        renderNotes();
+      });
+
+      yearsEl.addEventListener("click", function (e) {
+        var btn = e.target.closest(".year-tab");
+        if (!btn) return;
+        activeYear = Number(btn.dataset.year);
+        renderYears();
+        renderNotes();
+      });
+
+      // Delegated — survives re-renders, unlike attaching per-card.
+      resultsEl.addEventListener("click", function (e) {
+        var btn = e.target.closest(".course-upvote-btn");
+        if (!btn) return;
+        var icon = btn.querySelector("i");
+        var countEl = btn.querySelector(".upvote-count");
+        var nowUp = icon.classList.toggle("fa-solid");
+        icon.classList.toggle("fa-regular", !nowUp);
+        icon.classList.toggle("text-emerald-500", nowUp);
+        if (countEl) countEl.textContent = String(Number(countEl.textContent) + (nowUp ? 1 : -1));
+      });
+
+      renderYears();
+      renderNotes();
+    }
+
+    /* ============================================================
+       Testimonials marquee — duplicate for seamless loop
+    ============================================================ */
+    var track = document.getElementById('testi-track');
+    if (track) {
+      var originals = Array.from(track.children);
+      originals.forEach(function (node) {
+        var clone = node.cloneNode(true);
+        clone.setAttribute('aria-hidden', 'true');
+        track.appendChild(clone);
+      });
+      track.style.animationDuration = (originals.length * 6) + 's';
+    }
+  })();
+</script>

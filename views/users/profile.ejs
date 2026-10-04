@@ -1,0 +1,686 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Profile Header -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden mb-8">
+      <div class="bg-gradient-to-r from-cyan-500 to-cyan-700 dark:from-cyan-600 dark:to-cyan-800">
+        <div class="px-6 pb-6 pt-6 md:pt-8">
+          <div class="flex flex-col md:flex-row items-start md:items-center justify-between">
+            <div class="flex items-center space-x-4 md:space-x-6">
+              <!-- Profile Avatar -->
+              <div class="relative">
+                <div class="w-16 h-16 md:w-20 md:h-20 bg-white dark:bg-gray-800 rounded-full p-1 shadow-lg">
+                  <div class="w-full h-full bg-gradient-to-br from-blue-100 to-indigo-200 dark:from-blue-900 dark:to-indigo-800 rounded-full flex items-center justify-center">
+                    <span class="text-2xl md:text-3xl font-bold text-blue-600 dark:text-blue-300">
+                      <%= user.name.charAt(0).toUpperCase() %>
+                    </span>
+                  </div>
+                </div>
+                <% if(user.isVerified) { %>
+                  <div class="absolute bottom-0 right-0 w-6 h-6 bg-green-500 rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center">
+                    <i class="fas fa-check text-xs text-white"></i>
+                  </div>
+                <% } %>
+              </div>
+              
+              <!-- User Info -->
+              <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white"><%= user.name %></h1>
+                <div class="flex flex-wrap items-center gap-2 md:gap-4 mt-2">
+                  <p class="text-gray-600 dark:text-gray-300 text-sm md:text-base">
+                    <i class="fas fa-envelope mr-2"></i><%= user.email %>
+                  </p>
+                  <% if(user.mobile) { %>
+                    <p class="text-gray-600 dark:text-gray-300 text-sm md:text-base">
+                      <i class="fas fa-phone mr-2"></i><%= user.mobile %>
+                    </p>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4 md:mt-0">
+              <div class="flex flex-wrap gap-2">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                  <i class="fas fa-user-tag mr-1 text-xs"></i><%= user.role.toUpperCase() %>
+                </span>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium <%= user.isVerified ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' %>">
+                  <i class="fas fa-<%= user.isVerified ? 'check-circle' : 'clock' %> mr-1 text-xs"></i>
+                  <%= user.isVerified ? 'Verified' : 'Pending' %>
+                </span>
+                <% if(user.googleId) { %>
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                    <i class="fab fa-google mr-1 text-xs"></i>Google
+                  </span>
+                <% } %>
+              </div>
+              
+              <!-- Action Buttons -->
+              <div class="mt-4 flex space-x-3">
+                <button onclick="openEditModal()" 
+                        class="px-4 py-2 bg-white dark:bg-gray-700 border-2 border-blue-600 dark:border-blue-500 text-blue-600 dark:text-blue-300 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors text-sm md:text-base">
+                  <i class="fas fa-edit mr-2"></i>Edit Profile
+                </button>
+                <a href="/my-courses" 
+                   class="px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white dark:text-gray-100 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors text-sm md:text-base">
+                  <i class="fas fa-play-circle mr-2"></i>My Courses
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+      
+      <!-- Left Column - Stats & Quick Actions -->
+      <div class="lg:col-span-1 space-y-6 md:space-y-8">
+        
+        <!-- Learning Stats -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-5 md:p-6">
+          <h3 class="text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-4 md:mb-6 flex items-center">
+            <i class="fas fa-chart-line text-blue-600 dark:text-blue-400 mr-3"></i>
+            Learning Statistics
+          </h3>
+          
+          <div class="space-y-3 md:space-y-4">
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600 dark:text-gray-300">Enrolled Courses</span>
+              <span class="text-xl md:text-2xl font-bold text-blue-600 dark:text-blue-400"><%= totalEnrolled %></span>
+            </div>
+            
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600 dark:text-gray-300">Total Investment</span>
+              <span class="text-xl md:text-2xl font-bold text-green-600 dark:text-green-400">₹<%= totalPaid %></span>
+            </div>
+            
+            <% if(certificates.length > 0) { %>
+              <div class="flex justify-between items-center">
+                <span class="text-gray-600 dark:text-gray-300">Certificates Earned</span>
+                <span class="text-xl md:text-2xl font-bold text-purple-600 dark:text-purple-400"><%= certificates.length %></span>
+              </div>
+            <% } %>
+          </div>
+          
+          <div class="mt-6 pt-5 md:pt-6 border-t border-gray-100 dark:border-gray-700">
+            <a href="/my-courses" 
+               class="block w-full text-center py-3 bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-blue-600 dark:to-indigo-700 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 dark:hover:from-blue-700 dark:hover:to-indigo-800 transition-all">
+              <i class="fas fa-play-circle mr-2"></i>Continue Learning
+            </a>
+          </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-5 md:p-6">
+          <h3 class="text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-4 md:mb-6 flex items-center">
+            <i class="fas fa-bolt text-yellow-500 dark:text-yellow-400 mr-3"></i>
+            Quick Actions
+          </h3>
+          
+          <div class="space-y-3">
+            <a href="/courses" 
+               class="flex items-center justify-between p-3 md:p-4 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-xl transition-colors group">
+              <div class="flex items-center">
+                <div class="w-8 h-8 md:w-10 md:h-10 bg-blue-100 dark:bg-blue-800 rounded-lg flex items-center justify-center mr-3 md:mr-4 group-hover:bg-blue-200 dark:group-hover:bg-blue-700">
+                  <i class="fas fa-search text-blue-600 dark:text-blue-400 text-sm md:text-base"></i>
+                </div>
+                <span class="font-medium text-gray-800 dark:text-gray-200 text-sm md:text-base">Browse Courses</span>
+              </div>
+              <i class="fas fa-chevron-right text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400"></i>
+            </a>
+            
+            <a href="/certificates" 
+               class="flex items-center justify-between p-3 md:p-4 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/40 rounded-xl transition-colors group">
+              <div class="flex items-center">
+                <div class="w-8 h-8 md:w-10 md:h-10 bg-green-100 dark:bg-green-800 rounded-lg flex items-center justify-center mr-3 md:mr-4 group-hover:bg-green-200 dark:group-hover:bg-green-700">
+                  <i class="fas fa-award text-green-600 dark:text-green-400 text-sm md:text-base"></i>
+                </div>
+                <span class="font-medium text-gray-800 dark:text-gray-200 text-sm md:text-base">My Certificates</span>
+              </div>
+              <i class="fas fa-chevron-right text-gray-400 group-hover:text-green-600 dark:group-hover:text-green-400"></i>
+            </a>
+            
+            <% if(user.role === 'teacher') { %>
+              <a href="/instructor/dashboard" 
+                 class="flex items-center justify-between p-3 md:p-4 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/40 rounded-xl transition-colors group">
+                <div class="flex items-center">
+                  <div class="w-8 h-8 md:w-10 md:h-10 bg-orange-100 dark:bg-orange-800 rounded-lg flex items-center justify-center mr-3 md:mr-4 group-hover:bg-orange-200 dark:group-hover:bg-orange-700">
+                    <i class="fas fa-chalkboard-teacher text-orange-600 dark:text-orange-400 text-sm md:text-base"></i>
+                  </div>
+                  <span class="font-medium text-gray-800 dark:text-gray-200 text-sm md:text-base">Instructor Dashboard</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-400 group-hover:text-orange-600 dark:group-hover:text-orange-400"></i>
+              </a>
+            <% } %>
+          </div>
+        </div>
+        
+        <!-- Account Status -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-5 md:p-6">
+          <h3 class="text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-4 md:mb-6 flex items-center">
+            <i class="fas fa-shield-alt text-green-600 dark:text-green-400 mr-3"></i>
+            Account Status
+          </h3>
+          
+          <div class="space-y-3 md:space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="w-7 h-7 md:w-8 md:h-8 rounded-full <%= user.isActive ? 'bg-green-100 dark:bg-green-800' : 'bg-red-100 dark:bg-red-800' %> flex items-center justify-center mr-3">
+                  <i class="fas fa-<%= user.isActive ? 'check' : 'times' %> text-xs <%= user.isActive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' %>"></i>
+                </div>
+                <span class="text-gray-700 dark:text-gray-300 text-sm md:text-base">Account Status</span>
+              </div>
+              <span class="font-medium text-sm md:text-base <%= user.isActive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' %>">
+                <%= user.isActive ? 'Active' : 'Inactive' %>
+              </span>
+            </div>
+            
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="w-7 h-7 md:w-8 md:h-8 rounded-full <%= !user.isBlocked ? 'bg-green-100 dark:bg-green-800' : 'bg-red-100 dark:bg-red-800' %> flex items-center justify-center mr-3">
+                  <i class="fas fa-<%= !user.isBlocked ? 'lock-open' : 'ban' %> text-xs <%= !user.isBlocked ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' %>"></i>
+                </div>
+                <span class="text-gray-700 dark:text-gray-300 text-sm md:text-base">Block Status</span>
+              </div>
+              <span class="font-medium text-sm md:text-base <%= !user.isBlocked ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' %>">
+                <%= !user.isBlocked ? 'Not Blocked' : 'Blocked' %>
+              </span>
+            </div>
+            
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="w-7 h-7 md:w-8 md:h-8 rounded-full <%= user.isVerified ? 'bg-green-100 dark:bg-green-800' : 'bg-yellow-100 dark:bg-yellow-800' %> flex items-center justify-center mr-3">
+                  <i class="fas fa-<%= user.isVerified ? 'check-circle' : 'clock' %> text-xs <%= user.isVerified ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400' %>"></i>
+                </div>
+                <span class="text-gray-700 dark:text-gray-300 text-sm md:text-base">Email Verification</span>
+              </div>
+              <% if(!user.isVerified) { %>
+                <button onclick="resendVerification()" 
+                        class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium">
+                  Resend Email
+                </button>
+              <% } %>
+            </div>
+            
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="w-7 h-7 md:w-8 md:h-8 rounded-full bg-blue-100 dark:bg-blue-800 flex items-center justify-center mr-3">
+                  <i class="fas fa-calendar-alt text-blue-600 dark:text-blue-400 text-xs"></i>
+                </div>
+                <span class="text-gray-700 dark:text-gray-300 text-sm md:text-base">Member Since</span>
+              </div>
+              <span class="font-medium text-gray-900 dark:text-gray-200 text-sm md:text-base">
+                <%= moment(user.createdAt).format('MMM DD, YYYY') %>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right Column - Courses & Activity -->
+      <div class="lg:col-span-2 space-y-6 md:space-y-8">
+        
+        <!-- Enrolled Courses -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-5 md:p-6">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
+            <h3 class="text-lg md:text-xl font-bold text-gray-900 dark:text-white flex items-center">
+              <i class="fas fa-graduation-cap text-indigo-600 dark:text-indigo-400 mr-3"></i>
+              My Enrolled Courses
+            </h3>
+            <a href="/my-courses" 
+               class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium text-sm md:text-base">
+              View All
+            </a>
+          </div>
+          
+          <% if(enrolledCourses.length > 0) { %>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+              <% enrolledCourses.slice(0, 4).forEach(course => { 
+                const studentInfo = course.students.find(s => s.user.equals(user._id));
+              %>
+                <div class="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden hover:shadow-lg dark:hover:shadow-gray-900/30 transition-shadow bg-white dark:bg-gray-800">
+                  <div class="h-32 md:h-40 bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-blue-700 dark:to-indigo-800 relative">
+                    <% if(course.image && course.image.url) { %>
+                      <img src="<%= course.image.url %>" alt="<%= course.title %>" class="w-full h-full object-cover">
+                    <% } %>
+                    <div class="absolute top-3 right-3">
+                      <span class="px-2 py-1 bg-white dark:bg-gray-800 bg-opacity-90 dark:bg-opacity-90 text-blue-700 dark:text-blue-300 rounded-full text-xs font-medium">
+                        <%= course.courceType %>
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div class="p-4">
+                    <h4 class="font-bold text-gray-900 dark:text-white mb-2 truncate"><%= course.title %></h4>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2"><%= course.shortDescription %></p>
+                    
+                    <div class="flex items-center justify-between text-sm">
+                      <div class="flex items-center text-gray-500 dark:text-gray-400">
+                        <i class="fas fa-user-graduate mr-2"></i>
+                        <span class="truncate max-w-[100px]"><%= course.teacher?.name || 'Instructor' %></span>
+                      </div>
+                      <div class="text-green-600 dark:text-green-400 font-bold">
+                        ₹<%= studentInfo?.paidPrice || course.price %>
+                      </div>
+                    </div>
+                    
+                    <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                      <a href="/courses/<%= course._id %>/learn" 
+                         class="block w-full text-center py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors text-sm">
+                        <i class="fas fa-play mr-2"></i>Continue Course
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              <% }); %>
+            </div>
+            
+            <% if(enrolledCourses.length > 4) { %>
+              <div class="mt-6 text-center">
+                <a href="/my-courses" 
+                   class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium">
+                  View <%= enrolledCourses.length - 4 %> more courses
+                  <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+              </div>
+            <% } %>
+          <% } else { %>
+            <div class="text-center py-8">
+              <div class="w-16 h-16 md:w-20 md:h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-book-open text-gray-400 dark:text-gray-500 text-2xl md:text-3xl"></i>
+              </div>
+              <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No courses enrolled yet</h4>
+              <p class="text-gray-600 dark:text-gray-300 mb-6">Start your learning journey by enrolling in a course</p>
+              <a href="/courses" 
+                 class="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-blue-600 dark:to-indigo-700 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 dark:hover:from-blue-700 dark:hover:to-indigo-800 transition-all">
+                Browse Courses
+              </a>
+            </div>
+          <% } %>
+        </div>
+        
+        <!-- Recent Activity -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-5 md:p-6">
+          <h3 class="text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-4 md:mb-6 flex items-center">
+            <i class="fas fa-history text-orange-600 dark:text-orange-400 mr-3"></i>
+            Recent Activity
+          </h3>
+          
+          <% if(recentActivity.length > 0) { %>
+            <div class="space-y-3 md:space-y-4">
+              <% recentActivity.forEach(activity => { %>
+                <div class="flex items-start space-x-3 md:space-x-4 p-3 md:p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-colors">
+                  <div class="w-8 h-8 md:w-10 md:h-10 rounded-full flex-shrink-0 flex items-center justify-center 
+                    <% switch(activity.action) {
+                      case 'enrollment': %>bg-blue-100 dark:bg-blue-800 text-blue-600 dark:text-blue-400<% break;
+                      case 'course_completion': %>bg-green-100 dark:bg-green-800 text-green-600 dark:text-green-400<% break;
+                      case 'certificate_earned': %>bg-purple-100 dark:bg-purple-800 text-purple-600 dark:text-purple-400<% break;
+                      case 'profile_update': %>bg-yellow-100 dark:bg-yellow-800 text-yellow-600 dark:text-yellow-400<% break;
+                      default: %>bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400<% break;
+                    } %>">
+                    <i class="fas 
+                      <% switch(activity.action) {
+                        case 'enrollment': %>fa-book-open<% break;
+                        case 'course_completion': %>fa-check-circle<% break;
+                        case 'certificate_earned': %>fa-award<% break;
+                        case 'profile_update': %>fa-user-edit<% break;
+                        default: %>fa-bell<% break;
+                      } %> text-sm">
+                    </i>
+                  </div>
+                  
+                  <div class="flex-1 min-w-0">
+                    <p class="text-gray-800 dark:text-gray-200 text-sm md:text-base"><%= activity.description %></p>
+                    <p class="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-1">
+                      <%= moment(activity.createdAt).fromNow() %>
+                    </p>
+                  </div>
+                </div>
+              <% }); %>
+            </div>
+          <% } else { %>
+            <div class="text-center py-8">
+              <div class="w-16 h-16 md:w-20 md:h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-clock text-gray-400 dark:text-gray-500 text-2xl md:text-3xl"></i>
+              </div>
+              <p class="text-gray-600 dark:text-gray-300">No recent activity to show</p>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4 backdrop-blur-sm transition-opacity duration-300">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
+    <div class="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 z-10">
+      <div class="flex justify-between items-center">
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white">Edit Profile</h3>
+        <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+    </div>
+    
+    <form id="editForm" method="POST" action="/profile/update" class="p-6">
+  
+      <% if(typeof csrfToken !== "undefined" && csrfToken) { %>
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <% } %>
+      <div class="space-y-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Full Name *</label>
+          <input type="text" 
+                 name="name" 
+                 value="<%= user.name %>"
+                 required
+                 class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-colors">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email Address *</label>
+          <input type="email" 
+                 name="email" 
+                 value="<%= user.email %>"
+                 required
+                 class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-colors">
+          <% if(user.googleId) { %>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+              <i class="fas fa-info-circle mr-1"></i> Note: Changing email may affect Google login
+            </p>
+          <% } %>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mobile Number</label>
+          <input type="tel" 
+                 name="mobile" 
+                 value="<%= user.mobile || '' %>"
+                 pattern="[0-9]{10}"
+                 maxlength="10"
+                 class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-colors"
+                 placeholder="10-digit mobile number">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Current Role</label>
+          <div class="px-4 py-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+            <div class="flex items-center justify-between">
+              <span class="font-medium text-gray-900 dark:text-white"><%= user.role.toUpperCase() %></span>
+              <span class="text-xs text-gray-500 dark:text-gray-400">Cannot be changed</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="mt-8 flex justify-end space-x-3">
+        <button type="button" 
+                onclick="closeEditModal()"
+                class="px-5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium">
+          Cancel
+        </button>
+        <button type="submit" 
+                id="submitBtn"
+                class="px-5 py-2.5 bg-blue-600 dark:bg-blue-700 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors font-medium flex items-center">
+          <i class="fas fa-save mr-2"></i>
+          <span>Save Changes</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// Modal Functions
+function openEditModal() {
+  const modal = document.getElementById('editModal');
+  const modalContent = document.getElementById('modalContent');
+  
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+  
+  // Trigger animation
+  setTimeout(() => {
+    modalContent.classList.remove('scale-95', 'opacity-0');
+    modalContent.classList.add('scale-100', 'opacity-100');
+  }, 10);
+}
+
+function closeEditModal() {
+  const modal = document.getElementById('editModal');
+  const modalContent = document.getElementById('modalContent');
+  
+  modalContent.classList.remove('scale-100', 'opacity-100');
+  modalContent.classList.add('scale-95', 'opacity-0');
+  
+  setTimeout(() => {
+    modal.classList.remove('flex');
+    modal.classList.add('hidden');
+  }, 300);
+}
+
+// Form Submission with loading state
+  
+document.getElementById('editForm')?.addEventListener('submit', function(e) {
+  e.preventDefault();
+  
+  const submitBtn = document.getElementById('submitBtn');
+  const originalText = submitBtn.innerHTML;
+  
+  // Show loading state
+  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i><span>Saving...</span>';
+  submitBtn.disabled = true;
+  
+  // Get form data
+  const formData = new FormData(this);
+  
+  
+  // Send POST request
+  fetch(this.action, {
+    method: 'POST',
+    body: formData,
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  })
+  .then(data => {
+    if (data.success) {
+      showNotification('Profile updated successfully!', 'success');
+      
+      setTimeout(() => {
+        closeEditModal();
+        setTimeout(() => {
+          window.location.reload();
+        }, 300);
+      }, 1500);
+    } else {
+      showNotification(data.message || 'Failed to update profile', 'error');
+      submitBtn.innerHTML = originalText;
+      submitBtn.disabled = false;
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showNotification('An error occurred. Please try again.', 'error');
+    submitBtn.innerHTML = originalText;
+    submitBtn.disabled = false;
+  });
+});
+
+// Notification function
+function showNotification(message, type = 'info') {
+  // Remove existing notification
+  const existingNotification = document.querySelector('.notification-toast');
+  if (existingNotification) {
+    existingNotification.remove();
+  }
+  
+  const notification = document.createElement('div');
+  notification.className = `notification-toast fixed top-4 right-4 px-6 py-4 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300 ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white`;
+  notification.innerHTML = `
+    <div class="flex items-center">
+      <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} mr-3"></i>
+      <span>${message}</span>
+    </div>
+  `;
+  
+  document.body.appendChild(notification);
+  
+  // Show notification
+  setTimeout(() => {
+    notification.classList.remove('translate-x-full');
+  }, 10);
+  
+  // Auto hide after 3 seconds
+  setTimeout(() => {
+    notification.classList.add('translate-x-full');
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
+}
+
+// Resend Verification Email
+function resendVerification() {
+  if (confirm('Send verification email to ' + '<%= user.email %>' + '?')) {
+    fetch('/auth/resend-verification', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email: '<%= user.email %>' })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showNotification('Verification email sent! Check your inbox.', 'success');
+      } else {
+        showNotification(data.message || 'Failed to send verification email', 'error');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showNotification('An error occurred. Please try again.', 'error');
+    });
+  }
+}
+
+// Close modal when clicking outside
+document.getElementById('editModal')?.addEventListener('click', function(e) {
+  if (e.target === this) {
+    closeEditModal();
+  }
+});
+
+// Close modal on escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeEditModal();
+  }
+});
+
+// Mobile number validation
+document.querySelector('input[name="mobile"]')?.addEventListener('input', function(e) {
+  this.value = this.value.replace(/\D/g, '').slice(0, 10);
+});
+
+// Initialize tooltips
+document.addEventListener('DOMContentLoaded', function() {
+  // Add any initialization code here
+});
+</script>
+
+<style>
+/* Custom styles */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Smooth transitions */
+.transition-all {
+  transition: all 0.3s ease-in-out;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #2d3748;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #4a5568;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #718096;
+}
+
+/* Modal animations */
+#modalContent {
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Loading spinner animation */
+.fa-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .notification-toast {
+    left: 4px;
+    right: 4px;
+    top: auto;
+    bottom: 4px;
+    transform: translateY(100%);
+  }
+  
+  .notification-toast:not(.translate-x-full) {
+    transform: translateY(0);
+  }
+}
+</style>

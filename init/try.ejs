@@ -1,0 +1,57 @@
+NOTIFICATION BELL
+        <% if (currUser) { %>
+          <div class="relative">
+            <button id="notificationBtn" 
+                    class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors relative">
+              <i class="fas fa-bell text-gray-600 dark:text-gray-400 text-lg"></i>
+              <% if (notificationCount && notificationCount > 0) { %>
+                <span class="notification-badge absolute -top-1 -right-1 h-5 w-5 rounded-full text-xs flex items-center justify-center text-white font-bold">
+                  <%= notificationCount > 9 ? '9+' : notificationCount %>
+                </span>
+              <% } %>
+            </button>
+            
+            <!-- NOTIFICATION DROPDOWN -->
+            <div id="notificationDropdown" 
+                 class="hidden absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50">
+              <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                <h3 class="font-semibold text-gray-800 dark:text-white">Notifications</h3>
+              </div>
+              <div class="max-h-96 overflow-y-auto">
+                <!-- Notifications will be loaded here via JS -->
+                <div class="px-4 py-3 text-center text-gray-500 dark:text-gray-400">
+                  <i class="fas fa-bell-slash text-2xl mb-2"></i>
+                  <p>No new notifications</p>
+                </div>
+              </div>
+              <a href="/notifications" 
+                 class="block px-4 py-3 text-center text-sm font-medium text-sky-500 hover:bg-gray-50 dark:hover:bg-gray-700 border-t border-gray-100 dark:border-gray-700">
+                View All
+              </a>
+            </div>
+          </div>
+        <% } %>
+
+        <!-- notification feture for mobile  -->
+         <% if (notificationCount && notificationCount > 0) { %>
+              <a href="/notifications" 
+                 class="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-colors <%= currentPath.includes('/notifications') ? mobileActive : mobileInactive %>">
+                <i class="fas fa-bell w-5"></i>
+                <span>Notifications</span>
+                <span class="notification-badge ml-auto h-6 w-6 rounded-full text-xs flex items-center justify-center text-white font-bold">
+                  <%= notificationCount > 9 ? '9+' : notificationCount %>
+                </span>
+              </a>
+            <% } %>
+
+
+            <!-- role badge in navbar -->
+             <% if (currUser && currUser.role) { %>
+        <span class="hidden lg:inline-block px-3 py-1 text-xs font-semibold rounded-full 
+          <%= currUser.role === 'admin' ? 'bg-gradient-to-r from-purple-500 to-pink-500' : 
+             currUser.role === 'paravet' ? 'bg-gradient-to-r from-blue-500 to-cyan-500' : 
+             'bg-gradient-to-r from-green-500 to-emerald-500' %> text-white">
+          <%= currUser.role.toUpperCase() %>
+        </span>
+      <% } %>
+    </div>

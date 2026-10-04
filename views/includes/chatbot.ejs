@@ -1,0 +1,131 @@
+<!-- =========================================
+     NoteSphere Assistant (chatbot widget)
+     Markup + styles only — all behavior lives in
+     chatbot.js (kept separate so it can move into
+     your utils/public JS folder on its own).
+========================================= -->
+<div id="ns-chatbot" class="fixed bottom-5 right-5 z-[90] flex flex-col items-end">
+
+  <!-- Teaser bubble: shown once per session, dismissible -->
+  <div id="ns-chat-teaser"
+    class="relative mb-3 hidden max-w-[220px] rounded-2xl rounded-br-sm bg-white px-4 py-3 pr-6 text-sm text-slate-700
+           shadow-lg ring-1 ring-slate-200/70 dark:bg-slate-900 dark:text-slate-200 dark:ring-slate-800">
+    <span>&#128075; Looking for notes or have a question? I'm here to help.</span>
+    <button type="button" id="ns-chat-teaser-close" aria-label="Dismiss"
+      class="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-slate-200 text-slate-500
+             hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-300">
+      <i class="fa-solid fa-xmark text-xs"></i>
+    </button>
+  </div>
+
+  <!-- Chat panel -->
+  <div id="ns-chat-panel"
+    class="mb-3 hidden h-[28rem] w-[22rem] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-2xl bg-white
+           shadow-2xl ring-1 ring-slate-200/70 dark:bg-slate-900 dark:ring-slate-800">
+
+    <div class="flex items-center gap-3 bg-[#022E5A] px-4 py-3 text-white">
+      <div class="flex h-9 w-9 items-center justify-center rounded-full bg-white/15">
+        <i class="fa-solid fa-feather-pointed"></i>
+      </div>
+      <div class="min-w-0 flex-1">
+        <p class="text-sm font-semibold">NoteSphere Assistant</p>
+        <p class="flex items-center gap-1 text-xs text-white/70">
+          <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span> Usually replies in a minute
+        </p>
+      </div>
+      <button type="button" id="ns-chat-close" aria-label="Close chat" class="rounded-full p-1.5 hover:bg-white/10">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div id="ns-chat-messages" class="flex-1 space-y-3 overflow-y-auto px-4 py-4 text-sm"></div>
+
+    <div id="ns-chat-quick" class="flex flex-wrap gap-2 border-t border-slate-100 px-4 py-2 dark:border-slate-800"></div>
+
+    <form id="ns-chat-form" class="flex items-center gap-2 border-t border-slate-200 p-3 dark:border-slate-800">
+      <input id="ns-chat-input" type="text" autocomplete="off" placeholder="Type a message..."
+        class="flex-1 rounded-full border border-slate-300 bg-transparent px-4 py-2 text-sm text-slate-900
+               focus:border-[#0878E8] focus:outline-none focus:ring-2 focus:ring-[#0878E8]/30
+               dark:border-slate-700 dark:text-white" />
+      <button type="submit" aria-label="Send"
+        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#0878E8] text-white
+               transition-colors hover:bg-[#0668CC]">
+        <i class="fa-solid fa-paper-plane text-sm"></i>
+      </button>
+    </form>
+  </div>
+
+  <!-- Launcher -->
+  <button type="button" id="ns-chat-launcher" aria-label="Open chat"
+    class="relative flex h-14 w-14 items-center justify-center rounded-full bg-[#0878E8] text-white
+           shadow-xl transition-transform hover:scale-105">
+    <span class="ns-chat-ping absolute inset-0 rounded-full bg-[#0878E8]"></span>
+    <i id="ns-chat-icon-open" class="fa-solid fa-comment-dots relative text-xl"></i>
+    <i id="ns-chat-icon-close" class="fa-solid fa-xmark relative hidden text-xl"></i>
+    <span id="ns-chat-badge"
+      class="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white">
+      1
+    </span>
+  </button>
+</div>
+
+<style>
+  @keyframes nsChatPing {
+    0% { transform: scale(1); opacity: 0.45; }
+    100% { transform: scale(1.7); opacity: 0; }
+  }
+  .ns-chat-ping { animation: nsChatPing 2.2s ease-out infinite; }
+
+  #ns-chat-messages { display: flex; flex-direction: column; }
+  #ns-chat-messages .ns-msg {
+    max-width: 85%;
+    padding: 0.55rem 0.9rem;
+    border-radius: 1rem;
+    line-height: 1.45;
+  }
+  #ns-chat-messages .ns-msg.bot {
+    background: rgb(241 245 249);
+    color: rgb(30 41 59);
+    border-bottom-left-radius: 0.25rem;
+    align-self: flex-start;
+  }
+  .dark #ns-chat-messages .ns-msg.bot { background: rgb(30 41 59); color: rgb(226 232 240); }
+  #ns-chat-messages .ns-msg.user {
+    background: #0878E8;
+    color: white;
+    border-bottom-right-radius: 0.25rem;
+    align-self: flex-end;
+    margin-left: auto;
+  }
+
+  .ns-quick-chip {
+    border-radius: 9999px;
+    border: 1px solid rgb(203 213 225);
+    padding: 0.3rem 0.8rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgb(51 65 85);
+    transition: background 0.15s ease;
+  }
+  .dark .ns-quick-chip { border-color: rgb(51 65 85); color: rgb(203 213 225); }
+  .ns-quick-chip:hover { background: rgba(8, 120, 232, 0.08); }
+
+  .ns-typing span {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-right: 3px;
+    border-radius: 9999px;
+    background: rgb(148 163 184);
+    animation: nsTypingBounce 1s infinite ease-in-out;
+  }
+  .ns-typing span:nth-child(2) { animation-delay: 0.15s; }
+  .ns-typing span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes nsTypingBounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-5px); }
+  }
+</style>
+
+<!-- Behavior lives entirely in chatbot.js -->
+<script src="/js/chatbot.js" defer></script>

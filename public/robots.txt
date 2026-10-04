@@ -1,0 +1,15 @@
+User-agent: *
+
+# Allow public pages
+Allow: /
+Allow: /blogs
+Allow: /courses
+
+# Block sensitive/admin areas
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api
+Disallow: /socket.io
+
+# Sitemap location
+Sitemap: https://thecubicals.online/sitemap.xml

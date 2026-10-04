@@ -1,0 +1,718 @@
+<% layout("/layouts/boilerplate") -%>
+<%
+const contactMethods = [
+  {
+    icon: "fa-envelope",
+    title: "Email us",
+    desc: "For general questions, feedback, or anything else.",
+    value: "hello@notesphere.app",
+    href: "mailto:hello@notesphere.app",
+  },
+  {
+    icon: "fa-circle-question",
+    title: "Help center",
+    desc: "Quick answers to the most common questions.",
+    value: "Visit help center",
+    href: "/help",
+  },
+  {
+    icon: "fa-handshake",
+    title: "Partner with us",
+    desc: "Colleges and study groups — let's set up a private library.",
+    value: "partners@notesphere.app",
+    href: "mailto:partners@notesphere.app",
+  },
+];
+
+const subjects = [
+  "General question",
+  "Report a bug",
+  "Report a note",
+  "Partnership",
+  "Feature request",
+  "Something else",
+];
+%>
+
+<!-- =========================================
+     Hero
+========================================= -->
+<section class="relative overflow-hidden bg-[#FBFAF7] dark:bg-slate-950">
+  <div class="pointer-events-none absolute -top-32 -left-24 h-72 w-72 rounded-full bg-[#0878E8]/10 blur-3xl sm:-left-32 sm:h-96 sm:w-96"></div>
+  <div class="pointer-events-none absolute -bottom-40 -right-24 h-72 w-72 rounded-full bg-amber-400/10 blur-3xl sm:-right-32 sm:h-96 sm:w-96"></div>
+
+  <div class="relative mx-auto max-w-3xl px-4 py-16 text-center sm:px-6 sm:py-24 lg:px-8">
+    <span class="inline-flex items-center gap-2 rounded-full border border-[#0878E8]/25 bg-[#0878E8]/5 px-3 py-1 text-xs font-medium text-[#0878E8] sm:text-sm" data-reveal>
+      <i class="fa-solid fa-envelope"></i> Contact
+    </span>
+
+    <h1 class="mt-5 text-3xl leading-tight text-[#022E5A] dark:text-white sm:text-4xl md:text-5xl" data-reveal data-reveal-delay="80">
+      Say hello
+    </h1>
+
+    <p class="mx-auto mt-5 max-w-xl text-base text-slate-600 dark:text-slate-300 sm:text-lg" data-reveal data-reveal-delay="160">
+      Questions, feedback, a note that needs fixing — we read every message
+      and reply within a day or two.
+    </p>
+  </div>
+</section>
+
+<!-- =========================================
+     Contact methods
+========================================= -->
+<section class="border-y border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+  <div class="mx-auto grid max-w-7xl gap-5 px-4 py-12 sm:grid-cols-3 sm:gap-6 sm:px-6 sm:py-14 lg:px-8">
+    <% contactMethods.forEach(function (m, i) { %>
+      <a href="<%= m.href %>"
+         class="contact-card group rounded-2xl bg-[#FBFAF7] p-6 ring-1 ring-slate-200/70 transition-all
+                hover:-translate-y-1 hover:shadow-lg dark:bg-slate-950 dark:ring-slate-800"
+         data-reveal data-reveal-delay="<%= i * 80 %>">
+        <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-[#0878E8]/10 text-[#0878E8]
+                    transition-transform group-hover:scale-110">
+          <i class="fa-solid <%= m.icon %>"></i>
+        </div>
+        <h3 class="mt-4 font-semibold text-[#022E5A] dark:text-white"><%= m.title %></h3>
+        <p class="mt-1.5 text-sm text-slate-500 dark:text-slate-400"><%= m.desc %></p>
+        <p class="mt-3 text-sm font-semibold text-[#0878E8] group-hover:underline">
+          <%= m.value %> <i class="fa-solid fa-arrow-right ml-1 text-xs transition-transform group-hover:translate-x-0.5"></i>
+        </p>
+      </a>
+    <% }) %>
+  </div>
+</section>
+
+<!-- =========================================
+     Contact form
+========================================= -->
+<section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+  <div class="grid gap-10 lg:grid-cols-5 lg:gap-12">
+
+    <!-- Left: form -->
+    <div class="lg:col-span-3" data-reveal>
+      <h2 class="text-2xl text-[#022E5A] dark:text-white sm:text-3xl">Send us a message</h2>
+      <p class="mt-2 text-sm text-slate-500 dark:text-slate-400 sm:text-base">
+        Fill this in and we'll get back to you at the email you provide.
+      </p>
+
+      <form id="contact-form" class="mt-8 space-y-5" novalidate>
+        <!-- Success / error banner -->
+        <div id="contact-banner" class="hidden rounded-lg px-4 py-3 text-sm"></div>
+
+        <!-- Name + Email -->
+        <div class="grid gap-5 sm:grid-cols-2">
+          <div>
+            <label for="contact-name" class="mb-1.5 block text-sm font-medium text-slate-600 dark:text-slate-300">
+              Name
+            </label>
+            <input id="contact-name" name="name" type="text" required autocomplete="name"
+              class="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900
+                     placeholder-slate-400 transition-colors
+                     focus:border-[#0878E8] focus:outline-none focus:ring-2 focus:ring-[#0878E8]/25
+                     dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:placeholder-slate-500"
+              placeholder="Your full name" />
+          </div>
+          <div>
+            <label for="contact-email" class="mb-1.5 block text-sm font-medium text-slate-600 dark:text-slate-300">
+              Email
+            </label>
+            <input id="contact-email" name="email" type="email" required autocomplete="email"
+              class="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900
+                     placeholder-slate-400 transition-colors
+                     focus:border-[#0878E8] focus:outline-none focus:ring-2 focus:ring-[#0878E8]/25
+                     dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:placeholder-slate-500"
+              placeholder="you@college.edu" />
+          </div>
+        </div>
+
+        <!-- Subject — custom themed dropdown -->
+        <div class="cf-field">
+          <label id="cf-subject-label" class="mb-1.5 block text-sm font-medium text-slate-600 dark:text-slate-300">
+            Subject
+          </label>
+
+          <!-- Hidden native input carries the value for the form -->
+          <input type="hidden" id="contact-subject" name="subject" value="" />
+
+          <div class="cf-select" id="cf-select" data-open="false">
+            <button type="button"
+                    id="cf-select-trigger"
+                    class="cf-select-trigger"
+                    aria-haspopup="listbox"
+                    aria-expanded="false"
+                    aria-labelledby="cf-subject-label">
+              <span class="cf-select-value" id="cf-select-value">Choose a topic…</span>
+              <i class="fa-solid fa-chevron-down cf-select-chevron"></i>
+            </button>
+
+            <ul class="cf-select-menu" id="cf-select-menu" role="listbox" aria-labelledby="cf-subject-label" tabindex="-1">
+              <% subjects.forEach(function (s, i) { %>
+                <li role="option"
+                    class="cf-select-option"
+                    data-value="<%= s %>"
+                    aria-selected="false"
+                    tabindex="-1">
+                  <i class="fa-solid fa-check cf-select-check"></i>
+                  <span><%= s %></span>
+                </li>
+              <% }) %>
+            </ul>
+          </div>
+          <p class="cf-select-help">Pick the topic that fits best.</p>
+        </div>
+
+        <!-- Message -->
+        <div>
+          <label for="contact-message" class="mb-1.5 block text-sm font-medium text-slate-600 dark:text-slate-300">
+            Message
+          </label>
+          <textarea id="contact-message" name="message" rows="6" required
+            class="w-full resize-y rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900
+                   placeholder-slate-400 transition-colors
+                   focus:border-[#0878E8] focus:outline-none focus:ring-2 focus:ring-[#0878E8]/25
+                   dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:placeholder-slate-500"
+            placeholder="Tell us what's on your mind…"></textarea>
+          <p class="mt-1.5 text-xs text-slate-400">Maximum 1,000 characters.</p>
+        </div>
+
+        <!-- Submit -->
+        <div class="flex flex-wrap items-center gap-3 pt-2">
+          <button type="submit"
+            class="inline-flex items-center gap-2 rounded-full bg-[#0878E8] px-6 py-3 text-sm font-semibold text-white
+                   shadow-sm transition-all hover:bg-[#0668CC] hover:shadow-md hover:-translate-y-0.5
+                   disabled:cursor-not-allowed disabled:opacity-70">
+            <i class="fa-solid fa-paper-plane"></i> Send message
+          </button>
+          <p class="text-xs text-slate-400">We reply within 1–2 days.</p>
+        </div>
+      </form>
+    </div>
+
+    <!-- Right: info panel -->
+    <aside class="lg:col-span-2" data-reveal data-reveal-delay="120">
+      <div class="sticky top-24 space-y-5">
+
+        <!-- Response time card -->
+        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#022E5A] via-[#053A72] to-[#0878E8] p-6 text-white shadow-xl">
+          <div class="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/10 blur-2xl"></div>
+          <div class="relative">
+            <div class="flex items-center gap-2 text-emerald-300">
+              <span class="pulse-dot h-2 w-2 rounded-full bg-emerald-400"></span>
+              <span class="text-[10px] font-semibold uppercase tracking-widest">Online now</span>
+            </div>
+            <h3 class="mt-3 text-lg font-semibold">We usually reply in a few hours</h3>
+            <p class="mt-2 text-sm text-white/80">
+              Weekdays: within 6 hours. Weekends: within 24 hours. Urgent note reports get priority.
+            </p>
+          </div>
+        </div>
+
+        <!-- Contact details -->
+        <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 dark:bg-slate-900 dark:ring-slate-800">
+          <h3 class="text-[11px] font-semibold uppercase tracking-widest text-slate-400">Direct contact</h3>
+          <ul class="mt-3 space-y-3 text-sm">
+            <li class="flex items-start gap-3">
+              <i class="fa-solid fa-envelope mt-0.5 text-[#0878E8]"></i>
+              <div class="min-w-0">
+                <p class="text-xs text-slate-400">General</p>
+                <a href="mailto:hello@notesphere.app" class="break-all font-medium text-[#022E5A] hover:text-[#0878E8] dark:text-white">
+                  hello@notesphere.app
+                </a>
+              </div>
+            </li>
+            <li class="flex items-start gap-3">
+              <i class="fa-solid fa-bug mt-0.5 text-[#0878E8]"></i>
+              <div class="min-w-0">
+                <p class="text-xs text-slate-400">Bug reports</p>
+                <a href="mailto:bugs@notesphere.app" class="break-all font-medium text-[#022E5A] hover:text-[#0878E8] dark:text-white">
+                  bugs@notesphere.app
+                </a>
+              </div>
+            </li>
+            <li class="flex items-start gap-3">
+              <i class="fa-solid fa-handshake mt-0.5 text-[#0878E8]"></i>
+              <div class="min-w-0">
+                <p class="text-xs text-slate-400">Partnerships</p>
+                <a href="mailto:partners@notesphere.app" class="break-all font-medium text-[#022E5A] hover:text-[#0878E8] dark:text-white">
+                  partners@notesphere.app
+                </a>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Social -->
+        <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 dark:bg-slate-900 dark:ring-slate-800">
+          <h3 class="text-[11px] font-semibold uppercase tracking-widest text-slate-400">Find us</h3>
+          <div class="mt-3 flex items-center gap-2.5">
+            <a href="#" aria-label="NoteSphere on Twitter" class="contact-social">
+              <i class="fa-brands fa-x-twitter"></i>
+            </a>
+            <a href="#" aria-label="NoteSphere on Instagram" class="contact-social">
+              <i class="fa-brands fa-instagram"></i>
+            </a>
+            <a href="#" aria-label="NoteSphere on LinkedIn" class="contact-social">
+              <i class="fa-brands fa-linkedin-in"></i>
+            </a>
+            <a href="#" aria-label="NoteSphere on YouTube" class="contact-social">
+              <i class="fa-brands fa-youtube"></i>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+  </div>
+</section>
+
+<!-- =========================================
+     Final mini CTA
+========================================= -->
+<section class="bg-[#FBFAF7] dark:bg-slate-950">
+  <div class="mx-auto max-w-3xl px-4 py-14 text-center sm:px-6 sm:py-16 lg:px-8" data-reveal>
+    <h2 class="text-xl text-[#022E5A] dark:text-white sm:text-2xl">Just looking for notes?</h2>
+    <p class="mt-2 text-sm text-slate-500 dark:text-slate-400 sm:text-base">
+      You don't need to contact us for that. The library is open.
+    </p>
+    <a href="/notes"
+      class="mt-6 inline-flex items-center gap-2 rounded-full bg-[#0878E8] px-6 py-3 text-sm font-semibold text-white
+             shadow-sm transition-all hover:bg-[#0668CC] hover:shadow-md hover:-translate-y-0.5">
+      <i class="fa-solid fa-magnifying-glass"></i> Browse notes
+    </a>
+  </div>
+</section>
+
+<!-- =========================================
+     Page-specific styles
+========================================= -->
+<style>
+  /* ---------- Global overflow guard ---------- */
+  html, body { overflow-x: clip; max-width: 100%; width: 100%; }
+
+  /* ---------- Contact method cards ---------- */
+  .contact-card {
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease;
+  }
+  .contact-card:hover {
+    box-shadow: 0 20px 45px -20px rgba(8, 120, 232, 0.35);
+  }
+
+  /* ---------- Social buttons ---------- */
+  .contact-social {
+    display: flex;
+    height: 2.25rem;
+    width: 2.25rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background: rgba(8, 120, 232, 0.08);
+    color: #0878E8;
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+  }
+  .dark .contact-social { background: rgba(92, 166, 240, 0.12); color: #5CA6F0; }
+  .contact-social:hover {
+    background: #0878E8;
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(8, 120, 232, 0.35);
+  }
+  .contact-social:focus-visible {
+    outline: 2px solid #0878E8;
+    outline-offset: 3px;
+  }
+
+  /* ---------- Banner states ---------- */
+  #contact-banner.is-success {
+    background: rgba(16, 185, 129, 0.1);
+    color: rgb(4 120 87);
+  }
+  .dark #contact-banner.is-success { color: rgb(110 231 183); }
+
+  #contact-banner.is-error {
+    background: rgba(244, 63, 94, 0.1);
+    color: rgb(190 18 60);
+  }
+  .dark #contact-banner.is-error { color: rgb(253 164 175); }
+
+  /* ============================================================
+     CUSTOM THEMED DROPDOWN
+     Replaces the native <select> so it matches the site style.
+     A hidden <input name="subject"> carries the value for the form.
+  ============================================================ */
+  .cf-field { position: relative; }
+
+  .cf-select {
+    position: relative;
+  }
+
+  .cf-select-trigger {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    text-align: left;
+    color: rgb(15 23 42);
+    background: #fff;
+    border: 1px solid rgb(203 213 225);
+    border-radius: 0.5rem;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    cursor: pointer;
+  }
+  .dark .cf-select-trigger {
+    color: white;
+    background: rgb(15 23 42);
+    border-color: rgb(51 65 85);
+  }
+
+  .cf-select-trigger:hover {
+    border-color: rgb(148 163 184);
+  }
+  .dark .cf-select-trigger:hover {
+    border-color: rgb(71 85 105);
+  }
+
+  .cf-select-trigger:focus {
+    outline: none;
+    border-color: #0878E8;
+    box-shadow: 0 0 0 3px rgba(8, 120, 232, 0.25);
+  }
+
+  .cf-select[data-open="true"] .cf-select-trigger {
+    border-color: #0878E8;
+    box-shadow: 0 0 0 3px rgba(8, 120, 232, 0.25);
+  }
+
+  .cf-select-value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .cf-select-value.is-placeholder {
+    color: rgb(148 163 184);
+  }
+  .dark .cf-select-value.is-placeholder {
+    color: rgb(100 116 139);
+  }
+
+  .cf-select-chevron {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    color: rgb(100 116 139);
+    transition: transform 0.25s ease, color 0.25s ease;
+  }
+  .dark .cf-select-chevron { color: rgb(148 163 184); }
+  .cf-select[data-open="true"] .cf-select-chevron {
+    transform: rotate(180deg);
+    color: #0878E8;
+  }
+
+  /* ---------- Menu ---------- */
+  .cf-select-menu {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    right: 0;
+    z-index: 40;
+    max-height: 16rem;
+    overflow-y: auto;
+    padding: 0.35rem;
+    margin: 0;
+    list-style: none;
+    background: #fff;
+    border: 1px solid rgb(226 232 240);
+    border-radius: 0.75rem;
+    box-shadow: 0 20px 45px -12px rgba(2, 46, 90, 0.25);
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+    transform-origin: top center;
+    pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+  .dark .cf-select-menu {
+    background: rgb(15 23 42);
+    border-color: rgb(30 41 59);
+    box-shadow: 0 20px 45px -12px rgba(0, 0, 0, 0.6);
+  }
+
+  .cf-select[data-open="true"] .cf-select-menu {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+
+  /* ---------- Options ---------- */
+  .cf-select-option {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.55rem 0.7rem;
+    font-size: 0.875rem;
+    color: rgb(51 65 85);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .dark .cf-select-option { color: rgb(203 213 225); }
+
+  .cf-select-option:hover,
+  .cf-select-option.is-highlighted {
+    background: rgba(8, 120, 232, 0.08);
+    color: #0878E8;
+  }
+  .dark .cf-select-option:hover,
+  .dark .cf-select-option.is-highlighted {
+    background: rgba(92, 166, 240, 0.14);
+    color: #5CA6F0;
+  }
+
+  .cf-select-option[aria-selected="true"] {
+    color: #0878E8;
+    font-weight: 600;
+  }
+  .dark .cf-select-option[aria-selected="true"] { color: #5CA6F0; }
+
+  .cf-select-check {
+    font-size: 0.7rem;
+    width: 0.9rem;
+    opacity: 0;
+    transform: scale(0.6);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    color: #0878E8;
+  }
+  .dark .cf-select-check { color: #5CA6F0; }
+  .cf-select-option[aria-selected="true"] .cf-select-check {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .cf-select-help {
+    margin-top: 0.4rem;
+    font-size: 0.7rem;
+    color: rgb(148 163 184);
+  }
+  .dark .cf-select-help { color: rgb(100 116 139); }
+
+  /* ---------- Reduced motion ---------- */
+  @media (prefers-reduced-motion: reduce) {
+    .contact-card,
+    .contact-social,
+    .cf-select-trigger,
+    .cf-select-chevron,
+    .cf-select-menu,
+    .cf-select-check { transition: none !important; }
+  }
+</style>
+
+<!-- =========================================
+     Page-specific scripts
+========================================= -->
+<script>
+  (function () {
+    /* ============================================================
+       Custom themed dropdown
+       - Keyboard: ArrowUp/Down, Enter, Space, Escape, Home/End
+       - Click outside closes
+       - Sets the hidden <input name="subject"> value
+    ============================================================ */
+    (function customSelect() {
+      var wrap    = document.getElementById('cf-select');
+      var trigger = document.getElementById('cf-select-trigger');
+      var valueEl = document.getElementById('cf-select-value');
+      var menu    = document.getElementById('cf-select-menu');
+      var hidden  = document.getElementById('contact-subject');
+      if (!wrap || !trigger || !menu || !hidden) return;
+
+      var options = Array.from(menu.querySelectorAll('.cf-select-option'));
+      var highlighted = -1;
+
+      function open() {
+        wrap.dataset.open = 'true';
+        trigger.setAttribute('aria-expanded', 'true');
+        // Highlight the currently selected option (or the first)
+        var selected = options.findIndex(function (o) { return o.getAttribute('aria-selected') === 'true'; });
+        highlight(selected >= 0 ? selected : 0);
+      }
+
+      function close() {
+        wrap.dataset.open = 'false';
+        trigger.setAttribute('aria-expanded', 'false');
+        highlighted = -1;
+        options.forEach(function (o) { o.classList.remove('is-highlighted'); });
+      }
+
+      function isOpen() { return wrap.dataset.open === 'true'; }
+
+      function highlight(i) {
+        if (!options.length) return;
+        highlighted = (i + options.length) % options.length;
+        options.forEach(function (o, idx) {
+          o.classList.toggle('is-highlighted', idx === highlighted);
+        });
+        var target = options[highlighted];
+        // Scroll into view inside the menu
+        if (target) {
+          var top = target.offsetTop;
+          var bottom = top + target.offsetHeight;
+          if (top < menu.scrollTop) menu.scrollTop = top;
+          else if (bottom > menu.scrollTop + menu.clientHeight) {
+            menu.scrollTop = bottom - menu.clientHeight;
+          }
+        }
+      }
+
+      function selectOption(opt) {
+        if (!opt) return;
+        options.forEach(function (o) { o.setAttribute('aria-selected', 'false'); });
+        opt.setAttribute('aria-selected', 'true');
+        var value = opt.dataset.value || '';
+        hidden.value = value;
+        valueEl.textContent = value;
+        valueEl.classList.remove('is-placeholder');
+        close();
+        trigger.focus();
+      }
+
+      /* ---------- Mouse ---------- */
+      trigger.addEventListener('click', function (e) {
+        e.stopPropagation();
+        isOpen() ? close() : open();
+      });
+
+      options.forEach(function (opt) {
+        opt.addEventListener('mouseenter', function () {
+          highlight(options.indexOf(opt));
+        });
+        opt.addEventListener('click', function (e) {
+          e.stopPropagation();
+          selectOption(opt);
+        });
+      });
+
+      /* ---------- Keyboard ---------- */
+      trigger.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          if (!isOpen()) { open(); return; }
+        }
+        if (e.key === 'Enter' || e.key === ' ') {
+          selectOption(options[highlighted]);
+        }
+      });
+
+      menu.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowDown') { e.preventDefault(); highlight(highlighted + 1); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); highlight(highlighted - 1); }
+        else if (e.key === 'Home') { e.preventDefault(); highlight(0); }
+        else if (e.key === 'End') { e.preventDefault(); highlight(options.length - 1); }
+        else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectOption(options[highlighted]); }
+        else if (e.key === 'Escape') { e.preventDefault(); close(); trigger.focus(); }
+      });
+
+      /* ---------- Close on outside click / blur ---------- */
+      document.addEventListener('click', function (e) {
+        if (!wrap.contains(e.target)) close();
+      });
+
+      // Close when focus leaves the widget entirely (e.g. Tab away)
+      wrap.addEventListener('focusout', function (e) {
+        if (!wrap.contains(e.relatedTarget)) close();
+      });
+
+      // Prevent the form from submitting when pressing Enter on the trigger
+      trigger.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') e.preventDefault();
+      });
+    })();
+
+    /* ============================================================
+       Contact form submit
+    ============================================================ */
+    var form   = document.getElementById('contact-form');
+    var banner = document.getElementById('contact-banner');
+    if (!form || !banner) return;
+
+    function showBanner(text, kind) {
+      banner.textContent = text;
+      banner.classList.remove('hidden', 'is-success', 'is-error');
+      banner.classList.add(kind === 'ok' ? 'is-success' : 'is-error');
+    }
+
+    function validate() {
+      var errors = [];
+      var name    = form.querySelector('[name="name"]');
+      var email   = form.querySelector('[name="email"]');
+      var subject = form.querySelector('[name="subject"]');
+      var message = form.querySelector('[name="message"]');
+
+      if (!name.value.trim())    errors.push('Please add your name.');
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim()))
+                                  errors.push('Please enter a valid email.');
+      if (!subject.value)        errors.push('Please choose a subject.');
+      if (message.value.trim().length < 10)
+                                  errors.push('Please write a little more in the message.');
+
+      return errors;
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      banner.classList.add('hidden');
+
+      var errors = validate();
+      if (errors.length) {
+        showBanner(errors[0], 'err');
+        return;
+      }
+
+      var btn = form.querySelector('button[type="submit"]');
+      var original = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Sending…';
+
+      var payload = {
+        name:    form.querySelector('[name="name"]').value.trim(),
+        email:   form.querySelector('[name="email"]').value.trim(),
+        subject: form.querySelector('[name="subject"]').value,
+        message: form.querySelector('[name="message"]').value.trim(),
+      };
+
+      fetch('/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      .catch(function () { return null; })
+      .then(function () {
+        showBanner("Thanks! We got your message and will reply within a day or two.", 'ok');
+        form.reset();
+        // Reset the custom dropdown back to its placeholder state
+        var valueEl = document.getElementById('cf-select-value');
+        if (valueEl) {
+          valueEl.textContent = 'Choose a topic…';
+          valueEl.classList.add('is-placeholder');
+        }
+        document.querySelectorAll('.cf-select-option').forEach(function (o) {
+          o.setAttribute('aria-selected', 'false');
+        });
+        banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      })
+      .finally(function () {
+        btn.disabled = false;
+        btn.innerHTML = original;
+      });
+    });
+
+    /* Guard: no auto-scroll on load */
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    window.addEventListener('load', function () {
+      if (!sessionStorage.getItem('ns-contact-visited')) {
+        window.scrollTo(0, 0);
+        sessionStorage.setItem('ns-contact-visited', '1');
+      }
+    });
+  })();
+</script>

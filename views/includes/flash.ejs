@@ -1,0 +1,123 @@
+<% if (success && success.length) { %>
+<div class="pointer-events-none fixed inset-0 z-[9999] flex items-start justify-center">
+  <div 
+    class="pointer-events-auto mt-20 
+           !fixed !left-1/2 !-translate-x-1/2 !right-auto !transform
+           w-[90%] max-w-md p-4 rounded-lg
+
+           bg-green-600 text-white 
+           shadow-xl border border-green-700
+
+           dark:bg-green-700 dark:border-green-500 dark:text-white
+
+           animate-fadeIn flex items-center justify-between space-x-4"
+    role="alert"
+  >
+    <span class="flex-1 text-sm font-medium"><%= success %></span>
+
+    <button 
+      type="button"
+      class="text-white hover:text-gray-200 dark:hover:text-gray-300 
+             font-bold text-lg transition"
+      onclick="this.parentElement.remove()"
+      aria-label="Close"
+    >
+      &times;
+    </button>
+  </div>
+</div>
+<% } %>
+
+
+<% if (error && error.length) { %>
+<div class="pointer-events-none fixed inset-0 z-[9999] flex items-start justify-center">
+  <div 
+    class="pointer-events-auto mt-20 
+           !fixed !left-1/2 !-translate-x-1/2 !right-auto !transform
+           w-[90%] max-w-md p-4 rounded-lg
+
+           bg-red-600 text-white 
+           shadow-xl border border-red-700
+
+           dark:bg-red-700 dark:border-red-500 dark:text-white
+
+           animate-fadeIn flex items-center justify-between space-x-4"
+    role="alert"
+  >
+    <span class="flex-1 text-sm font-medium"><%= error %></span>
+
+    <button 
+      type="button"
+      class="text-white hover:text-gray-200 dark:hover:text-gray-300 
+             font-bold text-lg transition"
+      onclick="this.parentElement.remove()"
+      aria-label="Close"
+    >
+      &times;
+    </button>
+  </div>
+</div>
+<% } %>
+
+<% if (info && info.length) { %>
+<div class="pointer-events-none fixed inset-0 z-[9999] flex items-start justify-center">
+  <div class="pointer-events-auto mt-20 !fixed !left-1/2 !-translate-x-1/2 !right-auto !transform
+              w-[90%] max-w-md p-4 rounded-lg
+              bg-blue-600 text-white shadow-xl border border-blue-700
+              dark:bg-blue-700 dark:border-blue-500 dark:text-white
+              animate-fadeIn flex items-center justify-between space-x-4"
+       role="alert">
+    <span class="flex-1 text-sm font-medium"><%= info %></span>
+    <button type="button"
+      class="text-white hover:text-gray-200 dark:hover:text-gray-300 font-bold text-lg transition"
+      onclick="this.parentElement.remove()"
+      aria-label="Close">&times;</button>
+  </div>
+</div>
+<% } %>
+
+<% if (warning && warning.length) { %>
+<div class="pointer-events-none fixed inset-0 z-[9999] flex items-start justify-center">
+  <div class="pointer-events-auto mt-20 !fixed !left-1/2 !-translate-x-1/2 !right-auto !transform
+              w-[90%] max-w-md p-4 rounded-lg
+              bg-yellow-500 text-white shadow-xl border border-yellow-600
+              dark:bg-yellow-600 dark:border-yellow-500 dark:text-white
+              animate-fadeIn flex items-center justify-between space-x-4"
+       role="alert">
+    <span class="flex-1 text-sm font-medium"><%= warning %></span>
+    <button type="button"
+      class="text-white hover:text-gray-200 dark:hover:text-gray-300 font-bold text-lg transition"
+      onclick="this.parentElement.remove()"
+      aria-label="Close">&times;</button>
+  </div>
+</div>
+<% } %>
+
+<% if (primary && primary.length) { %>
+<div class="pointer-events-none fixed inset-0 z-[9999] flex items-start justify-center">
+  <div class="pointer-events-auto mt-20 !fixed !left-1/2 !-translate-x-1/2 !right-auto !transform
+              w-[90%] max-w-md p-4 rounded-lg
+              bg-cyan-600 text-white shadow-xl border border-cyan-700
+              dark:bg-cyan-700 dark:border-cyan-500 dark:text-white
+              animate-fadeIn flex items-center justify-between space-x-4"
+       role="alert">
+    <span class="flex-1 text-sm font-medium"><%= primary %></span>
+    <button type="button"
+      class="text-white hover:text-gray-200 dark:hover:text-gray-300 font-bold text-lg transition"
+      onclick="this.parentElement.remove()"
+      aria-label="Close">&times;</button>
+  </div>
+</div>
+<% } %>
+
+
+
+<style>
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(-10px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-fadeIn {
+  animation: fadeIn 0.35s ease-out forwards;
+}
+</style>

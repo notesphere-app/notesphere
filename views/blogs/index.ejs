@@ -1,0 +1,782 @@
+<% layout("/layouts/boilerplate") -%>
+<%
+/* ============================================================
+   DUMMY DATA — swap with controller data later:
+   res.render('pages/blogs', { blogs, categories, featuredBlog, popularBlogs, tags })
+============================================================ */
+
+const categories = [
+  { id: "all",        label: "All",            icon: "fa-layer-group" },
+  { id: "study-tips", label: "Study tips",     icon: "fa-lightbulb" },
+  { id: "notes",      label: "Note-taking",    icon: "fa-pen-nib" },
+  { id: "exams",      label: "Exams",          icon: "fa-graduation-cap" },
+  { id: "college",    label: "College life",   icon: "fa-building-columns" },
+  { id: "product",    label: "Product",        icon: "fa-cube" },
+];
+
+const featuredBlog = {
+  title: "How I scored 9.2 CGPA using only shared notes",
+  excerpt: "I stopped handwriting everything and started downloading what seniors had already made. Here's the exact routine I followed for every exam — and what I'd do differently next semester.",
+  cover: "https://picsum.photos/seed/ns-blog-featured/1200/700",
+  category: "study-tips",
+  categoryLabel: "Study tips",
+  author: "Priya Nair",
+  avatar: "https://i.pravatar.cc/128?img=25",
+  date: "Sep 21, 2026",
+  readTime: "8 min read",
+  likes: 342,
+  comments: 48,
+};
+
+const blogs = [
+  {
+    title: "Why handwritten notes still beat typed ones for revision",
+    excerpt: "Digital is faster, but paper forces your brain to slow down. A short case for mixing the two.",
+    cover: "https://picsum.photos/seed/ns-blog-2/800/500",
+    category: "notes",
+    categoryLabel: "Note-taking",
+    author: "Arjun Verma",
+    avatar: "https://i.pravatar.cc/64?img=15",
+    date: "Sep 18, 2026",
+    readTime: "5 min read",
+    likes: 96,
+    comments: 11,
+  },
+  {
+    title: "The unspoken rule every study group should follow",
+    excerpt: "One person uploads per subject, everyone else reviews. It saves hundreds of hours of duplicate work.",
+    cover: "https://picsum.photos/seed/ns-blog-3/800/500",
+    category: "study-tips",
+    categoryLabel: "Study tips",
+    author: "Sana Sheikh",
+    avatar: "https://i.pravatar.cc/64?img=41",
+    date: "Sep 14, 2026",
+    readTime: "6 min read",
+    likes: 74,
+    comments: 9,
+  },
+  {
+    title: "A semester of shared class notes, one year later",
+    excerpt: "What held up, what got abandoned, and what we'd set up differently if we started again.",
+    cover: "https://picsum.photos/seed/ns-blog-4/800/500",
+    category: "college",
+    categoryLabel: "College life",
+    author: "Ishaan Kulkarni",
+    avatar: "https://i.pravatar.cc/64?img=22",
+    date: "Sep 10, 2026",
+    readTime: "7 min read",
+    likes: 61,
+    comments: 7,
+  },
+  {
+    title: "How to check if a PDF is actually worth downloading",
+    excerpt: "Page count, handwriting quality, whether it covers the full syllabus — a quick checklist before you commit.",
+    cover: "https://picsum.photos/seed/ns-blog-5/800/500",
+    category: "notes",
+    categoryLabel: "Note-taking",
+    author: "Divya Menon",
+    avatar: "https://i.pravatar.cc/64?img=36",
+    date: "Sep 6, 2026",
+    readTime: "4 min read",
+    likes: 103,
+    comments: 15,
+  },
+  {
+    title: "The last-week revision plan that actually works",
+    excerpt: "Seven days, five subjects, zero panic. Here's how to schedule your last week before exams.",
+    cover: "https://picsum.photos/seed/ns-blog-6/800/500",
+    category: "exams",
+    categoryLabel: "Exams",
+    author: "Rohan Gupta",
+    avatar: "https://i.pravatar.cc/64?img=19",
+    date: "Sep 3, 2026",
+    readTime: "9 min read",
+    likes: 218,
+    comments: 32,
+  },
+  {
+    title: "Why I upload my notes (even the messy ones)",
+    excerpt: "Publishing rough notes felt exposing at first. It turned out to be the whole point.",
+    cover: "https://picsum.photos/seed/ns-blog-7/800/500",
+    category: "college",
+    categoryLabel: "College life",
+    author: "Meera Iyer",
+    avatar: "https://i.pravatar.cc/64?img=32",
+    date: "Aug 29, 2026",
+    readTime: "5 min read",
+    likes: 87,
+    comments: 12,
+  },
+  {
+    title: "New: search across a year of notes in one go",
+    excerpt: "A quick walkthrough of the new full-text search — including how to combine it with tags.",
+    cover: "https://picsum.photos/seed/ns-blog-8/800/500",
+    category: "product",
+    categoryLabel: "Product",
+    author: "NoteSphere Team",
+    avatar: "https://i.pravatar.cc/64?img=68",
+    date: "Aug 25, 2026",
+    readTime: "3 min read",
+    likes: 154,
+    comments: 21,
+  },
+  {
+    title: "The two-minute rule for clearing a messy inbox of notes",
+    excerpt: "A short weekly pass that keeps a growing note collection from turning into digital clutter.",
+    cover: "https://picsum.photos/seed/ns-blog-9/800/500",
+    category: "study-tips",
+    categoryLabel: "Study tips",
+    author: "Ananya Rao",
+    avatar: "https://i.pravatar.cc/64?img=47",
+    date: "Aug 22, 2026",
+    readTime: "4 min read",
+    likes: 92,
+    comments: 8,
+  },
+  {
+    title: "How our team replaced status meetings with shared notes",
+    excerpt: "One shared doc, updated async, cut our weekly meeting load by half.",
+    cover: "https://picsum.photos/seed/ns-blog-10/800/500",
+    category: "product",
+    categoryLabel: "Product",
+    author: "Kabir Malhotra",
+    avatar: "https://i.pravatar.cc/64?img=51",
+    date: "Aug 18, 2026",
+    readTime: "6 min read",
+    likes: 68,
+    comments: 5,
+  },
+  {
+    title: "Writing notes your future self can actually use",
+    excerpt: "The difference between a note you understand today and one you'll understand in six months.",
+    cover: "https://picsum.photos/seed/ns-blog-11/800/500",
+    category: "notes",
+    categoryLabel: "Note-taking",
+    author: "Farah Sheikh",
+    avatar: "https://i.pravatar.cc/64?img=44",
+    date: "Aug 14, 2026",
+    readTime: "7 min read",
+    likes: 121,
+    comments: 18,
+  },
+  {
+    title: "What I learned writing in public for a year",
+    excerpt: "Publishing rough notes felt exposing at first. It turned out to be the whole point.",
+    cover: "https://picsum.photos/seed/ns-blog-12/800/500",
+    category: "college",
+    categoryLabel: "College life",
+    author: "Yash Thakur",
+    avatar: "https://i.pravatar.cc/64?img=8",
+    date: "Aug 10, 2026",
+    readTime: "6 min read",
+    likes: 79,
+    comments: 10,
+  },
+];
+
+const popularBlogs = [
+  { title: "How I scored 9.2 CGPA using only shared notes", date: "Sep 21, 2026", readTime: "8 min read", cover: "https://picsum.photos/seed/ns-blog-featured/200/200" },
+  { title: "The last-week revision plan that actually works", date: "Sep 3, 2026", readTime: "9 min read", cover: "https://picsum.photos/seed/ns-blog-6/200/200" },
+  { title: "New: search across a year of notes in one go", date: "Aug 25, 2026", readTime: "3 min read", cover: "https://picsum.photos/seed/ns-blog-8/200/200" },
+];
+
+const popularTags = [
+  "#study-tips", "#revision", "#handwritten", "#exams",
+  "#cgpa", "#pdf", "#product", "#search",
+  "#college", "#semester", "#notes", "#duplicate-work",
+];
+%>
+
+<!-- =========================================
+     Hero
+========================================= -->
+<section class="relative overflow-hidden bg-[#FBFAF7] dark:bg-slate-950">
+  <div class="pointer-events-none absolute -top-32 -left-24 h-72 w-72 rounded-full bg-[#0878E8]/10 blur-3xl sm:-left-32 sm:h-96 sm:w-96"></div>
+  <div class="pointer-events-none absolute -bottom-40 -right-24 h-72 w-72 rounded-full bg-amber-400/10 blur-3xl sm:-right-32 sm:h-96 sm:w-96"></div>
+
+  <div class="relative mx-auto max-w-4xl px-4 py-16 text-center sm:px-6 sm:py-20 lg:px-8">
+    <span class="inline-flex items-center gap-2 rounded-full border border-[#0878E8]/25 bg-[#0878E8]/5 px-3 py-1 text-xs font-medium text-[#0878E8] sm:text-sm" data-reveal>
+      <i class="fa-solid fa-feather-pointed"></i> NoteSphere Blog
+    </span>
+
+    <h1 class="mt-5 text-3xl leading-tight text-[#022E5A] dark:text-white sm:text-4xl md:text-5xl" data-reveal data-reveal-delay="80">
+      Study tips, note-taking ideas, and stories
+    </h1>
+
+    <p class="mx-auto mt-5 max-w-2xl text-base text-slate-600 dark:text-slate-300 sm:text-lg" data-reveal data-reveal-delay="160">
+      Short reads from students who've been there. Exam routines, note systems that
+      actually stick, and what we're building next on NoteSphere.
+    </p>
+
+    <!-- Search bar -->
+    <form id="blog-search-form" class="mx-auto mt-8 max-w-lg" data-reveal data-reveal-delay="240" onsubmit="return false;">
+      <div class="relative">
+        <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+        <input
+          id="blog-search"
+          type="search"
+          placeholder="Search articles by title or tag…"
+          aria-label="Search blog articles"
+          class="w-full rounded-full border border-slate-300 bg-white py-3 pl-11 pr-4 text-sm text-slate-900
+                 placeholder-slate-400 shadow-sm transition-colors
+                 focus:border-[#0878E8] focus:outline-none focus:ring-2 focus:ring-[#0878E8]/25
+                 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:placeholder-slate-500"
+        />
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- =========================================
+     Featured article
+========================================= -->
+<section class="border-y border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+  <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+    <div class="mb-6 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-slate-400" data-reveal>
+      <i class="fa-solid fa-star text-amber-500"></i> Featured
+    </div>
+
+    <a href="/blogs/<%= featuredBlog.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') %>"
+       class="featured-card group grid overflow-hidden rounded-3xl bg-[#FBFAF7] shadow-sm ring-1 ring-slate-200/70
+              transition-all hover:shadow-xl dark:bg-slate-950 dark:ring-slate-800
+              md:grid-cols-2"
+       data-reveal>
+      <div class="relative overflow-hidden <%= 'h-56 sm:h-72 md:h-auto md:aspect-auto' %>">
+        <img src="<%= featuredBlog.cover %>" alt=""
+             class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+      </div>
+
+      <div class="flex flex-col justify-center p-6 sm:p-8 md:p-10">
+        <div class="flex items-center gap-2">
+          <span class="rounded-full bg-[#0878E8]/10 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-[#0878E8]">
+            <%= featuredBlog.categoryLabel %>
+          </span>
+          <span class="text-xs text-slate-400"><%= featuredBlog.readTime %></span>
+        </div>
+
+        <h2 class="mt-4 text-xl font-bold leading-tight text-[#022E5A] dark:text-white sm:text-2xl lg:text-3xl">
+          <%= featuredBlog.title %>
+        </h2>
+        <p class="mt-3 text-sm leading-relaxed text-slate-500 dark:text-slate-400 sm:text-base">
+          <%= featuredBlog.excerpt %>
+        </p>
+
+        <div class="mt-6 flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <img src="<%= featuredBlog.avatar %>" alt="" class="h-9 w-9 rounded-full" />
+            <div>
+              <p class="text-sm font-semibold text-[#022E5A] dark:text-white"><%= featuredBlog.author %></p>
+              <p class="text-xs text-slate-400"><%= featuredBlog.date %></p>
+            </div>
+          </div>
+
+          <span class="hidden items-center gap-4 text-sm text-slate-400 sm:flex">
+            <span class="flex items-center gap-1.5"><i class="fa-regular fa-heart"></i> <%= featuredBlog.likes %></span>
+            <span class="flex items-center gap-1.5"><i class="fa-regular fa-comment"></i> <%= featuredBlog.comments %></span>
+          </span>
+        </div>
+
+        <span class="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-[#0878E8]">
+          Read article
+          <i class="fa-solid fa-arrow-right transition-transform group-hover:translate-x-1"></i>
+        </span>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- =========================================
+     Category filter + Grid
+========================================= -->
+<section class="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+  <!-- Category pills -->
+  <div id="category-bar" class="flex flex-wrap items-center gap-2 sm:gap-3" data-reveal>
+    <% categories.forEach(function (c, i) { %>
+      <button type="button"
+              class="blog-cat-pill"
+              data-category="<%= c.id %>"
+              aria-pressed="<%= c.id === 'all' ? 'true' : 'false' %>">
+        <i class="fa-solid <%= c.icon %>"></i> <%= c.label %>
+      </button>
+    <% }) %>
+  </div>
+
+  <!-- Result count -->
+  <p id="blog-count" class="mt-6 text-sm text-slate-500 dark:text-slate-400">
+    Showing <span id="blog-count-visible"><%= blogs.length %></span> of <%= blogs.length %> articles
+  </p>
+
+  <!-- Blog grid -->
+  <div id="blog-grid" class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <% blogs.forEach(function (post, i) { %>
+      <article
+        class="blog-card group flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200/70
+               transition-all hover:-translate-y-1 hover:shadow-lg dark:bg-slate-900 dark:ring-slate-800"
+        data-category="<%= post.category %>"
+        data-title="<%= post.title.toLowerCase() %>"
+        data-tags="<%= post.categoryLabel.toLowerCase() %>"
+        data-reveal data-reveal-delay="<%= (i % 3) * 80 %>"
+      >
+        <a href="/blogs/<%= post.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') %>"
+           class="relative block overflow-hidden h-44 sm:h-48">
+          <img src="<%= post.cover %>" alt=""
+               class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+
+          <span class="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#0878E8] shadow-sm backdrop-blur dark:bg-slate-900/90">
+            <%= post.categoryLabel %>
+          </span>
+        </a>
+
+        <div class="flex flex-1 flex-col p-5">
+          <a href="/blogs/<%= post.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') %>" class="block">
+            <h3 class="line-clamp-2 text-base font-semibold text-[#022E5A] transition-colors group-hover:text-[#0878E8] dark:text-white">
+              <%= post.title %>
+            </h3>
+            <p class="mt-2 line-clamp-2 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
+              <%= post.excerpt %>
+            </p>
+          </a>
+
+          <div class="mt-auto flex items-center justify-between gap-2 border-t border-slate-100 pt-4 dark:border-slate-800">
+            <div class="flex min-w-0 items-center gap-2">
+              <img src="<%= post.avatar %>" alt="" class="h-7 w-7 shrink-0 rounded-full" />
+              <div class="min-w-0 leading-tight">
+                <p class="truncate text-xs font-medium text-slate-700 dark:text-slate-200"><%= post.author %></p>
+                <p class="text-[11px] text-slate-400"><%= post.date %> · <%= post.readTime %></p>
+              </div>
+            </div>
+
+            <div class="flex shrink-0 items-center gap-3 text-xs text-slate-400">
+              <button type="button" class="blog-like-btn flex items-center gap-1 transition-colors hover:text-rose-500" aria-label="Like">
+                <i class="fa-regular fa-heart"></i> <span class="like-count"><%= post.likes %></span>
+              </button>
+              <span class="flex items-center gap-1"><i class="fa-regular fa-comment"></i> <%= post.comments %></span>
+            </div>
+          </div>
+        </div>
+      </article>
+    <% }) %>
+  </div>
+
+  <!-- Empty state (hidden by default) -->
+  <div id="blog-empty" class="hidden py-16 text-center" data-reveal>
+    <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500">
+      <i class="fa-solid fa-magnifying-glass text-xl"></i>
+    </div>
+    <h3 class="mt-4 text-base font-semibold text-[#022E5A] dark:text-white">No articles match</h3>
+    <p class="mt-1.5 text-sm text-slate-500 dark:text-slate-400">Try a different category or clear your search.</p>
+    <button type="button" id="blog-clear-filters"
+      class="mt-5 inline-flex items-center gap-2 rounded-full bg-[#0878E8] px-5 py-2.5 text-sm font-semibold text-white
+             transition-colors hover:bg-[#0668CC]">
+      <i class="fa-solid fa-rotate-right"></i> Clear filters
+    </button>
+  </div>
+</section>
+
+<!-- =========================================
+     Sidebar strip — popular + tags
+========================================= -->
+<section class="border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+  <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+    <div class="grid gap-10 lg:grid-cols-12 lg:gap-8">
+
+      <!-- Popular posts -->
+      <div class="lg:col-span-7" data-reveal>
+        <div class="mb-5 flex items-center gap-2">
+          <i class="fa-solid fa-fire text-amber-500"></i>
+          <h2 class="text-lg font-bold text-[#022E5A] dark:text-white sm:text-xl">Most read this month</h2>
+        </div>
+
+        <div class="space-y-3">
+          <% popularBlogs.forEach(function (p, i) { %>
+            <a href="/blogs/<%= p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') %>"
+               class="popular-item group flex items-center gap-4 rounded-2xl bg-[#FBFAF7] p-3 ring-1 ring-slate-200/70
+                      transition-all hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-950 dark:ring-slate-800">
+              <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0878E8]/10 text-xs font-bold text-[#0878E8]">
+                <%= i + 1 %>
+              </span>
+              <div class="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl">
+                <img src="<%= p.cover %>" alt="" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
+              </div>
+              <div class="min-w-0 flex-1">
+                <h3 class="line-clamp-2 text-sm font-semibold text-[#022E5A] transition-colors group-hover:text-[#0878E8] dark:text-white">
+                  <%= p.title %>
+                </h3>
+                <p class="mt-0.5 text-[11px] text-slate-400"><%= p.date %> · <%= p.readTime %></p>
+              </div>
+              <i class="fa-solid fa-arrow-right hidden text-xs text-slate-400 transition-transform group-hover:translate-x-0.5 group-hover:text-[#0878E8] sm:inline"></i>
+            </a>
+          <% }) %>
+        </div>
+      </div>
+
+      <!-- Tags -->
+      <aside class="lg:col-span-5" data-reveal data-reveal-delay="120">
+        <div class="rounded-2xl bg-[#FBFAF7] p-6 ring-1 ring-slate-200/70 dark:bg-slate-950 dark:ring-slate-800">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-hashtag text-[#0878E8]"></i>
+            <h2 class="text-lg font-bold text-[#022E5A] dark:text-white sm:text-xl">Browse by tag</h2>
+          </div>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <% popularTags.forEach(function (tag) { %>
+              <button type="button" class="blog-tag-chip" data-tag="<%= tag.replace('#', '') %>">
+                <%= tag %>
+              </button>
+            <% }) %>
+          </div>
+        </div>
+
+        <!-- Newsletter mini -->
+        <div class="mt-6 overflow-hidden rounded-2xl bg-gradient-to-br from-[#022E5A] via-[#053A72] to-[#0878E8] p-6 text-white shadow-xl">
+          <div class="flex items-center gap-2 text-emerald-300">
+            <span class="pulse-dot h-2 w-2 rounded-full bg-emerald-400"></span>
+            <span class="text-[10px] font-semibold uppercase tracking-widest">Weekly digest</span>
+          </div>
+          <h3 class="mt-3 text-base font-semibold">One email a week. Fresh reads only.</h3>
+          <p class="mt-1.5 text-xs text-white/80">No spam. Unsubscribe anytime.</p>
+
+          <form id="blog-newsletter" class="mt-4 flex gap-2" novalidate>
+            <input
+              type="email"
+              name="email"
+              required
+              placeholder="you@college.edu"
+              class="min-w-0 flex-1 rounded-full border border-white/20 bg-white/10 px-4 py-2.5 text-sm text-white placeholder-white/60 backdrop-blur
+                     focus:border-white/50 focus:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/30"
+            />
+            <button type="submit"
+              class="shrink-0 rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-[#022E5A] transition-transform hover:-translate-y-0.5">
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </form>
+          <p id="blog-newsletter-msg" class="mt-3 hidden text-xs"></p>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<!-- =========================================
+     Final CTA
+========================================= -->
+<section class="bg-[#FBFAF7] dark:bg-slate-950">
+  <div class="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6 sm:py-20 lg:px-8" data-reveal>
+    <h2 class="text-2xl text-[#022E5A] dark:text-white sm:text-3xl">Have a story worth sharing?</h2>
+    <p class="mt-3 text-sm text-slate-500 dark:text-slate-400 sm:text-base">
+      We publish student-written posts every week — study tips, exam stories, and honest
+      takes on what worked. Send yours.
+    </p>
+    <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+      <a href="/contact"
+        class="inline-flex items-center gap-2 rounded-full bg-[#0878E8] px-6 py-3 text-sm font-semibold text-white
+               shadow-sm transition-all hover:bg-[#0668CC] hover:shadow-md hover:-translate-y-0.5">
+        <i class="fa-solid fa-pen-fancy"></i> Submit a post
+      </a>
+      <button type="button" data-open-modal="signup"
+        class="rounded-full border border-slate-300 px-6 py-3 text-sm font-semibold text-[#022E5A]
+               transition-colors hover:bg-slate-900/5 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-white/10">
+        <i class="fa-solid fa-user-plus mr-1.5"></i> Join NoteSphere
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================
+     Page-specific styles
+========================================= -->
+<style>
+  /* ---------- Sticky-safe global guard (uses clip, NOT hidden) ---------- */
+  html, body { overflow-x: clip; max-width: 100%; }
+
+  /* ============================================================
+     Category pills
+  ============================================================ */
+  .blog-cat-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    border-radius: 9999px;
+    border: 1px solid rgb(203 213 225);
+    padding: 0.45rem 0.95rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: rgb(51 65 85);
+    background: #fff;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+  @media (min-width: 640px) {
+    .blog-cat-pill { padding: 0.5rem 1.1rem; font-size: 0.875rem; }
+  }
+  .dark .blog-cat-pill { border-color: rgb(51 65 85); color: rgb(203 213 225); background: rgb(15 23 42); }
+  .blog-cat-pill:hover {
+    border-color: #0878E8;
+    color: #0878E8;
+    transform: translateY(-1px);
+  }
+  .blog-cat-pill[aria-pressed="true"] {
+    background: #0878E8;
+    border-color: #0878E8;
+    color: #fff;
+    box-shadow: 0 8px 20px -8px rgba(8, 120, 232, 0.6);
+  }
+
+  /* ============================================================
+     Blog cards — gentle hide/show when filtering
+  ============================================================ */
+  .blog-card {
+    transition: opacity 0.35s ease, transform 0.35s ease,
+                box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+  .blog-card.is-filtered-out {
+    display: none;
+  }
+
+  /* ============================================================
+     Featured card
+  ============================================================ */
+  .featured-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  /* ============================================================
+     Popular items
+  ============================================================ */
+  .popular-item {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  /* ============================================================
+     Tag chips
+  ============================================================ */
+  .blog-tag-chip {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: rgb(71 85 105);
+    background: rgb(241 245 249);
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  .dark .blog-tag-chip { background: rgb(30 41 59); color: rgb(148 163 184); }
+  .blog-tag-chip:hover {
+    background: rgba(8, 120, 232, 0.1);
+    color: #0878E8;
+    transform: translateY(-2px);
+  }
+  .blog-tag-chip.is-active {
+    background: #0878E8;
+    color: #fff;
+  }
+
+  /* ============================================================
+     Like pop
+  ============================================================ */
+  @keyframes blogLikePop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.35); }
+    100% { transform: scale(1); }
+  }
+  .like-pop { animation: blogLikePop 0.25s ease; }
+
+  /* ============================================================
+     Live pulse (used in newsletter card)
+  ============================================================ */
+  @keyframes blogPulse {
+    0%   { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7); }
+    100% { box-shadow: 0 0 0 8px rgba(52, 211, 153, 0); }
+  }
+  .pulse-dot { animation: blogPulse 1.6s ease-out infinite; }
+
+  /* ============================================================
+     Reduced motion
+  ============================================================ */
+  @media (prefers-reduced-motion: reduce) {
+    .blog-card, .featured-card, .popular-item, .blog-cat-pill, .blog-tag-chip {
+      transition: none !important;
+      transform: none !important;
+    }
+    .like-pop, .pulse-dot { animation: none !important; }
+  }
+</style>
+
+<!-- =========================================
+     Page-specific scripts
+========================================= -->
+<script>
+  (function () {
+    /* ============================================================
+       Category filter + search
+    ============================================================ */
+    var grid        = document.getElementById('blog-grid');
+    var emptyEl     = document.getElementById('blog-empty');
+    var countEl     = document.getElementById('blog-count-visible');
+    var searchEl    = document.getElementById('blog-search');
+    var catBar      = document.getElementById('category-bar');
+    var clearBtn    = document.getElementById('blog-clear-filters');
+    var cards       = grid ? Array.from(grid.querySelectorAll('.blog-card')) : [];
+    var tagChips    = Array.from(document.querySelectorAll('.blog-tag-chip'));
+
+    var state = {
+      category: 'all',
+      query: '',
+      tag: ''
+    };
+
+    function applyFilters() {
+      var q = state.query.trim().toLowerCase();
+      var tag = state.tag.toLowerCase();
+      var visible = 0;
+
+      cards.forEach(function (card) {
+        var cat = card.dataset.category || '';
+        var title = card.dataset.title || '';
+        var tags = card.dataset.tags || '';
+
+        var matchesCategory = state.category === 'all' || cat === state.category;
+        var matchesQuery = !q || title.indexOf(q) !== -1 || tags.indexOf(q) !== -1;
+        var matchesTag = !tag || tags.indexOf(tag) !== -1 || title.indexOf(tag) !== -1;
+
+        var show = matchesCategory && matchesQuery && matchesTag;
+        card.classList.toggle('is-filtered-out', !show);
+        if (show) visible++;
+      });
+
+      if (countEl) countEl.textContent = visible;
+      if (emptyEl) emptyEl.classList.toggle('hidden', visible > 0);
+      if (grid) grid.classList.toggle('hidden', visible === 0);
+    }
+
+    if (catBar) {
+      catBar.addEventListener('click', function (e) {
+        var btn = e.target.closest('.blog-cat-pill');
+        if (!btn) return;
+        state.category = btn.dataset.category;
+        catBar.querySelectorAll('.blog-cat-pill').forEach(function (b) {
+          b.setAttribute('aria-pressed', String(b === btn));
+        });
+        applyFilters();
+      });
+    }
+
+    if (searchEl) {
+      var debounce = null;
+      searchEl.addEventListener('input', function () {
+        clearTimeout(debounce);
+        debounce = setTimeout(function () {
+          state.query = searchEl.value;
+          applyFilters();
+        }, 180);
+      });
+    }
+
+    tagChips.forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        var tag = chip.dataset.tag || '';
+        if (state.tag === tag) {
+          state.tag = '';
+          chip.classList.remove('is-active');
+        } else {
+          state.tag = tag;
+          tagChips.forEach(function (c) { c.classList.toggle('is-active', c === chip); });
+        }
+        applyFilters();
+        // Bring the grid into view for feedback
+        if (grid && state.tag) {
+          grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    if (clearBtn) {
+      clearBtn.addEventListener('click', function () {
+        state = { category: 'all', query: '', tag: '' };
+        if (searchEl) searchEl.value = '';
+        if (catBar) {
+          catBar.querySelectorAll('.blog-cat-pill').forEach(function (b) {
+            b.setAttribute('aria-pressed', String(b.dataset.category === 'all'));
+          });
+        }
+        tagChips.forEach(function (c) { c.classList.remove('is-active'); });
+        applyFilters();
+      });
+    }
+
+    /* ============================================================
+       Like buttons
+    ============================================================ */
+    document.querySelectorAll('.blog-like-btn').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var icon = btn.querySelector('i');
+        var countEl = btn.querySelector('.like-count');
+        var nowLiked = icon.classList.toggle('fa-solid');
+        icon.classList.toggle('fa-regular', !nowLiked);
+        icon.classList.toggle('text-rose-500', nowLiked);
+        countEl.textContent = String(Number(countEl.textContent) + (nowLiked ? 1 : -1));
+        btn.classList.add('like-pop');
+        setTimeout(function () { btn.classList.remove('like-pop'); }, 260);
+      });
+    });
+
+    /* ============================================================
+       Newsletter mini form
+    ============================================================ */
+    (function newsletter() {
+      var form = document.getElementById('blog-newsletter');
+      var msg  = document.getElementById('blog-newsletter-msg');
+      if (!form || !msg) return;
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var email = form.querySelector('input[name="email"]');
+        var value = (email.value || '').trim();
+        var ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+        msg.classList.remove('hidden', 'text-emerald-300', 'text-rose-300');
+        if (!ok) {
+          msg.textContent = 'Please enter a valid email.';
+          msg.classList.add('text-rose-300');
+          email.focus();
+          return;
+        }
+
+        var btn = form.querySelector('button[type="submit"]');
+        var original = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
+
+        fetch('/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({ email: value })
+        })
+        .catch(function () { return null; })
+        .then(function () {
+          msg.textContent = 'Thanks! Check your inbox to confirm.';
+          msg.classList.add('text-emerald-300');
+          form.reset();
+        })
+        .finally(function () {
+          btn.disabled = false;
+          btn.innerHTML = original;
+        });
+      });
+    })();
+
+    /* ============================================================
+       Guard: prevent any stray auto-scroll on load
+    ============================================================ */
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    window.addEventListener('load', function () {
+      if (!sessionStorage.getItem('ns-blogs-visited')) {
+        window.scrollTo(0, 0);
+        sessionStorage.setItem('ns-blogs-visited', '1');
+      }
+    });
+  })();
+</script>

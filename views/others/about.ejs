@@ -1,0 +1,516 @@
+<% layout("/layouts/boilerplate") -%>
+<%
+/* ============================================================
+   DUMMY DATA — swap with controller data later if needed.
+============================================================ */
+
+const missionPoints = [
+  {
+    icon: "fa-book-open-reader",
+    title: "Free, forever",
+    desc: "Every note on NoteSphere is free to download. No paywalls, no premium tiers hiding the good stuff behind a login."
+  },
+  {
+    icon: "fa-people-group",
+    title: "Community-first",
+    desc: "Built by students, for students. The library only grows because people choose to share what helped them."
+  },
+  {
+    icon: "fa-shield-halved",
+    title: "Safe & private",
+    desc: "We never sell your data, and we never show ads. Uploads stay yours — you can delete them any time."
+  },
+];
+
+const milestones = [
+  { year: "2024", month: "Aug", title: "Started as a side project", desc: "Two students tired of DMing PDFs to classmates built the first version over a weekend." },
+  { year: "2024", month: "Nov", title: "First 1,000 uploads", desc: "Word spread through one college. Within three months, students from 12 more joined." },
+  { year: "2025", month: "Mar", title: "Course-wise browsing launched", desc: "Notes got sorted by degree, semester, and subject — the feature everyone asked for." },
+  { year: "2025", month: "Sep", title: "Crossed 100k downloads", desc: "A single DBMS PDF was downloaded 4,200 times before an exam week. That was the moment we knew this mattered." },
+  { year: "2026", month: "Jan", title: "42+ courses covered", desc: "From B.Tech to B.Com to B.A. — every stream now has notes waiting." },
+];
+
+const values = [
+  { icon: "fa-hand-holding-heart", title: "Generosity over gatekeeping", desc: "Knowledge grows when shared. We reward contributors, not gatekeepers." },
+  { icon: "fa-wand-magic-sparkles", title: "Simple over clever", desc: "No feature bloat. If it doesn't help someone pass an exam, it doesn't ship." },
+  { icon: "fa-scale-balanced", title: "Fair to everyone", desc: "A first-year student gets the same quality as a final-year one. Always." },
+  { icon: "fa-seedling", title: "Built to last", desc: "We're not chasing a quick exit. This is a long-term home for student knowledge." },
+];
+
+const team = [
+  { name: "Aarav Sharma", role: "Co-founder & Developer", avatar: "https://i.pravatar.cc/128?img=68", bio: "Writes code, breaks code, fixes code. Believes good software should feel invisible." },
+  { name: "Diya Mehra", role: "Co-founder & Design", avatar: "https://i.pravatar.cc/128?img=45", bio: "Obsessed with tiny details. Draws every icon by hand before it hits the screen." },
+  { name: "Vihaan Kapoor", role: "Community Lead", avatar: "https://i.pravatar.cc/128?img=13", bio: "Talks to students all day. Turns their complaints into the roadmap." },
+  { name: "Ananya Reddy", role: "Content & Curation", avatar: "https://i.pravatar.cc/128?img=49", bio: "Reads every uploaded PDF. Flags duplicates, formats, and unsorted notes." },
+];
+
+const faqs = [
+  { q: "Is NoteSphere really free?", a: "Yes. Every note, every download, every feature — free. No ads, no paid tiers, no hidden costs." },
+  { q: "Do I need an account to download notes?", a: "No. Public notes are open. You only need an account to upload or to save notes to a personal list." },
+  { q: "Who owns the notes I upload?", a: "You do. We just host them. You can delete your uploads at any time, and they'll be removed everywhere." },
+  { q: "How do you prevent low-quality uploads?", a: "Students upvote what helped them, and the highest-rated notes rise to the top. We also flag duplicates and empty scans." },
+  { q: "Can my college get involved?", a: "Absolutely. Reach out through our contact page and we'll set up a college-specific library that only your students can access." },
+  { q: "How can I help?", a: "Upload one set of notes you've already written. That's it. One upload can help thousands of students." },
+];
+
+const stats = [
+  { label: "Notes uploaded",     value: 24600, suffix: "+" },
+  { label: "Active contributors", value: 3150,  suffix: "+" },
+  { label: "Downloads served",   value: 189000, suffix: "+" },
+  { label: "Courses covered",    value: 42,    suffix: "+" },
+];
+%>
+
+<!-- =========================================
+     Hero
+========================================= -->
+<section class="relative overflow-hidden bg-[#FBFAF7] dark:bg-slate-950">
+  <div class="pointer-events-none absolute -top-32 -left-24 h-72 w-72 rounded-full bg-[#0878E8]/10 blur-3xl sm:-left-32 sm:h-96 sm:w-96"></div>
+  <div class="pointer-events-none absolute -bottom-40 -right-24 h-72 w-72 rounded-full bg-amber-400/10 blur-3xl sm:-right-32 sm:h-96 sm:w-96"></div>
+
+  <div class="relative mx-auto max-w-4xl px-4 py-16 text-center sm:px-6 sm:py-24 lg:px-8">
+    <span class="inline-flex items-center gap-2 rounded-full border border-[#0878E8]/25 bg-[#0878E8]/5 px-3 py-1 text-xs font-medium text-[#0878E8] sm:text-sm" data-reveal>
+      <i class="fa-solid fa-circle-info"></i> About NoteSphere
+    </span>
+
+    <h1 class="mt-5 text-3xl leading-tight text-[#022E5A] dark:text-white sm:text-4xl md:text-5xl" data-reveal data-reveal-delay="80">
+      A library built by students, for students
+    </h1>
+
+    <p class="mx-auto mt-5 max-w-2xl text-base text-slate-600 dark:text-slate-300 sm:text-lg" data-reveal data-reveal-delay="160">
+      NoteSphere started because sharing notes shouldn't be hard. No WhatsApp groups,
+      no broken Google Drive links, no endless scrolling through chat history.
+      Just a clean place where students put their notes, and everyone else finds them.
+    </p>
+
+    <div class="mt-8 flex flex-wrap items-center justify-center gap-3" data-reveal data-reveal-delay="240">
+      <a href="/notes"
+        class="rounded-full bg-[#0878E8] px-6 py-3 text-sm font-semibold text-white shadow-sm
+               transition-all hover:bg-[#0668CC] hover:shadow-md hover:-translate-y-0.5">
+        <i class="fa-solid fa-magnifying-glass mr-1.5"></i> Explore notes
+      </a>
+      <a href="/contact"
+        class="rounded-full border border-slate-300 px-6 py-3 text-sm font-semibold text-[#022E5A]
+               transition-colors hover:bg-slate-900/5 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-white/10">
+        <i class="fa-solid fa-envelope mr-1.5"></i> Get in touch
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================
+     Stats bar — animated count-up
+========================================= -->
+<section class="border-y border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+  <div class="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 py-10 sm:gap-8 sm:px-6 sm:py-12 md:grid-cols-4 lg:px-8">
+    <% stats.forEach(function (s, i) { %>
+      <div class="text-center" data-reveal data-reveal-delay="<%= i * 80 %>">
+        <p class="text-2xl font-bold tabular-nums text-[#022E5A] dark:text-white sm:text-4xl">
+          <span class="stat-count" data-target="<%= s.value %>" data-suffix="<%= s.suffix %>">0</span>
+        </p>
+        <p class="mt-1.5 text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400 sm:mt-2 sm:text-sm"><%= s.label %></p>
+      </div>
+    <% }) %>
+  </div>
+</section>
+
+<!-- =========================================
+     Mission — three cards
+========================================= -->
+<section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+  <div class="mx-auto max-w-2xl text-center" data-reveal>
+    <h2 class="text-2xl text-[#022E5A] dark:text-white sm:text-3xl">What we stand for</h2>
+    <p class="mt-3 text-sm text-slate-500 dark:text-slate-400 sm:text-base">
+      Three ideas that guide every decision we make — from what features ship, to what we refuse to build.
+    </p>
+  </div>
+
+  <div class="mt-10 grid gap-6 sm:mt-12 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3">
+    <% missionPoints.forEach(function (m, i) { %>
+      <div class="about-mission-card group rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200/70
+                  dark:bg-slate-900 dark:ring-slate-800 sm:p-7"
+           data-reveal data-reveal-delay="<%= i * 100 %>">
+        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-[#0878E8]/10 text-[#0878E8]
+                    transition-transform group-hover:scale-110 group-hover:-rotate-6">
+          <i class="fa-solid <%= m.icon %> text-lg"></i>
+        </div>
+        <h3 class="mt-4 text-lg font-semibold text-[#022E5A] dark:text-white"><%= m.title %></h3>
+        <p class="mt-2 text-sm leading-relaxed text-slate-500 dark:text-slate-400"><%= m.desc %></p>
+      </div>
+    <% }) %>
+  </div>
+</section>
+
+<!-- =========================================
+     Our story — timeline
+========================================= -->
+<section class="bg-white dark:bg-slate-900">
+  <div class="mx-auto max-w-5xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+    <div class="mx-auto max-w-2xl text-center" data-reveal>
+      <h2 class="text-2xl text-[#022E5A] dark:text-white sm:text-3xl">How we got here</h2>
+      <p class="mt-3 text-sm text-slate-500 dark:text-slate-400 sm:text-base">
+        From a weekend project to a library used by thousands of students across 42+ courses.
+      </p>
+    </div>
+
+    <ol class="about-timeline relative mt-12 space-y-8 sm:mt-14">
+      <% milestones.forEach(function (m, i) { %>
+        <li class="about-timeline-item relative pl-12 sm:pl-16"
+            data-reveal data-reveal-delay="<%= i * 90 %>">
+          <!-- dot -->
+          <span class="about-timeline-dot absolute left-0 top-1 flex h-9 w-9 items-center justify-center rounded-full
+                       bg-[#0878E8] text-white shadow-md ring-4 ring-white
+                       dark:ring-slate-900 sm:h-10 sm:w-10">
+            <i class="fa-solid fa-flag text-xs sm:text-sm"></i>
+          </span>
+          <!-- content -->
+          <div class="rounded-2xl bg-[#FBFAF7] p-4 ring-1 ring-slate-200/70 dark:bg-slate-950 dark:ring-slate-800 sm:p-5">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="rounded-full bg-[#0878E8]/10 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-[#0878E8]">
+                <%= m.month %> <%= m.year %>
+              </span>
+              <h3 class="text-sm font-semibold text-[#022E5A] dark:text-white sm:text-base"><%= m.title %></h3>
+            </div>
+            <p class="mt-2 text-sm leading-relaxed text-slate-500 dark:text-slate-400"><%= m.desc %></p>
+          </div>
+        </li>
+      <% }) %>
+    </ol>
+  </div>
+</section>
+
+<!-- =========================================
+     Values — 4 cards
+========================================= -->
+<section class="bg-[#FBFAF7] dark:bg-slate-950">
+  <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+    <div class="mx-auto max-w-2xl text-center" data-reveal>
+      <h2 class="text-2xl text-[#022E5A] dark:text-white sm:text-3xl">The values behind the code</h2>
+      <p class="mt-3 text-sm text-slate-500 dark:text-slate-400 sm:text-base">
+        These aren't poster slogans. They decide what we build and how we treat our users.
+      </p>
+    </div>
+
+    <div class="mt-10 grid gap-5 sm:mt-12 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
+      <% values.forEach(function (v, i) { %>
+        <div class="about-value-card rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70
+                    dark:bg-slate-900 dark:ring-slate-800 sm:p-6"
+             data-reveal data-reveal-delay="<%= i * 80 %>">
+          <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600">
+            <i class="fa-solid <%= v.icon %>"></i>
+          </div>
+          <h3 class="mt-4 text-base font-semibold text-[#022E5A] dark:text-white"><%= v.title %></h3>
+          <p class="mt-2 text-sm leading-relaxed text-slate-500 dark:text-slate-400"><%= v.desc %></p>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================
+     Team
+========================================= -->
+<section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+  <div class="mx-auto max-w-2xl text-center" data-reveal>
+    <h2 class="text-2xl text-[#022E5A] dark:text-white sm:text-3xl">The people behind it</h2>
+    <p class="mt-3 text-sm text-slate-500 dark:text-slate-400 sm:text-base">
+      Four students who'd rather build this than scroll through group chats looking for PDFs.
+    </p>
+  </div>
+
+  <div class="mt-10 grid gap-6 sm:mt-12 sm:grid-cols-2 lg:grid-cols-4">
+    <% team.forEach(function (t, i) { %>
+      <div class="about-team-card group overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200/70
+                  dark:bg-slate-900 dark:ring-slate-800"
+           data-reveal data-reveal-delay="<%= i * 90 %>">
+        <div class="relative aspect-square overflow-hidden bg-gradient-to-br from-[#0878E8]/10 to-[#5CA6F0]/10">
+          <img src="<%= t.avatar %>" alt="<%= t.name %>"
+               class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+          <!-- social reveal on hover -->
+          <div class="about-team-social absolute inset-x-0 bottom-0 flex justify-center gap-2 p-3 opacity-0 translate-y-3
+                      transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
+            <a href="#" aria-label="<%= t.name %> on Twitter" class="about-team-social-btn">
+              <i class="fa-brands fa-x-twitter"></i>
+            </a>
+            <a href="#" aria-label="<%= t.name %> on LinkedIn" class="about-team-social-btn">
+              <i class="fa-brands fa-linkedin-in"></i>
+            </a>
+            <a href="#" aria-label="Email <%= t.name %>" class="about-team-social-btn">
+              <i class="fa-solid fa-envelope"></i>
+            </a>
+          </div>
+        </div>
+        <div class="p-5">
+          <h3 class="text-base font-semibold text-[#022E5A] dark:text-white"><%= t.name %></h3>
+          <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-[#0878E8]"><%= t.role %></p>
+          <p class="mt-3 text-sm leading-relaxed text-slate-500 dark:text-slate-400"><%= t.bio %></p>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</section>
+
+<!-- =========================================
+     FAQ — accordion
+========================================= -->
+<section class="bg-white dark:bg-slate-900">
+  <div class="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+    <div class="mx-auto max-w-2xl text-center" data-reveal>
+      <h2 class="text-2xl text-[#022E5A] dark:text-white sm:text-3xl">Frequently asked questions</h2>
+      <p class="mt-3 text-sm text-slate-500 dark:text-slate-400 sm:text-base">
+        The questions we get asked most. Can't find yours? <a href="/contact" class="font-semibold text-[#0878E8] hover:underline">Contact us</a>.
+      </p>
+    </div>
+
+    <div class="about-faq mt-10 space-y-3 sm:mt-12">
+      <% faqs.forEach(function (f, i) { %>
+        <details class="about-faq-item group rounded-2xl bg-[#FBFAF7] ring-1 ring-slate-200/70
+                        dark:bg-slate-950 dark:ring-slate-800"
+                 data-reveal data-reveal-delay="<%= i * 60 %>"
+                 <%= i === 0 ? 'open' : '' %>>
+          <summary class="about-faq-summary flex cursor-pointer list-none items-center justify-between gap-4 p-4 sm:p-5">
+            <span class="text-sm font-semibold text-[#022E5A] dark:text-white sm:text-base"><%= f.q %></span>
+            <span class="about-faq-icon flex h-7 w-7 shrink-0 items-center justify-center rounded-full
+                         bg-[#0878E8]/10 text-[#0878E8] transition-transform">
+              <i class="fa-solid fa-plus text-xs"></i>
+            </span>
+          </summary>
+          <div class="about-faq-body px-4 pb-4 text-sm leading-relaxed text-slate-500 dark:text-slate-400 sm:px-5 sm:pb-5">
+            <%= f.a %>
+          </div>
+        </details>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================
+     Final CTA
+========================================= -->
+<section class="bg-[#FBFAF7] dark:bg-slate-950">
+  <div class="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6 sm:py-20 lg:px-8" data-reveal>
+    <h2 class="text-2xl text-[#022E5A] dark:text-white sm:text-3xl">Have notes someone else could use?</h2>
+    <p class="mt-3 text-sm text-slate-500 dark:text-slate-400 sm:text-base">
+      You've already written them. Uploading takes 30 seconds, and one upload can help thousands of students.
+    </p>
+    <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+      <button type="button" data-open-modal="signup"
+        class="rounded-full bg-[#0878E8] px-8 py-3 text-sm font-semibold text-white shadow-sm
+               transition-all hover:bg-[#0668CC] hover:shadow-md hover:-translate-y-0.5">
+        <i class="fa-solid fa-cloud-arrow-up mr-1.5"></i> Upload your notes
+      </button>
+      <a href="/notes"
+        class="rounded-full border border-slate-300 px-8 py-3 text-sm font-semibold text-[#022E5A]
+               transition-colors hover:bg-slate-900/5 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-white/10">
+        Browse the library
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================
+     Page-specific styles
+========================================= -->
+<style>
+  /* ---------- Global overflow guard ---------- */
+  html, body { overflow-x: clip; max-width: 100%; width: 100%; }
+
+  /* ============================================================
+     Mission cards
+  ============================================================ */
+  .about-mission-card {
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+  .about-mission-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 45px -20px rgba(8, 120, 232, 0.35);
+  }
+
+  /* ============================================================
+     Timeline
+  ============================================================ */
+  .about-timeline::before {
+    content: "";
+    position: absolute;
+    left: 1.125rem; /* centers under the 36px dot */
+    top: 0.25rem;
+    bottom: 0.25rem;
+    width: 2px;
+    background: linear-gradient(to bottom, rgba(8, 120, 232, 0.4), rgba(8, 120, 232, 0.05));
+    border-radius: 2px;
+  }
+  @media (min-width: 640px) {
+    .about-timeline::before { left: 1.25rem; }
+  }
+  .about-timeline-dot { z-index: 1; }
+  .about-timeline-item {
+    transition: transform 0.3s ease;
+  }
+  .about-timeline-item:hover { transform: translateX(3px); }
+  .about-timeline-item:hover .about-timeline-dot {
+    animation: timelinePop 0.35s ease;
+  }
+  @keyframes timelinePop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+
+  /* ============================================================
+     Values cards
+  ============================================================ */
+  .about-value-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+  .about-value-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 40px -20px rgba(245, 158, 11, 0.35);
+  }
+  .about-value-card i { transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .about-value-card:hover i { transform: rotate(15deg) scale(1.1); }
+
+  /* ============================================================
+     Team cards
+  ============================================================ */
+  .about-team-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+  .about-team-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 24px 50px -22px rgba(8, 120, 232, 0.4);
+  }
+  .about-team-social {
+    background: linear-gradient(to top, rgba(2, 46, 90, 0.9), transparent);
+  }
+  .about-team-social-btn {
+    display: flex; height: 2rem; width: 2rem;
+    align-items: center; justify-content: center;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    font-size: 0.75rem;
+    backdrop-filter: blur(6px);
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  .about-team-social-btn:hover {
+    background: #0878E8;
+    transform: translateY(-2px);
+  }
+
+  /* ============================================================
+     FAQ accordion
+  ============================================================ */
+  .about-faq-summary::-webkit-details-marker { display: none; }
+  .about-faq-summary::marker { content: ""; }
+
+  .about-faq-item {
+    transition: box-shadow 0.25s ease, background 0.25s ease;
+  }
+  .about-faq-item[open] {
+    box-shadow: 0 12px 30px -18px rgba(8, 120, 232, 0.35);
+  }
+  .about-faq-item[open] .about-faq-icon {
+    transform: rotate(45deg);
+    background: #0878E8;
+    color: white;
+  }
+
+  /* Smooth open/close using grid trick — works in all modern browsers */
+  .about-faq-body {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s ease, padding 0.3s ease;
+    overflow: hidden;
+  }
+  .about-faq-item[open] .about-faq-body {
+    grid-template-rows: 1fr;
+  }
+  .about-faq-body > * { min-height: 0; }
+  /* When closed, no padding bottom to avoid jump */
+  .about-faq-item:not([open]) .about-faq-body {
+    padding-bottom: 0;
+  }
+
+  /* ============================================================
+     Reduced motion
+  ============================================================ */
+  @media (prefers-reduced-motion: reduce) {
+    .about-mission-card,
+    .about-value-card,
+    .about-team-card,
+    .about-timeline-item,
+    .about-faq-icon,
+    .about-value-card i {
+      transition: none !important;
+      animation: none !important;
+    }
+    .about-faq-body { transition: none; }
+  }
+</style>
+
+<!-- =========================================
+     Page-specific scripts
+========================================= -->
+<script>
+  (function () {
+    /* ============================================================
+       Stats — count-up on scroll
+    ============================================================ */
+    (function statCounters() {
+      var els = document.querySelectorAll('.stat-count');
+      if (!els.length) return;
+      var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function animate(el) {
+        var target = Number(el.dataset.target) || 0;
+        var suffix = el.dataset.suffix || '';
+        if (prefersReduced) { el.textContent = target.toLocaleString() + suffix; return; }
+        var duration = 1800;
+        var start = performance.now();
+        function frame(now) {
+          var p = Math.min((now - start) / duration, 1);
+          var eased = 1 - Math.pow(1 - p, 3);
+          var value = Math.floor(eased * target);
+          el.textContent = value.toLocaleString() + (p === 1 ? suffix : '');
+          if (p < 1) requestAnimationFrame(frame);
+          else el.textContent = target.toLocaleString() + suffix;
+        }
+        requestAnimationFrame(frame);
+      }
+
+      var io = new IntersectionObserver(function (entries, obs) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { animate(e.target); obs.unobserve(e.target); }
+        });
+      }, { threshold: 0.4 });
+      els.forEach(function (el) { io.observe(el); });
+    })();
+
+    /* ============================================================
+       FAQ — close others when one opens (single-open accordion)
+    ============================================================ */
+    (function faqAccordion() {
+      var items = document.querySelectorAll('.about-faq-item');
+      if (!items.length) return;
+      items.forEach(function (item) {
+        item.addEventListener('toggle', function () {
+          if (!item.open) return;
+          items.forEach(function (other) {
+            if (other !== item && other.open) other.open = false;
+          });
+        });
+      });
+    })();
+
+    /* ============================================================
+       Guard: prevent page auto-scroll to any stray hash on load
+    ============================================================ */
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    window.addEventListener('load', function () {
+      if (!sessionStorage.getItem('ns-about-visited')) {
+        window.scrollTo(0, 0);
+        sessionStorage.setItem('ns-about-visited', '1');
+      }
+    });
+  })();
+</script>

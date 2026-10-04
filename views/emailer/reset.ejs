@@ -1,0 +1,320 @@
+<% layout("/layouts/boilerplate") -%>
+
+<section class="relative flex min-h-[calc(100vh-4rem)] items-center justify-center overflow-hidden bg-[#FBFAF7] px-4 py-12 dark:bg-slate-950 sm:py-16">
+
+  <!-- Soft radial glows (same as home) -->
+  <div class="pointer-events-none absolute -top-32 -left-24 h-72 w-72 rounded-full bg-[#0878E8]/10 blur-3xl sm:-left-32 sm:h-96 sm:w-96"></div>
+  <div class="pointer-events-none absolute -bottom-40 -right-24 h-72 w-72 rounded-full bg-amber-400/10 blur-3xl sm:-right-32 sm:h-96 sm:w-96"></div>
+
+  <div class="relative mx-auto grid w-full max-w-5xl gap-10 lg:grid-cols-2 lg:gap-16 lg:items-center">
+
+    <!-- =========================================
+         LEFT: Marketing side (desktop only)
+    ========================================= -->
+    <div class="hidden lg:block">
+      <span class="inline-flex items-center gap-2 rounded-full border border-[#0878E8]/25 bg-[#0878E8]/5 px-3 py-1 text-sm font-medium text-[#0878E8]">
+        <i class="fa-solid fa-shield-halved"></i> Account security
+      </span>
+
+      <h1 class="mt-5 text-4xl font-bold leading-tight text-[#022E5A] dark:text-white">
+        Pick a strong password
+      </h1>
+
+      <p class="mt-4 max-w-md text-base text-slate-600 dark:text-slate-300">
+        Choose something you'll remember but that's hard for anyone else to guess. Your password protects everything you upload and save on NoteSphere.
+      </p>
+
+      <ul class="mt-8 space-y-3 text-sm text-slate-700 dark:text-slate-300">
+        <li class="flex items-start gap-3">
+          <span class="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600">
+            <i class="fa-solid fa-check text-[10px]"></i>
+          </span>
+          At least 8 characters long
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600">
+            <i class="fa-solid fa-check text-[10px]"></i>
+          </span>
+          Mix letters, numbers, and symbols
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600">
+            <i class="fa-solid fa-check text-[10px]"></i>
+          </span>
+          Avoid common words and personal dates
+        </li>
+      </ul>
+    </div>
+
+    <!-- =========================================
+         RIGHT: Reset-password card
+    ========================================= -->
+    <div class="w-full">
+      <div class="rounded-3xl bg-white p-7 shadow-xl ring-1 ring-slate-200/70 dark:bg-slate-900 dark:ring-slate-800 sm:p-9">
+
+        <!-- Icon -->
+        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#0878E8]/10 text-[#0878E8]">
+          <i class="fa-solid fa-key text-xl"></i>
+        </div>
+
+        <!-- Header -->
+        <div class="mt-5 text-center">
+          <h2 class="font-script text-3xl leading-none text-[#022E5A] dark:text-white">
+            Set a new password
+          </h2>
+          <p class="mt-3 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
+            Choose a strong password to keep your NoteSphere account secure.
+          </p>
+        </div>
+
+        <!-- Form -->
+        <form id="resetForm" action="/reset-password/<%= token %>" method="POST" class="mt-7 space-y-5" novalidate>
+
+          <!-- New password -->
+          <div>
+            <label for="password" class="mb-1.5 block text-sm font-medium text-slate-600 dark:text-slate-300">
+              New password
+            </label>
+            <div class="relative">
+              <i class="fa-solid fa-lock pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                minlength="8"
+                autocomplete="new-password"
+                placeholder="At least 8 characters"
+                class="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-10 text-sm text-slate-900 placeholder-slate-400
+                       transition-colors
+                       focus:border-[#0878E8] focus:outline-none focus:ring-2 focus:ring-[#0878E8]/25
+                       dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:placeholder-slate-500"
+              />
+              <button type="button" id="togglePassword" aria-label="Show password"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-[#0878E8]">
+                <i id="passwordIcon" class="fa-regular fa-eye"></i>
+              </button>
+            </div>
+
+            <!-- Strength meter (auto-shows while typing) -->
+            <div id="strengthWrap" class="mt-2 hidden">
+              <div class="flex h-1 gap-1">
+                <span class="h-full flex-1 rounded-full bg-slate-200 transition-colors dark:bg-slate-700" data-strength-bar="1"></span>
+                <span class="h-full flex-1 rounded-full bg-slate-200 transition-colors dark:bg-slate-700" data-strength-bar="2"></span>
+                <span class="h-full flex-1 rounded-full bg-slate-200 transition-colors dark:bg-slate-700" data-strength-bar="3"></span>
+                <span class="h-full flex-1 rounded-full bg-slate-200 transition-colors dark:bg-slate-700" data-strength-bar="4"></span>
+              </div>
+              <p id="strengthLabel" class="mt-1.5 text-[11px] text-slate-400">
+                Use 8+ characters with a mix of letters, numbers, and symbols.
+              </p>
+            </div>
+          </div>
+
+          <!-- Confirm password -->
+          <div>
+            <label for="confirm" class="mb-1.5 block text-sm font-medium text-slate-600 dark:text-slate-300">
+              Confirm new password
+            </label>
+            <div class="relative">
+              <i class="fa-solid fa-lock pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+              <input
+                id="confirm"
+                name="confirm"
+                type="password"
+                required
+                minlength="8"
+                autocomplete="new-password"
+                placeholder="Re-enter your password"
+                class="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 placeholder-slate-400
+                       transition-colors
+                       focus:border-[#0878E8] focus:outline-none focus:ring-2 focus:ring-[#0878E8]/25
+                       dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:placeholder-slate-500"
+              />
+            </div>
+            <p id="confirmError" class="mt-1.5 hidden text-[11px] text-rose-500">
+              Passwords don't match.
+            </p>
+          </div>
+
+          <!-- Submit -->
+          <button
+            type="submit"
+            id="resetButton"
+            class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#0878E8] py-2.5 text-sm font-semibold text-white
+                   transition-all hover:bg-[#0668CC] hover:shadow-md
+                   focus:outline-none focus:ring-2 focus:ring-[#0878E8] focus:ring-offset-2
+                   disabled:cursor-not-allowed disabled:opacity-70
+                   dark:focus:ring-offset-slate-900"
+          >
+            <span id="buttonText" class="inline-flex items-center gap-2">
+              <i class="fa-solid fa-circle-check"></i> Reset password
+            </span>
+            <span id="buttonLoader" class="hidden items-center gap-2">
+              <i class="fa-solid fa-circle-notch fa-spin"></i> Resetting…
+            </span>
+          </button>
+        </form>
+
+        <!-- Divider -->
+        <div class="my-6 flex items-center gap-3">
+          <span class="h-px flex-1 bg-slate-200 dark:bg-slate-800"></span>
+          <span class="text-[11px] font-semibold uppercase tracking-widest text-slate-400">or</span>
+          <span class="h-px flex-1 bg-slate-200 dark:bg-slate-800"></span>
+        </div>
+
+        <!-- Help -->
+        <p class="text-center text-sm text-slate-500 dark:text-slate-400">
+          Facing issues?
+          <a href="/contact" class="font-semibold text-[#0878E8] hover:underline">Contact support</a>
+        </p>
+
+        <!-- Back to login -->
+        <div class="mt-6 border-t border-slate-200 pt-5 text-center dark:border-slate-800">
+          <a href="/login" class="inline-flex items-center gap-1.5 text-sm font-medium text-[#0878E8] hover:underline">
+            <i class="fa-solid fa-arrow-left text-xs"></i> Back to login
+          </a>
+        </div>
+
+      </div>
+
+      <p class="mt-6 text-center text-xs text-slate-400">
+        Your password is encrypted and securely stored by NoteSphere.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<!-- =========================================
+     Page-specific styles
+========================================= -->
+<style>
+  .font-script { font-family: 'Lora', serif; font-style: italic; font-weight: 600; }
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #fff inset !important;
+    box-shadow: 0 0 0 30px #fff inset !important;
+    -webkit-text-fill-color: #0f172a !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+  .dark input:-webkit-autofill,
+  .dark input:-webkit-autofill:hover,
+  .dark input:-webkit-autofill:focus,
+  .dark input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #0f172a inset !important;
+    box-shadow: 0 0 0 30px #0f172a inset !important;
+    -webkit-text-fill-color: #e2e8f0 !important;
+  }
+</style>
+
+<!-- =========================================
+     Page-specific scripts
+========================================= -->
+<script>
+  (function () {
+    const form = document.getElementById("resetForm");
+    const btn = document.getElementById("resetButton");
+    const btnText = document.getElementById("buttonText");
+    const btnLoader = document.getElementById("buttonLoader");
+    const pwEl = document.getElementById("password");
+    const confirmEl = document.getElementById("confirm");
+    const toggleBtn = document.getElementById("togglePassword");
+    const toggleIcon = document.getElementById("passwordIcon");
+    const strengthWrap = document.getElementById("strengthWrap");
+    const strengthLabel = document.getElementById("strengthLabel");
+    const confirmError = document.getElementById("confirmError");
+
+    /* ---------- Show / hide password ---------- */
+    toggleBtn?.addEventListener("click", function () {
+      const isPassword = pwEl.type === "password";
+      pwEl.type = isPassword ? "text" : "password";
+      toggleIcon.classList.toggle("fa-eye", !isPassword);
+      toggleIcon.classList.toggle("fa-eye-slash", isPassword);
+      toggleIcon.classList.toggle("text-[#0878E8]", isPassword);
+    });
+
+    /* ---------- Password strength ---------- */
+    function scorePassword(pw) {
+      if (!pw) return 0;
+      let score = 0;
+      if (pw.length >= 8)  score++;
+      if (pw.length >= 12) score++;
+      if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score++;
+      if (/\d/.test(pw))   score++;
+      if (/[^A-Za-z0-9]/.test(pw)) score++;
+      return Math.min(4, Math.max(1, score));
+    }
+
+    const strengthColors = ["bg-rose-500", "bg-amber-500", "bg-yellow-400", "bg-emerald-500"];
+    const strengthLabels = [
+      "Too weak",
+      "Weak — add more characters",
+      "Fair — add numbers or symbols",
+      "Strong password"
+    ];
+
+    pwEl?.addEventListener("input", function () {
+      const has = pwEl.value.length > 0;
+      strengthWrap.classList.toggle("hidden", !has);
+      if (!has) return;
+
+      const score = scorePassword(pwEl.value);
+      strengthWrap.querySelectorAll("[data-strength-bar]").forEach(function (bar, i) {
+        bar.className = "h-full flex-1 rounded-full transition-colors " +
+          (i < score ? strengthColors[score - 1] : "bg-slate-200 dark:bg-slate-700");
+      });
+      strengthLabel.textContent = strengthLabels[score - 1] || strengthLabels[0];
+
+      // Live-match check while typing
+      checkMatch();
+    });
+
+    /* ---------- Confirm password match ---------- */
+    function checkMatch() {
+      const mismatch = confirmEl.value.length > 0 && confirmEl.value !== pwEl.value;
+      confirmError.classList.toggle("hidden", !mismatch);
+      confirmEl.classList.toggle("border-rose-400", mismatch);
+      confirmEl.classList.toggle("focus:border-rose-400", mismatch);
+      confirmEl.classList.toggle("focus:ring-rose-400/25", mismatch);
+      return !mismatch;
+    }
+    confirmEl?.addEventListener("input", checkMatch);
+
+    /* ---------- Submit ---------- */
+    function setLoading(on) {
+      if (on) {
+        btnText.classList.add("hidden");
+        btnLoader.classList.remove("hidden");
+        btnLoader.classList.add("inline-flex");
+        btn.disabled = true;
+      } else {
+        btnText.classList.remove("hidden");
+        btnLoader.classList.add("hidden");
+        btnLoader.classList.remove("inline-flex");
+        btn.disabled = false;
+      }
+    }
+
+    form?.addEventListener("submit", function (e) {
+      if (!checkMatch()) {
+        e.preventDefault();
+        confirmEl.focus();
+        return;
+      }
+      if ((pwEl.value || "").length < 8) {
+        e.preventDefault();
+        pwEl.focus();
+        return;
+      }
+      setLoading(true);
+    });
+
+    /* ---------- Auto-focus first field ---------- */
+    document.addEventListener("DOMContentLoaded", function () {
+      pwEl?.focus();
+    });
+  })();
+</script>

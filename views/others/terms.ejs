@@ -1,0 +1,584 @@
+<% layout("/layouts/boilerplate") -%>
+<%
+const lastUpdated = "September 27, 2026";
+const effectiveDate = "October 1, 2026";
+
+const toc = [
+  { id: "acceptance",   label: "Acceptance of terms",         icon: "fa-handshake" },
+  { id: "eligibility",  label: "Who can use NoteSphere",      icon: "fa-user-check" },
+  { id: "account",      label: "Your account",                icon: "fa-user-lock" },
+  { id: "uploads",      label: "Uploading notes",             icon: "fa-cloud-arrow-up" },
+  { id: "conduct",      label: "Acceptable use",              icon: "fa-scale-balanced" },
+  { id: "copyright",    label: "Copyright & takedowns",       icon: "fa-copyright" },
+  { id: "downloads",    label: "Downloading & using notes",   icon: "fa-download" },
+  { id: "ip",           label: "Our intellectual property",   icon: "fa-lightbulb" },
+  { id: "termination",  label: "Suspension & termination",    icon: "fa-user-slash" },
+  { id: "disclaimer",   label: "Disclaimers",                 icon: "fa-triangle-exclamation" },
+  { id: "liability",    label: "Limitation of liability",     icon: "fa-shield-halved" },
+  { id: "changes",      label: "Changes to these terms",      icon: "fa-pen-to-square" },
+  { id: "law",          label: "Governing law",               icon: "fa-gavel" },
+  { id: "contact",      label: "Contact us",                  icon: "fa-envelope" },
+];
+
+const highlights = [
+  { icon: "fa-hand-holding-heart", title: "Free to use",           desc: "The library is free — no paywall, no hidden fees, ever." },
+  { icon: "fa-copyright",          title: "Share what's yours",     desc: "Only upload notes you actually have the right to share." },
+  { icon: "fa-people-group",       title: "Be decent to others",    desc: "No harassment, no spam, no gaming the system." },
+  { icon: "fa-right-from-bracket", title: "Leave any time",         desc: "Delete your account and notes whenever you want." },
+];
+%>
+
+<!-- =========================================
+     Hero
+========================================= -->
+<section class="relative overflow-hidden bg-[#FBFAF7] dark:bg-slate-950">
+  <div class="pointer-events-none absolute -top-32 -left-24 h-72 w-72 rounded-full bg-[#0878E8]/10 blur-3xl sm:-left-32 sm:h-96 sm:w-96"></div>
+  <div class="pointer-events-none absolute -bottom-40 -right-24 h-72 w-72 rounded-full bg-amber-400/10 blur-3xl sm:-right-32 sm:h-96 sm:w-96"></div>
+
+  <div class="relative mx-auto max-w-4xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+    <div class="text-center">
+      <span class="inline-flex items-center gap-2 rounded-full border border-[#0878E8]/25 bg-[#0878E8]/5 px-3 py-1 text-xs font-medium text-[#0878E8] sm:text-sm" data-reveal>
+        <i class="fa-solid fa-file-contract"></i> Legal
+      </span>
+
+      <h1 class="mt-5 text-3xl leading-tight text-[#022E5A] dark:text-white sm:text-4xl md:text-5xl" data-reveal data-reveal-delay="80">
+        Terms &amp; Conditions
+      </h1>
+
+      <p class="mx-auto mt-5 max-w-2xl text-base text-slate-600 dark:text-slate-300 sm:text-lg" data-reveal data-reveal-delay="160">
+        The rules that keep NoteSphere a fair, safe place for students to share
+        and find notes. Written in plain language, not legalese.
+      </p>
+
+      <div class="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-slate-500 dark:text-slate-400" data-reveal data-reveal-delay="200">
+        <span class="flex items-center gap-1.5">
+          <i class="fa-regular fa-calendar"></i> Effective:
+          <strong class="font-semibold text-[#022E5A] dark:text-white"><%= effectiveDate %></strong>
+        </span>
+        <span class="hidden text-slate-300 dark:text-slate-600 sm:inline">·</span>
+        <span class="flex items-center gap-1.5">
+          <i class="fa-regular fa-clock"></i> Last updated:
+          <strong class="font-semibold text-[#022E5A] dark:text-white"><%= lastUpdated %></strong>
+        </span>
+        <span class="hidden text-slate-300 dark:text-slate-600 sm:inline">·</span>
+        <span class="flex items-center gap-1.5">
+          <i class="fa-regular fa-file-lines"></i> ~7 min read
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================
+     Highlights
+========================================= -->
+<section class="border-y border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+  <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
+    <div class="grid gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
+      <% highlights.forEach(function (h, i) { %>
+        <div class="rounded-2xl bg-[#FBFAF7] p-5 ring-1 ring-slate-200/70 transition-all
+                    hover:-translate-y-1 hover:shadow-md dark:bg-slate-950 dark:ring-slate-800"
+             data-reveal data-reveal-delay="<%= i * 70 %>">
+          <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0878E8]/10 text-[#0878E8]">
+            <i class="fa-solid <%= h.icon %>"></i>
+          </div>
+          <h3 class="mt-3 text-sm font-semibold text-[#022E5A] dark:text-white"><%= h.title %></h3>
+          <p class="mt-1.5 text-xs leading-relaxed text-slate-500 dark:text-slate-400"><%= h.desc %></p>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================
+     Body: TOC + content
+========================================= -->
+<section class="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+  <div class="grid gap-8 lg:grid-cols-12 lg:gap-10">
+
+    <!-- TOC -->
+    <aside class="lg:col-span-4 xl:col-span-3">
+      <div class="lg:sticky lg:top-24">
+        <div class="rounded-2xl bg-[#FBFAF7] p-5 ring-1 ring-slate-200/70 dark:bg-slate-950 dark:ring-slate-800">
+          <h2 class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-slate-400">
+            <i class="fa-solid fa-list-ul text-[#0878E8]"></i> On this page
+          </h2>
+
+          <nav aria-label="Table of contents" class="mt-3">
+            <ul class="space-y-0.5">
+              <% toc.forEach(function (item) { %>
+                <li>
+                  <a href="#<%= item.id %>"
+                     class="privacy-toc-link flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-[#0878E8]/5 hover:text-[#0878E8] dark:text-slate-300"
+                     data-toc-target="<%= item.id %>">
+                    <i class="fa-solid <%= item.icon %> w-3.5 text-center text-[10px] text-slate-400"></i>
+                    <span><%= item.label %></span>
+                  </a>
+                </li>
+              <% }) %>
+            </ul>
+          </nav>
+        </div>
+
+        <div class="mt-5 rounded-2xl bg-gradient-to-br from-[#022E5A] via-[#053A72] to-[#0878E8] p-5 text-white shadow-lg">
+          <div class="flex items-center gap-2 text-emerald-300">
+            <span class="h-2 w-2 animate-pulse rounded-full bg-emerald-400"></span>
+            <span class="text-[10px] font-semibold uppercase tracking-widest">Questions?</span>
+          </div>
+          <h3 class="mt-3 text-sm font-semibold">Reach out any time</h3>
+          <p class="mt-1.5 text-xs text-white/80">
+            If anything here isn't clear, or you want to report a violation, write to us.
+          </p>
+          <a href="mailto:legal@notesphere.app"
+             class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-4 py-2.5 text-xs font-semibold text-[#022E5A] transition-transform hover:-translate-y-0.5">
+            <i class="fa-solid fa-envelope"></i> legal@notesphere.app
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Content -->
+    <div class="lg:col-span-8 xl:col-span-9">
+      <article class="space-y-10 text-[0.95rem] leading-relaxed text-slate-700 dark:text-slate-300">
+
+        <!-- 1. Acceptance -->
+        <section id="acceptance" class="scroll-mt-28">
+          <h2 class="mb-4 flex items-center gap-2.5 text-xl font-bold text-[#022E5A] dark:text-white sm:text-2xl">
+            <span class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#0878E8]/10 text-sm text-[#0878E8] sm:h-9 sm:w-9">
+              <i class="fa-solid fa-handshake"></i>
+            </span>
+            1. Acceptance of terms
+          </h2>
+          <p class="mb-4">
+            Welcome to NoteSphere. These Terms &amp; Conditions ("Terms") are a
+            legal agreement between you ("you", "your") and NoteSphere
+            ("we", "us", "our") that governs your use of
+            <a href="/" class="font-medium text-[#0878E8] underline underline-offset-2 hover:text-[#054a99] dark:text-[#5CA6F0]">notesphere.app</a>
+            and any related services we offer.
+          </p>
+          <p class="mb-4">
+            By creating an account, uploading a note, downloading a file, or simply
+            browsing the site, you agree to be bound by these Terms and by our
+            <a href="/privacy" class="font-medium text-[#0878E8] underline underline-offset-2 hover:text-[#054a99] dark:text-[#5CA6F0]">Privacy Policy</a>.
+            If you do not agree with any part of these Terms, please do not use NoteSphere.
+          </p>
+          <p>
+            We try to keep this document simple and readable. If any part is
+            unclear to you, please write to us before continuing to use the site.
+          </p>
+        </section>
+
+        <!-- 2. Eligibility -->
+        <section id="eligibility" class="scroll-mt-28 border-t border-slate-200 pt-10 dark:border-slate-800">
+          <h2 class="mb-4 flex items-center gap-2.5 text-xl font-bold text-[#022E5A] dark:text-white sm:text-2xl">
+            <span class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#0878E8]/10 text-sm text-[#0878E8] sm:h-9 sm:w-9">
+              <i class="fa-solid fa-user-check"></i>
+            </span>
+            2. Who can use NoteSphere
+          </h2>
+          <p class="mb-4">
+            NoteSphere is intended for college and university students and anyone
+            else who wants to share or find educational notes. To use the service
+            you must:
+          </p>
+          <ul class="mb-4 space-y-2">
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]">Be at least 13 years old (16 in some regions). If you are under 18, you confirm that a parent or legal guardian has reviewed and agreed to these Terms on your behalf.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]">Not be barred from using the service under any applicable law.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]">Not have a previously terminated account for violating these Terms.</li>
+          </ul>
+          <p>We may ask you to verify your age or eligibility if we have reason to believe you don't meet these requirements.</p>
+        </section>
+
+        <!-- 3. Account -->
+        <section id="account" class="scroll-mt-28 border-t border-slate-200 pt-10 dark:border-slate-800">
+          <h2 class="mb-4 flex items-center gap-2.5 text-xl font-bold text-[#022E5A] dark:text-white sm:text-2xl">
+            <span class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#0878E8]/10 text-sm text-[#0878E8] sm:h-9 sm:w-9">
+              <i class="fa-solid fa-user-lock"></i>
+            </span>
+            3. Your account
+          </h2>
+          <p class="mb-4">When you create an account, you agree to the following:</p>
+          <ul class="mb-4 space-y-2">
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">Give accurate information.</strong> Your name and email should be real, and you should keep them up to date.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">Keep your password secret.</strong> You are responsible for everything that happens under your account. If you suspect a compromise, change your password and tell us immediately.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">One account per person.</strong> Creating multiple accounts to game the voting system, evade a ban, or manipulate downloads is not allowed.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">No account sharing.</strong> Don't share your login with friends or sell access to your account.</li>
+          </ul>
+          <p>You can delete your account at any time from your settings page.</p>
+        </section>
+
+        <!-- 4. Uploading -->
+        <section id="uploads" class="scroll-mt-28 border-t border-slate-200 pt-10 dark:border-slate-800">
+          <h2 class="mb-4 flex items-center gap-2.5 text-xl font-bold text-[#022E5A] dark:text-white sm:text-2xl">
+            <span class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#0878E8]/10 text-sm text-[#0878E8] sm:h-9 sm:w-9">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+            </span>
+            4. Uploading notes
+          </h2>
+          <p class="mb-4">
+            Uploading notes is the heart of NoteSphere. To keep the library useful
+            and legal, you agree that anything you upload:
+          </p>
+          <ul class="mb-4 space-y-2">
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">Is yours to share.</strong> You wrote it, or you have explicit permission from the author, or the material is otherwise free for you to distribute.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">Is accurate, to the best of your knowledge.</strong> Don't upload notes that are deliberately misleading, incomplete, or fabricated.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">Is legal.</strong> No pirated textbooks, no proprietary lecture slides from a professor who hasn't given permission, no exam papers under embargo, no malware.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">Is labeled honestly.</strong> Use the correct course, semester, subject, and file type when you upload.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">Contains no personal information about others.</strong> Remove phone numbers, addresses, or anything else that identifies a classmate without their consent.</li>
+          </ul>
+          <p class="mb-4">
+            <strong class="font-semibold text-[#022E5A] dark:text-white">You retain ownership of everything you upload.</strong>
+            By uploading a note and marking it <em>public</em>, you grant NoteSphere a
+            non-exclusive, worldwide, royalty-free license to store, display, and
+            distribute that note on our platform, only for the purpose of running
+            the service. You can revoke this by deleting the note at any time.
+          </p>
+          <p>We reserve the right to remove any upload at any time if we believe it violates these Terms or the law.</p>
+        </section>
+
+        <!-- 5. Conduct -->
+        <section id="conduct" class="scroll-mt-28 border-t border-slate-200 pt-10 dark:border-slate-800">
+          <h2 class="mb-4 flex items-center gap-2.5 text-xl font-bold text-[#022E5A] dark:text-white sm:text-2xl">
+            <span class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#0878E8]/10 text-sm text-[#0878E8] sm:h-9 sm:w-9">
+              <i class="fa-solid fa-scale-balanced"></i>
+            </span>
+            5. Acceptable use
+          </h2>
+          <p class="mb-4">To keep NoteSphere a place people actually want to use, we ask that you don't:</p>
+          <ul class="mb-4 space-y-2">
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-rose-500"><strong class="font-semibold text-[#022E5A] dark:text-white">Harass, threaten, or abuse</strong> other users, authors, or our team.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-rose-500"><strong class="font-semibold text-[#022E5A] dark:text-white">Upload spam,</strong> ads, referral links, or content unrelated to studying.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-rose-500"><strong class="font-semibold text-[#022E5A] dark:text-white">Manipulate the platform</strong> — fake accounts to upvote your own notes, bots that inflate download counts, scraping the entire library, or otherwise stressing our systems.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-rose-500"><strong class="font-semibold text-[#022E5A] dark:text-white">Circumvent access controls</strong> — trying to break into accounts, reading data you don't have permission to see, or exploiting security bugs (if you find one, please tell us — see "Responsible disclosure" below).</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-rose-500"><strong class="font-semibold text-[#022E5A] dark:text-white">Impersonate others</strong> — pretend to be a professor, another student, or the NoteSphere team.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-rose-500"><strong class="font-semibold text-[#022E5A] dark:text-white">Break the law</strong> — including copyright law, in the country you're in.</li>
+          </ul>
+          <p>Violations may result in content removal, feature restrictions, or a permanent ban — see Section 9.</p>
+        </section>
+
+        <!-- 6. Copyright -->
+        <section id="copyright" class="scroll-mt-28 border-t border-slate-200 pt-10 dark:border-slate-800">
+          <h2 class="mb-4 flex items-center gap-2.5 text-xl font-bold text-[#022E5A] dark:text-white sm:text-2xl">
+            <span class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#0878E8]/10 text-sm text-[#0878E8] sm:h-9 sm:w-9">
+              <i class="fa-solid fa-copyright"></i>
+            </span>
+            6. Copyright &amp; takedowns
+          </h2>
+          <p class="mb-4">
+            We respect other people's copyright, and we expect our users to as well.
+            If you believe something on NoteSphere infringes your rights, you can
+            ask us to take it down.
+          </p>
+
+          <h3 class="mt-6 mb-2 text-base font-semibold text-[#022E5A] dark:text-white">Filing a takedown notice</h3>
+          <p class="mb-3">Send an email to <a href="mailto:legal@notesphere.app" class="font-medium text-[#0878E8] underline underline-offset-2 hover:text-[#054a99] dark:text-[#5CA6F0]">legal@notesphere.app</a> including:</p>
+          <ul class="mb-4 space-y-2">
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]">A description of the copyrighted work you believe is infringed.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]">The exact URL(s) of the note(s) you want removed.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]">Your name, address, phone, and email.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]">A statement that you have a good-faith belief the use is not authorized.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]">A statement, under penalty of perjury, that the information is accurate and you are the rights holder or authorized to act on their behalf.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]">Your physical or electronic signature.</li>
+          </ul>
+
+          <h3 class="mt-6 mb-2 text-base font-semibold text-[#022E5A] dark:text-white">What happens next</h3>
+          <p class="mb-3">
+            We'll review the notice, and if it's valid, remove or disable the content
+            and notify the uploader. The uploader can file a counter-notice if they
+            believe the removal was in error. Repeated infringement will result in
+            account termination.
+          </p>
+
+          <h3 class="mt-6 mb-2 text-base font-semibold text-[#022E5A] dark:text-white">Responsible disclosure</h3>
+          <p>
+            If you discover a security vulnerability, please email
+            <a href="mailto:security@notesphere.app" class="font-medium text-[#0878E8] underline underline-offset-2 hover:text-[#054a99] dark:text-[#5CA6F0]">security@notesphere.app</a>
+            rather than exploiting it. We'll acknowledge your report within 3 business days
+            and credit you publicly (if you want) once the issue is fixed.
+          </p>
+        </section>
+
+        <!-- 7. Downloads -->
+        <section id="downloads" class="scroll-mt-28 border-t border-slate-200 pt-10 dark:border-slate-800">
+          <h2 class="mb-4 flex items-center gap-2.5 text-xl font-bold text-[#022E5A] dark:text-white sm:text-2xl">
+            <span class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#0878E8]/10 text-sm text-[#0878E8] sm:h-9 sm:w-9">
+              <i class="fa-solid fa-download"></i>
+            </span>
+            7. Downloading &amp; using notes
+          </h2>
+          <p class="mb-4">Notes on NoteSphere are shared for personal, educational use. When you download a note, you agree that you will:</p>
+          <ul class="mb-4 space-y-2">
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">Use it for study.</strong> Revising, learning, preparing for exams — that's what it's for.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">Not redistribute it as your own work</strong> or sell it to others.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">Verify before you rely on it.</strong> Notes are uploaded by students, not verified by us. If something looks wrong, double-check against a textbook.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]"><strong class="font-semibold text-[#022E5A] dark:text-white">Not bypass our download limits.</strong> If we rate-limit downloads, respect them.</li>
+          </ul>
+          <p>NoteSphere does not guarantee the accuracy of any note, and we're not responsible for what you do with the information you find here.</p>
+        </section>
+
+        <!-- 8. IP -->
+        <section id="ip" class="scroll-mt-28 border-t border-slate-200 pt-10 dark:border-slate-800">
+          <h2 class="mb-4 flex items-center gap-2.5 text-xl font-bold text-[#022E5A] dark:text-white sm:text-2xl">
+            <span class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#0878E8]/10 text-sm text-[#0878E8] sm:h-9 sm:w-9">
+              <i class="fa-solid fa-lightbulb"></i>
+            </span>
+            8. Our intellectual property
+          </h2>
+          <p class="mb-4">
+            The NoteSphere name, logo, design, code, and the way the site is put
+            together all belong to us. You may not copy, modify, distribute, or
+            create derivative works from them without our written permission.
+          </p>
+          <p class="mb-4">
+            That said — <strong class="font-semibold text-[#022E5A] dark:text-white">we claim no ownership over the notes you upload.</strong>
+            Your content stays yours. You just give us permission to host and
+            serve it while your account is active.
+          </p>
+          <p>
+            If you're a developer and want to build something on top of
+            NoteSphere, contact us — we're open to good ideas.
+          </p>
+        </section>
+
+        <!-- 9. Termination -->
+        <section id="termination" class="scroll-mt-28 border-t border-slate-200 pt-10 dark:border-slate-800">
+          <h2 class="mb-4 flex items-center gap-2.5 text-xl font-bold text-[#022E5A] dark:text-white sm:text-2xl">
+            <span class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#0878E8]/10 text-sm text-[#0878E8] sm:h-9 sm:w-9">
+              <i class="fa-solid fa-user-slash"></i>
+            </span>
+            9. Suspension &amp; termination
+          </h2>
+
+          <h3 class="mt-4 mb-2 text-base font-semibold text-[#022E5A] dark:text-white">By you</h3>
+          <p class="mb-4">
+            You can delete your account at any time from your settings page. When
+            you do, your notes, saved lists, and personal data are removed within
+            30 days, subject to our backup retention policy.
+          </p>
+
+          <h3 class="mt-6 mb-2 text-base font-semibold text-[#022E5A] dark:text-white">By us</h3>
+          <p class="mb-3">We may suspend or terminate your account, with or without warning, if:</p>
+          <ul class="mb-4 space-y-2">
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-rose-500">You repeatedly violate these Terms.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-rose-500">You upload content that infringes copyright or breaks the law.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-rose-500">You abuse, harass, or threaten other users or our team.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-rose-500">You attempt to compromise the security or stability of the platform.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-rose-500">We're legally required to do so.</li>
+          </ul>
+          <p>Where practical, we'll tell you the reason and give you a chance to fix it. For serious violations, we may act immediately.</p>
+        </section>
+
+        <!-- 10. Disclaimers -->
+        <section id="disclaimer" class="scroll-mt-28 border-t border-slate-200 pt-10 dark:border-slate-800">
+          <h2 class="mb-4 flex items-center gap-2.5 text-xl font-bold text-[#022E5A] dark:text-white sm:text-2xl">
+            <span class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#0878E8]/10 text-sm text-[#0878E8] sm:h-9 sm:w-9">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            </span>
+            10. Disclaimers
+          </h2>
+          <p class="mb-4">
+            NoteSphere is provided <strong class="font-semibold text-[#022E5A] dark:text-white">"as is"</strong>
+            and <strong class="font-semibold text-[#022E5A] dark:text-white">"as available"</strong>,
+            without warranties of any kind, express or implied — including, but not
+            limited to, warranties of merchantability, fitness for a particular purpose,
+            or non-infringement.
+          </p>
+          <p class="mb-4">
+            We do not warrant that the service will be uninterrupted, error-free, or
+            secure, that defects will be corrected, or that the notes you find here
+            are accurate, complete, or suitable for any particular exam or course.
+          </p>
+          <p>
+            You use NoteSphere at your own risk. This includes any academic
+            decisions you make based on notes you find on the platform.
+          </p>
+        </section>
+
+        <!-- 11. Liability -->
+        <section id="liability" class="scroll-mt-28 border-t border-slate-200 pt-10 dark:border-slate-800">
+          <h2 class="mb-4 flex items-center gap-2.5 text-xl font-bold text-[#022E5A] dark:text-white sm:text-2xl">
+            <span class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#0878E8]/10 text-sm text-[#0878E8] sm:h-9 sm:w-9">
+              <i class="fa-solid fa-shield-halved"></i>
+            </span>
+            11. Limitation of liability
+          </h2>
+          <p class="mb-4">
+            To the maximum extent permitted by law, NoteSphere and its team will not
+            be liable for any indirect, incidental, special, consequential, or
+            punitive damages arising out of or relating to your use of the service —
+            including lost data, lost marks, lost opportunities, or lost profits.
+          </p>
+          <p class="mb-4">
+            Where liability cannot be excluded, our total liability to you for any
+            claim relating to the service is limited to the greater of (a) the
+            amount you paid us in the 12 months preceding the claim, or (b) ₹1,000.
+            Since NoteSphere is free, that amount will usually be ₹0.
+          </p>
+          <p>Some jurisdictions don't allow certain limitations, so parts of this section may not apply to you.</p>
+        </section>
+
+        <!-- 12. Changes -->
+        <section id="changes" class="scroll-mt-28 border-t border-slate-200 pt-10 dark:border-slate-800">
+          <h2 class="mb-4 flex items-center gap-2.5 text-xl font-bold text-[#022E5A] dark:text-white sm:text-2xl">
+            <span class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#0878E8]/10 text-sm text-[#0878E8] sm:h-9 sm:w-9">
+              <i class="fa-solid fa-pen-to-square"></i>
+            </span>
+            12. Changes to these terms
+          </h2>
+          <p class="mb-4">
+            We may update these Terms from time to time. When we do, we'll:
+          </p>
+          <ul class="mb-4 space-y-2">
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]">Update the "Last updated" date at the top of this page.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]">Show a notice in the app the next time you sign in for material changes.</li>
+            <li class="relative pl-6 before:absolute before:left-1.5 before:top-2.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#0878E8]">Email you if the change significantly affects your rights.</li>
+          </ul>
+          <p>Continuing to use NoteSphere after an update means you accept the new Terms. If you don't, you can delete your account at any time.</p>
+        </section>
+
+        <!-- 13. Law -->
+        <section id="law" class="scroll-mt-28 border-t border-slate-200 pt-10 dark:border-slate-800">
+          <h2 class="mb-4 flex items-center gap-2.5 text-xl font-bold text-[#022E5A] dark:text-white sm:text-2xl">
+            <span class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#0878E8]/10 text-sm text-[#0878E8] sm:h-9 sm:w-9">
+              <i class="fa-solid fa-gavel"></i>
+            </span>
+            13. Governing law
+          </h2>
+          <p class="mb-4">
+            These Terms are governed by the laws of India, without regard to its
+            conflict-of-law rules. Any dispute arising out of or relating to these
+            Terms or the service will be subject to the exclusive jurisdiction of
+            the courts located in India.
+          </p>
+          <p>
+            Before filing any formal action, you agree to try to resolve the
+            dispute informally by writing to
+            <a href="mailto:legal@notesphere.app" class="font-medium text-[#0878E8] underline underline-offset-2 hover:text-[#054a99] dark:text-[#5CA6F0]">legal@notesphere.app</a>
+            and giving us 30 days to respond.
+          </p>
+        </section>
+
+        <!-- 14. Contact -->
+        <section id="contact" class="scroll-mt-28 border-t border-slate-200 pt-10 dark:border-slate-800">
+          <h2 class="mb-4 flex items-center gap-2.5 text-xl font-bold text-[#022E5A] dark:text-white sm:text-2xl">
+            <span class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#0878E8]/10 text-sm text-[#0878E8] sm:h-9 sm:w-9">
+              <i class="fa-solid fa-envelope"></i>
+            </span>
+            14. Contact us
+          </h2>
+          <p class="mb-4">For any question about these Terms, write to us:</p>
+
+          <div class="mt-4 grid gap-3 sm:grid-cols-2">
+            <a href="mailto:legal@notesphere.app"
+               class="group flex items-center gap-3.5 rounded-2xl border border-slate-200 bg-[#FBFAF7] p-4 transition-all hover:-translate-y-0.5 hover:border-[#0878E8] hover:shadow-md dark:border-slate-800 dark:bg-slate-950">
+              <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#0878E8]/10 text-[#0878E8]">
+                <i class="fa-solid fa-scale-balanced"></i>
+              </div>
+              <div class="min-w-0">
+                <p class="text-[11px] font-semibold uppercase tracking-widest text-slate-400">Legal</p>
+                <p class="mt-0.5 break-all text-sm font-semibold text-[#022E5A] group-hover:text-[#0878E8] dark:text-white">legal@notesphere.app</p>
+              </div>
+            </a>
+
+            <a href="mailto:security@notesphere.app"
+               class="group flex items-center gap-3.5 rounded-2xl border border-slate-200 bg-[#FBFAF7] p-4 transition-all hover:-translate-y-0.5 hover:border-[#0878E8] hover:shadow-md dark:border-slate-800 dark:bg-slate-950">
+              <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#0878E8]/10 text-[#0878E8]">
+                <i class="fa-solid fa-shield-halved"></i>
+              </div>
+              <div class="min-w-0">
+                <p class="text-[11px] font-semibold uppercase tracking-widest text-slate-400">Security</p>
+                <p class="mt-0.5 break-all text-sm font-semibold text-[#022E5A] group-hover:text-[#0878E8] dark:text-white">security@notesphere.app</p>
+              </div>
+            </a>
+          </div>
+
+          <p class="mt-6">
+            We aim to respond to every message within
+            <strong class="font-semibold text-[#022E5A] dark:text-white">2 business days</strong>,
+            and to formal legal notices within
+            <strong class="font-semibold text-[#022E5A] dark:text-white">5 business days</strong>.
+          </p>
+
+          <div class="mt-10 flex flex-wrap items-center gap-3 border-t border-slate-200 pt-6 dark:border-slate-800">
+            <a href="/privacy"
+               class="inline-flex items-center gap-2 rounded-full border border-slate-300 px-5 py-2.5 text-sm font-semibold text-[#022E5A] transition-colors hover:bg-slate-900/5 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-white/10">
+              <i class="fa-solid fa-shield-halved"></i> Read Privacy Policy
+            </a>
+            <button type="button" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+              class="inline-flex items-center gap-2 rounded-full bg-[#0878E8] px-5 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-[#0668CC]">
+              <i class="fa-solid fa-arrow-up-long"></i> Back to top
+            </button>
+          </div>
+        </section>
+
+      </article>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function () {
+    /* Scroll-spy for TOC */
+    (function scrollSpy() {
+      var links = Array.from(document.querySelectorAll('.privacy-toc-link'));
+      if (!links.length || !('IntersectionObserver' in window)) return;
+
+      var sections = links.map(function (l) {
+        return document.getElementById(l.dataset.tocTarget);
+      }).filter(Boolean);
+      if (!sections.length) return;
+
+      var currentId = sections[0].id;
+
+      function setActive(id) {
+        if (id === currentId) return;
+        currentId = id;
+        links.forEach(function (l) {
+          var isActive = l.dataset.tocTarget === id;
+          l.classList.toggle('bg-[#0878E8]/10', isActive);
+          l.classList.toggle('text-[#0878E8]', isActive);
+          l.classList.toggle('font-semibold', isActive);
+        });
+      }
+
+      var io = new IntersectionObserver(function (entries) {
+        var visible = entries
+          .filter(function (e) { return e.isIntersecting; })
+          .sort(function (a, b) { return a.boundingClientRect.top - b.boundingClientRect.top; });
+        if (visible.length) setActive(visible[0].target.id);
+      }, { rootMargin: '-88px 0px -60% 0px', threshold: 0 });
+
+      sections.forEach(function (s) { io.observe(s); });
+      setActive(sections[0].id);
+    })();
+
+    /* Smooth-scroll TOC links with navbar offset */
+    document.querySelectorAll('.privacy-toc-link').forEach(function (link) {
+      link.addEventListener('click', function (e) {
+        var target = document.getElementById(link.dataset.tocTarget);
+        if (!target) return;
+        e.preventDefault();
+        var top = target.getBoundingClientRect().top + window.scrollY - 88;
+        window.scrollTo({ top: top, behavior: 'smooth' });
+        history.replaceState(null, '', '#' + target.id);
+      });
+    });
+
+    /* No auto-scroll on load */
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    window.addEventListener('load', function () {
+      if (location.hash) {
+        var target = document.getElementById(location.hash.slice(1));
+        if (target) {
+          var top = target.getBoundingClientRect().top + window.scrollY - 88;
+          window.scrollTo({ top: top, behavior: 'auto' });
+          return;
+        }
+      }
+      if (!sessionStorage.getItem('ns-terms-visited')) {
+        window.scrollTo(0, 0);
+        sessionStorage.setItem('ns-terms-visited', '1');
+      }
+    });
+  })();
+</script>

@@ -1,0 +1,628 @@
+<% layout("/layouts/boilerplate") -%>
+
+<div class="min-h-screen bg-gradient-to-b from-gray-50 to-white py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-10">
+      <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl mb-6 shadow-lg">
+        <i class="fas fa-pen-alt text-white text-2xl"></i>
+      </div>
+      <h1 class="text-3xl font-bold text-gray-900 sm:text-4xl">
+        Create New Blog
+      </h1>
+      <p class="mt-3 text-lg text-gray-600 max-w-2xl mx-auto">
+        Share your knowledge and insights with the world. Fill out the details below to publish your blog.
+      </p>
+    </div>
+
+    <!-- Form Card -->
+    <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 md:p-10 border border-gray-100">
+      <form 
+        action="/blogs" 
+        method="POST" 
+        class="space-y-8"
+        enctype="multipart/form-data"
+        onsubmit="return validateForm()"
+      >
+        <!-- Title -->
+        <div>
+          <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
+            Blog Title <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            name="title"
+            id="title"
+            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+            placeholder="Enter a compelling blog title..."
+            required
+          >
+          <p class="mt-2 text-sm text-gray-500">
+            A clear and engaging title that captures attention
+          </p>
+        </div>
+
+        <!-- Category -->
+        <div>
+          <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
+            Category <span class="text-red-500">*</span>
+          </label>
+          <select 
+            name="category" 
+            id="category" 
+            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors appearance-none bg-white"
+            required
+          >
+            <option value="">Select a category</option>
+<option value="Technology">Technology</option>
+<option value="Programming">Programming</option>
+<option value="Web Development">Web Development</option>
+<option value="Cyber Security">Cyber Security</option>
+<option value="Machine Learning">Machine Learning</option>
+<option value="Artificial Intelligence">Artificial Intelligence</option>
+<option value="Data Science">Data Science</option>
+<option value="Startups">Startups & Entrepreneurship</option>
+<option value="Digital Marketing">Digital Marketing</option>
+<option value="Jobs & Careers">Jobs & Careers</option>
+<option value="Education">Education & Learning</option>
+<option value="Others">Others</option>
+          </select>
+          <p class="mt-2 text-sm text-gray-500">
+            Choose the most relevant category for your blog
+          </p>
+        </div>
+
+        <!-- Short Description -->
+        <div>
+          <label for="shortdescription" class="block text-sm font-medium text-gray-700 mb-2">
+            Short Description <span class="text-red-500">*</span>
+          </label>
+          <textarea
+            name="shortdescription"
+            id="shortdescription"
+            rows="3"
+            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-y"
+            placeholder="A brief summary of your blog (appears in blog listings)..."
+            required
+          ></textarea>
+          <div class="flex justify-between items-center mt-2">
+            <p class="text-sm text-gray-500">
+              150-200 characters recommended for best display
+            </p>
+            <span id="descCounter" class="text-xs text-gray-400">0 characters</span>
+          </div>
+        </div>
+
+        <!-- Image Upload -->
+        <div class="space-y-6">
+          <!-- File Upload -->
+          <div>
+            <label for="image" class="block text-sm font-medium text-gray-700 mb-2">
+              Featured Image
+              <span class="text-gray-500 font-normal">(Optional)</span>
+            </label>
+            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-blue-400 transition-colors bg-gray-50">
+              <div class="space-y-1 text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                  <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <div class="flex text-sm text-gray-600 justify-center">
+                  <label for="image" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                    <span>Upload a file</span>
+                    <input 
+                      id="image" 
+                      name="image" 
+                      type="file" 
+                      class="sr-only" 
+                      accept=".jpg,.jpeg,.png,.webp,.svg"
+                    >
+                  </label>
+                  <p class="pl-1">or drag and drop</p>
+                </div>
+                <p class="text-xs text-gray-500">
+                  PNG, JPG, WEBP, SVG up to 2MB
+                </p>
+              </div>
+            </div>
+            <p class="mt-2 text-sm text-gray-500">
+              Recommended size: 1200×630px for optimal display. Can be skipped.
+            </p>
+          </div>
+
+          <!-- Image Preview -->
+          <div id="imagePreview" class="hidden">
+            <div class="bg-green-50 rounded-xl p-6 border border-green-200">
+              <div class="flex items-center justify-between mb-4">
+                <h4 class="text-sm font-medium text-green-900">Image Preview</h4>
+                <button type="button" onclick="removeImage()" class="text-green-700 hover:text-green-900">
+                  <i class="fas fa-times"></i> Remove
+                </button>
+              </div>
+              <div class="flex items-center gap-4">
+                <div class="w-32 h-32 rounded-lg overflow-hidden border border-green-300 bg-white">
+                  <img id="previewImage" src="" alt="Preview" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-1">
+                  <p id="imageInfo" class="text-sm text-green-800"></p>
+                  <p class="text-xs text-green-600 mt-2">
+                    This image will appear as the featured image for your blog.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Image Alt Text -->
+          <div>
+            <label for="imageTitle" class="block text-sm font-medium text-gray-700 mb-2">
+              Image Alt Text
+              <span class="text-gray-500 font-normal">(Optional)</span>
+            </label>
+            <input
+              type="text"
+              name="imageTitle"
+              id="imageTitle"
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              placeholder="Describe the image for SEO and accessibility..."
+            >
+            <p class="mt-2 text-sm text-gray-500">
+              This helps with search engines and screen readers. Example: "Person writing code on laptop"
+            </p>
+          </div>
+        </div>
+
+        <!-- Keywords -->
+        <div>
+          <label for="Keywords" class="block text-sm font-medium text-gray-700 mb-2">
+            SEO Keywords <span class="text-red-500">*</span>
+          </label>
+          <textarea
+            name="Keywords"
+            id="Keywords"
+            rows="2"
+            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-y"
+            placeholder="Enter comma-separated keywords (e.g., machine learning, Python basics, career tips, engineering exams)"
+            required
+          ></textarea>
+          <div class="flex justify-between items-center mt-2">
+            <p class="text-sm text-gray-500">
+              Add relevant keywords that help users find your content
+            </p>
+            <span id="keywordCounter" class="text-xs text-gray-400">0 keywords</span>
+          </div>
+        </div>
+
+        <!-- Content Editor -->
+        <div>
+          <label for="content" class="block text-sm font-medium text-gray-700 mb-2">
+            Blog Content <span class="text-red-500">*</span>
+          </label>
+          <textarea
+            name="content"
+            id="content"
+            rows="12"
+            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-y font-mono text-sm"
+            placeholder="Write your blog content here..."
+            required
+          ></textarea>
+          
+          <!-- Formatting Toolbar -->
+          <div class="mt-4 bg-gray-50 rounded-xl p-4 border border-gray-200">
+            <h4 class="text-sm font-medium text-gray-700 mb-3">Formatting Tools</h4>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+              <button type="button" onclick="formatText('h3', 'Heading')" class="text-xs bg-white border border-gray-300 rounded-lg px-3 py-2 hover:bg-gray-50 transition-colors">
+                <i class="fas fa-heading mr-1"></i> Heading
+              </button>
+              <button type="button" onclick="formatText('b', 'Bold')" class="text-xs bg-white border border-gray-300 rounded-lg px-3 py-2 hover:bg-gray-50 transition-colors">
+                <i class="fas fa-bold mr-1"></i> Bold
+              </button>
+              <button type="button" onclick="formatText('i', 'Italic')" class="text-xs bg-white border border-gray-300 rounded-lg px-3 py-2 hover:bg-gray-50 transition-colors">
+                <i class="fas fa-italic mr-1"></i> Italic
+              </button>
+              <button type="button" onclick="formatText('link', 'Link')" class="text-xs bg-white border border-gray-300 rounded-lg px-3 py-2 hover:bg-gray-50 transition-colors">
+                <i class="fas fa-link mr-1"></i> Link
+              </button>
+              <button type="button" onclick="formatText('br', 'Line Break')" class="text-xs bg-white border border-gray-300 rounded-lg px-3 py-2 hover:bg-gray-50 transition-colors">
+                <i class="fas fa-arrow-right mr-1"></i> New Line
+              </button>
+              <button type="button" onclick="formatText('ul', 'List')" class="text-xs bg-white border border-gray-300 rounded-lg px-3 py-2 hover:bg-gray-50 transition-colors">
+                <i class="fas fa-list-ul mr-1"></i> List
+              </button>
+            </div>
+            
+            <!-- Quick Tips -->
+            <div class="mt-4 bg-blue-50 rounded-lg p-3 border border-blue-100">
+              <h5 class="text-xs font-medium text-blue-800 mb-2">
+                <i class="fas fa-lightbulb mr-1"></i> Formatting Tips
+              </h5>
+              <div class="text-xs text-blue-600 space-y-1">
+                <p><code>&lt;h3&gt;Heading&lt;/h3&gt;</code> - Section heading</p>
+                <p><code>&lt;b&gt;Bold text&lt;/b&gt;</code> - Bold text</p>
+                <p><code>&lt;i&gt;Italic text&lt;/i&gt;</code> - Italic text</p>
+                <p><code>&lt;br&gt;</code> - Line break</p>
+                <p><code>&lt;a href="URL"&gt;Link text&lt;/a&gt;</code> - Hyperlink</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="flex justify-between items-center mt-2">
+            <p class="text-sm text-gray-500">
+              Write your content with proper formatting for better readability
+            </p>
+            <span id="contentCounter" class="text-xs text-gray-400">0 words</span>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 pt-8 border-t border-gray-200">
+          <button
+            type="submit"
+            id="submitBtn"
+            class="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium py-3 px-6 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+          >
+            <i class="fas fa-paper-plane mr-2"></i>
+            Publish Blog
+          </button>
+          <a
+            href="/blogs"
+            class="flex-1 bg-gray-100 text-gray-700 font-medium py-3 px-6 rounded-xl hover:bg-gray-200 transition-colors text-center"
+          >
+            <i class="fas fa-times mr-2"></i>
+            Cancel
+          </a>
+        </div>
+      </form>
+    </div>
+
+    <!-- Writing Guidelines -->
+    <div class="mt-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
+      <div class="flex items-start">
+        <div class="flex-shrink-0">
+          <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+            <i class="fas fa-book-open text-white text-xl"></i>
+          </div>
+        </div>
+        <div class="ml-4">
+          <h3 class="text-lg font-medium text-gray-800 mb-3">Writing Guidelines</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="text-sm">
+              <p class="font-medium text-gray-700 mb-1">✓ Engaging Title</p>
+              <p class="text-gray-600">Make it interesting and SEO-friendly</p>
+            </div>
+            <div class="text-sm">
+              <p class="font-medium text-gray-700 mb-1">✓ Clear Structure</p>
+              <p class="text-gray-600">Use headings and paragraphs for readability</p>
+            </div>
+            <div class="text-sm">
+              <p class="font-medium text-gray-700 mb-1">✓ Quality Content</p>
+              <p class="text-gray-600">Provide value with accurate information</p>
+            </div>
+            <div class="text-sm">
+              <p class="font-medium text-gray-700 mb-1">✓ Proper Formatting</p>
+              <p class="text-gray-600">Use the formatting tools for better presentation</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Character counter for description
+  const shortDesc = document.getElementById('shortdescription');
+  const descCounter = document.getElementById('descCounter');
+  
+  if (shortDesc) {
+    function updateDescCounter() {
+      const length = shortDesc.value.length;
+      descCounter.textContent = `${length} characters`;
+      
+      if (length < 150) {
+        descCounter.className = 'text-xs text-yellow-600';
+      } else if (length > 200) {
+        descCounter.className = 'text-xs text-red-600';
+      } else {
+        descCounter.className = 'text-xs text-green-600';
+      }
+    }
+    
+    shortDesc.addEventListener('input', updateDescCounter);
+    updateDescCounter();
+  }
+
+  // Keyword counter
+  const keywordsInput = document.getElementById('Keywords');
+  const keywordCounter = document.getElementById('keywordCounter');
+  
+  if (keywordsInput) {
+    function updateKeywordCounter() {
+      const keywords = keywordsInput.value.split(',').filter(k => k.trim() !== '');
+      keywordCounter.textContent = `${keywords.length} keywords`;
+      
+      if (keywords.length < 2) {
+        keywordCounter.className = 'text-xs text-red-600';
+      } else if (keywords.length > 10) {
+        keywordCounter.className = 'text-xs text-yellow-600';
+      } else {
+        keywordCounter.className = 'text-xs text-green-600';
+      }
+    }
+    
+    keywordsInput.addEventListener('input', updateKeywordCounter);
+    updateKeywordCounter();
+  }
+
+  // Word counter for content
+  const contentInput = document.getElementById('content');
+  const contentCounter = document.getElementById('contentCounter');
+  
+  if (contentInput) {
+    function updateContentCounter() {
+      const words = contentInput.value.trim().split(/\s+/).filter(word => word !== '');
+      contentCounter.textContent = `${words.length} words`;
+      
+      if (words.length < 100) {
+        contentCounter.className = 'text-xs text-yellow-600';
+      } else if (words.length > 2000) {
+        contentCounter.className = 'text-xs text-red-600';
+      } else {
+        contentCounter.className = 'text-xs text-green-600';
+      }
+    }
+    
+    contentInput.addEventListener('input', updateContentCounter);
+    updateContentCounter();
+  }
+
+  // Image upload preview
+  const imageInput = document.getElementById('image');
+  const imagePreview = document.getElementById('imagePreview');
+  const previewImage = document.getElementById('previewImage');
+  const imageInfo = document.getElementById('imageInfo');
+  
+  if (imageInput) {
+    imageInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        // Check file size (2MB limit)
+        if (file.size > 4 * 1024 * 1024) {
+          alert('File size should be less than 4MB');
+          this.value = '';
+          return;
+        }
+        
+        // Check file type
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/svg+xml'];
+        if (!validTypes.includes(file.type)) {
+          alert('Please upload a valid image file (JPG, PNG, WEBP, SVG)');
+          this.value = '';
+          return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          previewImage.src = e.target.result;
+          imageInfo.innerHTML = `
+            <strong>File:</strong> ${file.name}<br>
+            <strong>Size:</strong> ${(file.size / 1024).toFixed(2)} KB<br>
+            <strong>Type:</strong> ${file.type}
+          `;
+          imagePreview.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
+  // Form validation
+  window.validateForm = function() {
+    const title = document.getElementById('title').value.trim();
+    const category = document.getElementById('category').value;
+    const shortDesc = document.getElementById('shortdescription').value.trim();
+    const keywords = document.getElementById('Keywords').value.trim();
+    const content = document.getElementById('content').value.trim();
+    
+    let isValid = true;
+    
+    // Reset errors
+    document.querySelectorAll('.border-red-500').forEach(el => {
+      el.classList.remove('border-red-500', 'ring-2', 'ring-red-200');
+    });
+    
+    // Validate title
+    if (!title) {
+      document.getElementById('title').classList.add('border-red-500', 'ring-2', 'ring-red-200');
+      isValid = false;
+    }
+    
+    // Validate category
+    if (!category) {
+      document.getElementById('category').classList.add('border-red-500', 'ring-2', 'ring-red-200');
+      isValid = false;
+    }
+    
+    // Validate short description
+    if (!shortDesc || shortDesc.length < 20) {
+      document.getElementById('shortdescription').classList.add('border-red-500', 'ring-2', 'ring-red-200');
+      isValid = false;
+    }
+    
+    // Validate keywords
+    if (!keywords || keywords.split(',').filter(k => k.trim() !== '').length < 2) {
+      document.getElementById('Keywords').classList.add('border-red-500', 'ring-2', 'ring-red-200');
+      isValid = false;
+    }
+    
+    // Validate content
+    if (!content || content.length < 100) {
+      document.getElementById('content').classList.add('border-red-500', 'ring-2', 'ring-red-200');
+      isValid = false;
+    }
+    
+    if (!isValid) {
+      // Scroll to first error
+      const firstError = document.querySelector('.border-red-500');
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return false;
+    }
+    
+    // Prevent multiple submissions
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Publishing...';
+    
+    return true;
+  };
+
+  // Prevent multiple submissions
+  const form = document.querySelector('form');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      const submitBtn = this.querySelector('button[type="submit"]');
+      if (submitBtn.disabled) {
+        //e.preventDefault();
+      }
+    });
+  }
+});
+
+// Formatting functions
+function formatText(type, text) {
+  const content = document.getElementById('content');
+  const start = content.selectionStart;
+  const end = content.selectionEnd;
+  const selectedText = content.value.substring(start, end);
+  
+  let formattedText = '';
+  
+  switch(type) {
+    case 'h3':
+      formattedText = `<h3>${selectedText || 'Heading Text'}</h3>`;
+      break;
+    case 'b':
+      formattedText = `<b>${selectedText || 'Bold Text'}</b>`;
+      break;
+    case 'i':
+      formattedText = `<i>${selectedText || 'Italic Text'}</i>`;
+      break;
+    case 'link':
+      const url = prompt('Enter URL:', 'https://');
+      if (url) {
+        formattedText = `<a href="${url}">${selectedText || 'Link Text'}</a>`;
+      } else {
+        return;
+      }
+      break;
+    case 'br':
+      formattedText = '<br>';
+      break;
+    case 'ul':
+      formattedText = `<ul>\n  <li>${selectedText || 'List item'}</li>\n</ul>`;
+      break;
+  }
+  
+  content.value = content.value.substring(0, start) + formattedText + content.value.substring(end);
+  
+  // Trigger input event to update counters
+  content.dispatchEvent(new Event('input'));
+}
+
+// Remove image preview
+function removeImage() {
+  const imageInput = document.getElementById('image');
+  const imagePreview = document.getElementById('imagePreview');
+  
+  imageInput.value = '';
+  imagePreview.classList.add('hidden');
+}
+</script>
+
+<!-- Custom Styles -->
+<style>
+/* Custom select arrow */
+select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
+
+/* File upload hover effects */
+.border-dashed:hover {
+  border-color: #3b82f6;
+  background-color: #f8fafc;
+}
+
+/* Code styling */
+code {
+  font-family: 'Courier New', monospace;
+  background-color: #f3f4f6;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  color: #1f2937;
+}
+
+/* Smooth transitions */
+input, textarea, select, button {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Validation error styling */
+.border-red-500 {
+  border-color: #ef4444 !important;
+}
+
+.ring-red-200 {
+  --tw-ring-color: rgba(254, 202, 202, 0.5) !important;
+}
+
+/* Scrollbar styling */
+textarea {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db transparent;
+}
+
+textarea::-webkit-scrollbar {
+  width: 6px;
+}
+
+textarea::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+textarea::-webkit-scrollbar-thumb {
+  background-color: #d1d5db;
+  border-radius: 20px;
+}
+
+textarea::-webkit-scrollbar-thumb:hover {
+  background-color: #9ca3af;
+}
+
+/* Gradient border for main card */
+.bg-white {
+  position: relative;
+}
+
+.bg-white::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(45deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+  border-radius: 1rem;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.bg-white:hover::before {
+  opacity: 1;
+}
+</style>

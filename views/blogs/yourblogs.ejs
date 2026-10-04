@@ -1,0 +1,154 @@
+<% layout("/layouts/boilerplate") -%>
+
+<div class="container py-5">
+  <h2 class="fw-bold mb-4 text-center">Your Blogs</h2>
+
+  <% if (allBlogs.length === 0) { %>
+  <div class="card border-0 shadow-sm rounded-4 text-center p-4 my-4">
+    <div class="card-body">
+
+      <div class="mb-3">
+        <i class="bi bi-pencil-square fs-1 text-[#A23E48] "></i>
+      </div>
+
+      <h4 class="fw-semibold mb-2">
+        You haven’t written any blogs yet
+      </h4>
+
+      <p class="text-muted mb-4">
+        Share your knowledge, opinions, and experiences with the community.
+        Writing blogs helps others learn — and helps you grow too.
+      </p>
+
+      <a href="/thecubicals/blogs/new" class="btn btn-primary px-4 py-2 rounded-pill">
+        Start Writing Your First Blog
+      </a>
+
+    </div>
+  </div>
+<% } %>
+
+
+  <div class="row justify-content-center g-4">
+    <% allBlogs.forEach(blog => { %>
+      <div class="col-12 col-md-10 col-lg-8">
+        <div class="card shadow-sm border-0 rounded-4 overflow-hidden 
+          <%= blog.isvalid 
+            ? 'bg-success-subtle' 
+            : blog.blocked 
+              ? 'bg-danger-subtle' 
+              : 'bg-warning-subtle' %>">
+
+          <div class="row g-0 align-items-center">
+            
+            <!-- Blog Image -->
+            <div class="col-12 col-md-4">
+              <img 
+                src="<%= blog.image && blog.image.url ? blog.image.url : '/images/thecubicals.png' %>"
+                alt="<%= blog.title %>"
+                class="img-fluid w-100 h-100 object-fit-cover"
+                style="max-height: 220px; object-fit: cover;"
+              >
+            </div>
+
+            <!-- Blog Content -->
+            <div class="col-12 col-md-8 p-3 p-md-4">
+              <h5 class="fw-semibold mb-2"><%= blog.title %></h5>
+              <div class="mb-2 text-muted small">
+                <span class="badge bg-primary me-1"><%= blog.category %></span>
+                <i class="bi bi-calendar-event me-1"></i>
+                <%= new Date(blog.createdAt).toLocaleDateString('en-IN', {
+                  timeZone: 'Asia/Kolkata', year: 'numeric', month: 'short', day: 'numeric'
+                }) %>
+              </div>
+              <p class="small text-muted mb-3"><%= blog.shortdescription %></p>
+
+              <!-- Buttons -->
+              <div class="d-flex flex-wrap gap-2">
+                <a href="/thecubicals/blogs/<%= blog.id %>" class="btn btn-sm btn-outline-info">
+                  <i class="bi bi-eye me-1"></i>View
+                </a>
+                <a href="/thecubicals/blogs/<%= blog._id %>/edit" class="btn btn-sm btn-outline-secondary">
+                  <i class="bi bi-pencil-square me-1"></i>Edit
+                </a>
+
+                <% if (blog.isvalid) { %>
+                  <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal<%= blog._id %>">
+                    <i class="bi bi-trash me-1"></i>Delete
+                  </button>
+
+                  <% if (blog.usersSeen.length > 0) { %>
+                    <a href="/thecubicals/blogs/<%= blog._id %>/views" class="btn btn-sm btn-outline-success">
+                      <i class="bi bi-person-lines-fill me-1"></i>View Viewers
+                    </a>
+                  <% } else { %>
+                    <button class="btn btn-sm btn-outline-secondary" disabled>
+                      <i class="bi bi-person-dash me-1"></i>No Viewers
+                    </button>
+                  <% } %>
+                
+                <% } else if (blog.blocked) { %>
+                  <button class="btn btn-sm btn-danger" disabled>
+                    <i class="bi bi-slash-circle me-1"></i>Blocked
+                  </button>
+                <% } else { %>
+                  <button class="btn btn-sm btn-warning text-dark" disabled>
+                    <i class="bi bi-hourglass-split me-1"></i>Under Review
+                  </button>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delete Confirmation Modal -->
+      <div class="modal fade" id="confirmDeleteModal<%= blog._id %>" tabindex="-1" aria-labelledby="confirmDeleteModalLabel<%= blog._id %>" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content border-danger">
+            <div class="modal-header bg-danger text-white">
+              <h5 class="modal-title" id="confirmDeleteModalLabel<%= blog._id %>">Confirm Blog Deletion</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              Are you sure you want to delete the blog titled "<strong><%= blog.title %></strong>"?  
+              This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+              <form action="/thecubicals/blogs/<%= blog._id %>?_method=DELETE" method="POST" class="d-inline">
+                <button type="submit" class="btn btn-danger btn-sm prevent-multi-submit">Yes, Delete</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <% }) %>
+  </div>
+
+  <!-- Pagination -->
+  <% if (totalPages > 1) { %>
+    <nav aria-label="Your Blogs Pagination">
+      <ul class="pagination justify-content-center mt-4">
+        <% if (currentPage > 1) { %>
+          <li class="page-item">
+            <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
+          </li>
+        <% } %>
+
+        <% for (let i = 1; i <= totalPages; i++) { %>
+          <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+            <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+          </li>
+        <% } %>
+
+        <% if (currentPage < totalPages) { %>
+          <li class="page-item">
+            <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
+          </li>
+        <% } %>
+      </ul>
+    </nav>
+  <% } %>
+</div>

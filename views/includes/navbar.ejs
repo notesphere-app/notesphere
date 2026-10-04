@@ -1,0 +1,756 @@
+<!-- =========================================
+     NoteSphere Navbar
+========================================= -->
+<%
+  const activePath = (typeof currentPath !== "undefined") ? currentPath : "/";
+  const currentUser = (typeof currUser !== "undefined") ? currUser : null;
+
+  /* Robust active-link check — handles trailing slash, sub-paths, query strings */
+  function isActive(path) {
+    var current = String(activePath || "/").split("?")[0].split("#")[0];
+    if (current.length > 1 && current.endsWith("/")) current = current.slice(0, -1);
+    if (path === "/") return current === "" || current === "/";
+    if (current === path) return true;
+    if (current.startsWith(path + "/")) return true;
+    return false;
+  }
+
+  /* Avatar helper — shows <img> if avatar exists, otherwise a colored
+     circle with the first letter of the user's name. Color is
+     deterministic (same letter → same color, always). */
+  function avatarHTML(user, size) {
+    if (!user) user = {};
+    var s = size || 'h-8 w-8';
+    var name = String(user.name || user.email || 'U').trim();
+    var initial = (name.charAt(0) || 'U').toUpperCase();
+
+    if (user.avatar && String(user.avatar).trim()) {
+      return '<img src="' + user.avatar + '" alt="" class="' + s + ' rounded-full ring-2 ring-white dark:ring-slate-900 object-cover" />';
+    }
+
+    var palette = ['#0878E8', '#7C3AED', '#059669', '#D97706', '#DC2626', '#0891B2', '#DB2777', '#65A30D'];
+    var groups  = ['AIQY', 'BJRZ', 'CKS', 'DLT', 'EMU', 'FNV', 'GOW', 'HPX'];
+    var idx = 0;
+    for (var i = 0; i < groups.length; i++) {
+      if (groups[i].indexOf(initial) !== -1) { idx = i; break; }
+    }
+    var color = palette[idx];
+    var fontSize = s.indexOf('h-12') !== -1 ? 'text-base'
+                 : s.indexOf('h-11') !== -1 ? 'text-sm'
+                 : s.indexOf('h-9')  !== -1 ? 'text-sm'
+                 : 'text-xs';
+
+    return '<span class="' + s + ' ' + fontSize + ' inline-flex flex-shrink-0 items-center justify-center rounded-full font-bold text-white ring-2 ring-white dark:ring-slate-900" style="background-color:' + color + ';" aria-hidden="true">' + initial + '</span>';
+  }
+%>
+<nav
+  id="ns-navbar"
+  class="sticky top-0 z-50 w-full
+         border-b border-slate-200/80 bg-[#FBFAF7]/90 backdrop-blur-md
+         dark:border-slate-800 dark:bg-slate-950/90"
+>
+  <div class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+
+    <!-- Logo -->
+    <a href="/" class="flex shrink-0 items-center gap-2.5" aria-label="NoteSphere Home">
+      <img src="/images/logo-2.png" alt="NoteSphere" width="38" height="38" class="bg-white rounded-full">
+      <span class="flex items-baseline gap-0.5">
+        <span class="text-xl font-bold tracking-tight text-[#022E5A] dark:text-white">Note</span>
+        <span class="font-script text-2xl leading-none text-[#0878E8]">Sphere</span>
+      </span>
+    </a>
+
+    <!-- Desktop Nav -->
+    <div class="hidden items-center gap-7 md:flex">
+      <a href="/" class="nav-link" <%- isActive("/") ? 'aria-current="page"' : "" %>>Home</a>
+      <a href="/notes" class="nav-link" <%- isActive("/notes") ? 'aria-current="page"' : "" %>>Notes</a>
+      <a href="/blogs" class="nav-link" <%- isActive("/blogs") ? 'aria-current="page"' : "" %>>Blogs</a>
+      <a href="/about" class="nav-link" <%- isActive("/about") ? 'aria-current="page"' : "" %>>About</a>
+      <a href="/contact" class="nav-link" <%- isActive("/contact") ? 'aria-current="page"' : "" %>>Contact</a>
+    </div>
+
+    <!-- Desktop Right Side -->
+    <div class="hidden items-center gap-1 md:flex">
+
+      <!-- Search toggle -->
+      <button type="button" id="nav-search-toggle" aria-label="Open search" aria-expanded="false"
+        class="flex h-10 w-10 items-center justify-center rounded-full
+               text-slate-600 transition-colors hover:bg-slate-900/5 hover:text-[#0878E8]
+               dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-blue-400">
+        <i class="fa-solid fa-magnifying-glass text-base"></i>
+      </button>
+
+      <!-- Theme Toggle -->
+      <button id="theme-toggle" type="button" aria-label="Toggle dark mode"
+        class="flex h-10 w-10 items-center justify-center rounded-full
+               text-slate-600 transition-colors hover:bg-slate-900/5 hover:text-[#0878E8]
+               dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-blue-400">
+        <svg class="theme-icon-sun hidden h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364-.707.707M6.343 17.657l-.707.707m12.728 0-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z" />
+        </svg>
+        <svg class="theme-icon-moon h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" />
+        </svg>
+      </button>
+
+      <% if (!currentUser) { %>
+        <a href="/login"
+          class="ml-2 inline-block rounded-full px-4 py-2 text-sm font-semibold text-[#022E5A]
+                 transition-colors hover:bg-slate-900/5
+                 dark:text-slate-200 dark:hover:bg-white/10">
+          Login
+        </a>
+
+        <a href="/signup"
+          class="inline-block rounded-full bg-[#0878E8] px-4 py-2 text-sm font-semibold text-white
+                 shadow-sm transition-all hover:bg-[#0668CC] hover:shadow-md
+                 focus:outline-none focus:ring-2 focus:ring-[#0878E8] focus:ring-offset-2
+                 dark:focus:ring-offset-slate-950">
+          Get Started
+        </a>
+      <% } else { %>
+        <!-- Upload -->
+        <a href="/upload"
+           class="ml-2 inline-flex items-center gap-2 rounded-full bg-[#0878E8] px-4 py-2 text-sm font-semibold text-white
+                  shadow-sm transition-all hover:bg-[#0668CC] hover:shadow-md">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+          <span class="hidden lg:inline">Upload</span>
+        </a>
+
+        <!-- Avatar dropdown -->
+        <div class="relative" id="nav-user-menu">
+          <button type="button" id="nav-user-trigger" aria-haspopup="true" aria-expanded="false"
+            class="ml-1 flex items-center gap-2 rounded-full p-0.5 pr-2 transition-colors hover:bg-slate-900/5 dark:hover:bg-white/10">
+            <%- avatarHTML(currentUser, 'h-8 w-8') %>
+            <span class="hidden text-sm font-medium text-[#022E5A] dark:text-slate-200 lg:inline">
+              <%= (currentUser.name || 'You').split(' ')[0] %>
+            </span>
+            <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform duration-200" id="nav-user-chevron"></i>
+          </button>
+
+          <div id="nav-user-dropdown"
+               class="invisible absolute right-0 top-full z-50 mt-2 w-72 origin-top-right scale-95 rounded-2xl border border-slate-200
+                      bg-white p-2 opacity-0 shadow-xl transition-all duration-200 ease-out
+                      dark:border-slate-800 dark:bg-slate-900">
+            <div class="flex items-center gap-3 rounded-xl bg-[#FBFAF7] px-3 py-3 dark:bg-slate-950">
+              <%- avatarHTML(currentUser, 'h-11 w-11') %>
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-sm font-semibold text-[#022E5A] dark:text-white">
+                  <%= currentUser.name || 'NoteSphere user' %>
+                </p>
+                <p class="truncate text-xs text-slate-500 dark:text-slate-400">
+                  <%= currentUser.email || '' %>
+                </p>
+              </div>
+            </div>
+
+            <div class="my-2 h-px bg-slate-100 dark:bg-slate-800"></div>
+
+            <a href="/profile" class="nav-menu-item"><i class="fa-regular fa-user w-4 text-center"></i> My profile</a>
+            <a href="/notes/mine" class="nav-menu-item"><i class="fa-solid fa-file-lines w-4 text-center"></i> My notes</a>
+            <a href="/saved/notes" class="nav-menu-item"><i class="fa-regular fa-bookmark w-4 text-center"></i> Saved notes</a>
+            <a href="/saved/blogs" class="nav-menu-item"><i class="fa-regular fa-bookmark w-4 text-center"></i> Saved blogs</a>
+            <a href="/settings" class="nav-menu-item"><i class="fa-solid fa-gear w-4 text-center"></i> Settings</a>
+
+            <div class="my-2 h-px bg-slate-100 dark:bg-slate-800"></div>
+
+            <button type="button" data-logout-trigger
+              class="nav-menu-item nav-menu-item--danger w-full text-left">
+              <i class="fa-solid fa-right-from-bracket w-4 text-center"></i> Log out
+            </button>
+          </div>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Mobile Controls -->
+    <div class="flex items-center gap-1 md:hidden">
+
+      <button type="button" id="mobile-search-toggle" aria-label="Search" aria-expanded="false"
+        class="flex h-10 w-10 items-center justify-center rounded-full
+               text-slate-600 transition-colors hover:bg-slate-900/5 hover:text-[#0878E8]
+               dark:text-slate-300 dark:hover:bg-white/10">
+        <i class="fa-solid fa-magnifying-glass text-base"></i>
+      </button>
+
+      <button id="mobile-theme-toggle" type="button" aria-label="Toggle dark mode"
+        class="flex h-10 w-10 items-center justify-center rounded-full
+               text-slate-600 hover:bg-slate-900/5 dark:text-slate-300 dark:hover:bg-white/10">
+        <svg class="theme-icon-sun hidden h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364-.707.707M6.343 17.657l-.707.707m12.728 0-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z" />
+        </svg>
+        <svg class="theme-icon-moon h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" />
+        </svg>
+      </button>
+
+      <% if (currentUser) { %>
+        <button type="button" id="mobile-user-trigger" class="flex h-10 w-10 items-center justify-center rounded-full">
+          <%- avatarHTML(currentUser, 'h-8 w-8') %>
+        </button>
+      <% } %>
+
+      <button id="mobile-menu-button" type="button" aria-label="Open menu" aria-expanded="false"
+        class="flex h-10 w-10 items-center justify-center rounded-full
+               text-slate-700 hover:bg-slate-900/5 dark:text-slate-300 dark:hover:bg-white/10">
+        <i class="fa-solid fa-bars text-xl" id="menu-open-icon"></i>
+        <i class="fa-solid fa-xmark hidden text-xl" id="menu-close-icon"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- DESKTOP SEARCH DROPDOWN -->
+  <div id="nav-search-panel"
+       class="invisible absolute inset-x-0 top-full z-40 hidden -translate-y-2 border-b border-slate-200
+              bg-[#FBFAF7] opacity-0 shadow-lg transition-all duration-200 ease-out
+              dark:border-slate-800 dark:bg-slate-950 md:block">
+    <div class="mx-auto max-w-3xl px-4 py-4 sm:px-6 lg:px-8">
+      <form action="/search" method="GET" role="search" id="nav-search-form"
+            class="flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2.5 shadow-sm
+                   focus-within:border-[#0878E8] focus-within:ring-2 focus-within:ring-[#0878E8]/25
+                   dark:border-slate-700 dark:bg-slate-900">
+        <i class="fa-solid fa-magnifying-glass text-sm text-slate-400"></i>
+        <input id="nav-search-input" type="search" name="q"
+          placeholder="Search notes, blogs, subjects…" autocomplete="off"
+          class="min-w-0 flex-1 border-0 bg-transparent text-sm text-slate-900 placeholder-slate-400
+                 focus:outline-none dark:text-white dark:placeholder-slate-500" />
+        <button type="button" id="nav-search-close" aria-label="Close search"
+          class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-slate-400
+                 transition-colors hover:bg-slate-100 hover:text-slate-700
+                 dark:hover:bg-slate-800 dark:hover:text-slate-200">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </form>
+      <div id="nav-search-results"
+           class="mt-3 hidden max-h-80 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-sm
+                  dark:border-slate-800 dark:bg-slate-900"></div>
+    </div>
+  </div>
+
+  <!-- MOBILE SEARCH DROPDOWN -->
+  <div id="mobile-search-panel"
+       class="invisible absolute inset-x-0 top-full z-40 hidden -translate-y-2 border-b border-slate-200
+              bg-[#FBFAF7] opacity-0 shadow-lg transition-all duration-200 ease-out
+              dark:border-slate-800 dark:bg-slate-950 md:hidden">
+    <div class="px-4 py-3">
+      <form action="/search" method="GET" role="search"
+            class="flex items-center gap-2 rounded-full border border-slate-300 bg-white px-3 py-2.5
+                   dark:border-slate-700 dark:bg-slate-900">
+        <i class="fa-solid fa-magnifying-glass text-sm text-slate-400"></i>
+        <input id="mobile-search-input" type="search" name="q" placeholder="Search notes, blogs…" autocomplete="off"
+               class="min-w-0 flex-1 border-0 bg-transparent text-sm text-slate-900 placeholder-slate-400
+                      focus:outline-none dark:text-white dark:placeholder-slate-500" />
+        <button type="button" id="mobile-search-close" aria-label="Close search"
+          class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-slate-400
+                 transition-colors hover:bg-slate-100 hover:text-slate-700
+                 dark:hover:bg-slate-800 dark:hover:text-slate-200">
+          <i class="fa-solid fa-xmark text-xs"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+</nav>
+
+<!-- =========================================
+     Mobile Drawer
+========================================= -->
+<div id="mobile-drawer-backdrop"
+     class="fixed inset-0 z-[60] hidden bg-slate-950/50 backdrop-blur-sm opacity-0 transition-opacity duration-300 ease-out md:hidden"></div>
+
+<aside id="mobile-drawer"
+       class="fixed inset-y-0 left-0 z-[70] flex h-full w-[82%] max-w-sm -translate-x-full flex-col
+              transform-gpu border-r border-slate-200 bg-[#FBFAF7] shadow-2xl
+              transition-transform duration-[320ms] ease-[cubic-bezier(0.22,1,0.36,1)]
+              dark:border-slate-800 dark:bg-slate-950 md:hidden"
+       aria-label="Mobile menu" role="dialog" aria-modal="true">
+
+  <div class="flex flex-shrink-0 h-16 items-center justify-between border-b border-slate-200 px-4 dark:border-slate-800">
+    <a href="/" class="flex items-center gap-2.5" aria-label="NoteSphere Home">
+      <img src="/images/logo-2.png" alt="NoteSphere" width="34" height="34" class="bg-white rounded-full">
+      <span class="flex items-baseline gap-0.5">
+        <span class="text-lg font-bold tracking-tight text-[#022E5A] dark:text-white">Note</span>
+        <span class="font-script text-xl leading-none text-[#0878E8]">Sphere</span>
+      </span>
+    </a>
+    <button type="button" id="mobile-drawer-close" aria-label="Close menu"
+      class="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-slate-900/5 dark:text-slate-300 dark:hover:bg-white/10">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </div>
+
+  <div class="flex-1 overflow-y-auto overscroll-contain">
+
+    <% if (currentUser) { %>
+      <div class="border-b border-slate-200 px-4 py-4 dark:border-slate-800">
+        <div class="flex items-center gap-3">
+          <%- avatarHTML(currentUser, 'h-12 w-12') %>
+          <div class="min-w-0 flex-1">
+            <p class="truncate text-sm font-semibold text-[#022E5A] dark:text-white">
+              <%= currentUser.name || 'NoteSphere user' %>
+            </p>
+            <p class="truncate text-xs text-slate-500 dark:text-slate-400">
+              <%= currentUser.email || '' %>
+            </p>
+          </div>
+        </div>
+        <a href="/upload"
+           class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#0878E8] px-4 py-3 text-sm font-semibold text-white
+                  shadow-sm transition-all hover:bg-[#0668CC]">
+          <i class="fa-solid fa-cloud-arrow-up"></i> Upload notes
+        </a>
+      </div>
+    <% } %>
+
+    <nav class="px-3 py-4">
+      <ul class="space-y-1">
+        <li><a href="/" class="mobile-nav-link" <%- isActive("/") ? 'aria-current="page"' : "" %>>
+          <i class="fa-solid fa-house w-5 text-center"></i> Home
+        </a></li>
+        <li><a href="/notes" class="mobile-nav-link" <%- isActive("/notes") ? 'aria-current="page"' : "" %>>
+          <i class="fa-solid fa-book-open-reader w-5 text-center"></i> Notes
+        </a></li>
+        <li><a href="/blogs" class="mobile-nav-link" <%- isActive("/blogs") ? 'aria-current="page"' : "" %>>
+          <i class="fa-solid fa-feather-pointed w-5 text-center"></i> Blogs
+        </a></li>
+        <li><a href="/about" class="mobile-nav-link" <%- isActive("/about") ? 'aria-current="page"' : "" %>>
+          <i class="fa-solid fa-circle-info w-5 text-center"></i> About
+        </a></li>
+        <li><a href="/contact" class="mobile-nav-link" <%- isActive("/contact") ? 'aria-current="page"' : "" %>>
+          <i class="fa-solid fa-envelope w-5 text-center"></i> Contact
+        </a></li>
+      </ul>
+
+      <% if (currentUser) { %>
+        <div class="my-4 h-px bg-slate-200 dark:bg-slate-800"></div>
+        <p class="px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Your account</p>
+        <ul class="mt-2 space-y-1">
+          <li><a href="/profile" class="mobile-nav-link"><i class="fa-regular fa-user w-5 text-center"></i> My profile</a></li>
+          <li><a href="/notes/mine" class="mobile-nav-link"><i class="fa-solid fa-file-lines w-5 text-center"></i> My notes</a></li>
+          <li><a href="/saved/notes" class="mobile-nav-link"><i class="fa-regular fa-bookmark w-5 text-center"></i> Saved notes</a></li>
+          <li><a href="/saved/blogs" class="mobile-nav-link"><i class="fa-regular fa-bookmark w-5 text-center"></i> Saved blogs</a></li>
+          <li><a href="/settings" class="mobile-nav-link"><i class="fa-solid fa-gear w-5 text-center"></i> Settings</a></li>
+        </ul>
+      <% } %>
+
+      <div class="h-4"></div>
+    </nav>
+  </div>
+
+  <div class="flex-shrink-0 border-t border-slate-200 p-3 dark:border-slate-800">
+    <% if (!currentUser) { %>
+      <div class="space-y-2">
+        <a href="/login"
+          class="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold
+                 text-[#022E5A] transition-colors hover:bg-slate-50
+                 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800">
+          <i class="fa-solid fa-right-to-bracket"></i> Login
+        </a>
+        <a href="/signup"
+          class="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0878E8] px-4 py-3 text-sm font-semibold text-white
+                 transition-colors hover:bg-[#0668CC]">
+          <i class="fa-solid fa-user-plus"></i> Sign up free
+        </a>
+      </div>
+    <% } else { %>
+      <button type="button" data-logout-trigger
+        class="flex w-full items-center justify-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold
+               text-rose-600 transition-colors hover:bg-rose-100
+               dark:border-rose-900/50 dark:bg-rose-950/40 dark:text-rose-300 dark:hover:bg-rose-950/60">
+        <i class="fa-solid fa-right-from-bracket"></i> Log out
+      </button>
+    <% } %>
+  </div>
+</aside>
+
+<!-- =========================================
+     Logout Confirmation Modal
+========================================= -->
+<div id="logout-modal-root" class="fixed inset-0 z-[110] hidden">
+  <div id="logout-modal-overlay" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm opacity-0 transition-opacity duration-200"></div>
+  <div class="relative flex min-h-full items-center justify-center p-4">
+    <div id="logout-modal-panel"
+         class="w-full max-w-sm scale-95 rounded-2xl bg-white p-6 opacity-0 shadow-2xl
+                transition-all duration-200 ease-out dark:bg-slate-900"
+         role="dialog" aria-modal="true" aria-labelledby="logout-title">
+      <div class="flex items-start gap-4">
+        <div class="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-rose-100 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </div>
+        <div class="flex-1">
+          <h2 id="logout-title" class="text-lg font-bold text-[#022E5A] dark:text-white">Log out?</h2>
+          <p class="mt-1 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
+            You'll need to sign in again to upload, save, or manage your notes.
+          </p>
+        </div>
+      </div>
+      <div class="mt-6 flex items-center justify-end gap-2">
+        <button type="button" id="logout-cancel"
+          class="rounded-full border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700
+                 transition-colors hover:bg-slate-900/5
+                 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-white/10">
+          Cancel
+        </button>
+        <form action="/logout" method="GET" class="contents">
+          <button type="submit"
+            class="inline-flex items-center gap-2 rounded-full bg-rose-600 px-5 py-2.5 text-sm font-semibold text-white
+                   shadow-sm transition-all hover:bg-rose-700 hover:shadow-md">
+            <i class="fa-solid fa-right-from-bracket"></i> Yes, log out
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================
+     Navbar styles
+========================================= -->
+<style>
+  .font-script { font-family: 'Lora', serif; font-style: italic; font-weight: 600; }
+
+  .nav-link {
+    position: relative;
+    padding-bottom: 4px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: rgb(51 65 85);
+  }
+  .dark .nav-link { color: rgb(203 213 225); }
+  .nav-link::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 2px;
+    background: #0878E8;
+    border-radius: 2px;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.2s ease;
+  }
+  .nav-link:hover, .nav-link:focus-visible { color: #0878E8; }
+  .nav-link:hover::after, .nav-link:focus-visible::after,
+  .nav-link[aria-current="page"]::after { transform: scaleX(1); }
+  .nav-link[aria-current="page"] { color: #0878E8; }
+  .dark .nav-link:hover, .dark .nav-link:focus-visible { color: rgb(96 165 250); }
+  .dark .nav-link[aria-current="page"] { color: rgb(96 165 250); }
+
+  .mobile-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-radius: 0.75rem;
+    padding: 0.7rem 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: rgb(51 65 85);
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .mobile-nav-link:hover { background: rgba(8, 120, 232, 0.06); color: #0878E8; }
+  .dark .mobile-nav-link { color: rgb(203 213 225); }
+  .dark .mobile-nav-link:hover { background: rgba(96, 165, 250, 0.12); color: rgb(96, 165, 250); }
+  .mobile-nav-link[aria-current="page"] {
+    background: rgba(8, 120, 232, 0.08);
+    color: #0878E8;
+    font-weight: 600;
+  }
+  .dark .mobile-nav-link[aria-current="page"] { background: rgba(96, 165, 250, 0.12); color: rgb(96 165 250); }
+
+  .nav-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-radius: 0.75rem;
+    padding: 0.625rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgb(51 65 85);
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .nav-menu-item:hover { background: rgb(241 245 249); color: #0878E8; }
+  .dark .nav-menu-item { color: rgb(203 213 225); }
+  .dark .nav-menu-item:hover { background: rgb(30 41 59); color: rgb(96 165 250); }
+  .nav-menu-item--danger { color: rgb(225 29 72); }
+  .nav-menu-item--danger:hover { background: rgb(255 241 242); color: rgb(190 18 60); }
+  .dark .nav-menu-item--danger { color: rgb(251 113 133); }
+  .dark .nav-menu-item--danger:hover { background: rgba(159, 18, 57, 0.2); color: rgb(253 164 175); }
+</style>
+
+<!-- =========================================
+     Navbar JS
+========================================= -->
+<script>
+  (function () {
+    const html = document.documentElement;
+    const THEME_KEY = "theme";
+
+    /* -------- Theme -------- */
+    function syncThemeIcons() {
+      const isDark = html.classList.contains("dark");
+      document.querySelectorAll(".theme-icon-sun").forEach(el => el.classList.toggle("hidden", isDark));
+      document.querySelectorAll(".theme-icon-moon").forEach(el => el.classList.toggle("hidden", !isDark));
+    }
+    function toggleTheme() {
+      const next = html.classList.contains("dark") ? "light" : "dark";
+      html.classList.toggle("dark", next === "dark");
+      localStorage.setItem(THEME_KEY, next);
+      syncThemeIcons();
+    }
+    syncThemeIcons();
+    document.getElementById("theme-toggle")?.addEventListener("click", toggleTheme);
+    document.getElementById("mobile-theme-toggle")?.addEventListener("click", toggleTheme);
+    window.matchMedia?.("(prefers-color-scheme: dark)").addEventListener("change", function (e) {
+      if (localStorage.getItem(THEME_KEY)) return;
+      html.classList.toggle("dark", e.matches);
+      syncThemeIcons();
+    });
+
+    /* -------- Mobile Drawer -------- */
+    const drawer = document.getElementById("mobile-drawer");
+    const drawerBackdrop = document.getElementById("mobile-drawer-backdrop");
+    const menuBtn = document.getElementById("mobile-menu-button");
+    const menuOpenIcon = document.getElementById("menu-open-icon");
+    const menuCloseIcon = document.getElementById("menu-close-icon");
+    const drawerCloseBtn = document.getElementById("mobile-drawer-close");
+    let drawerLastFocused = null;
+    let drawerOpen = false;
+
+    function openDrawer() {
+      if (drawerOpen) return;
+      drawerOpen = true;
+      drawerLastFocused = document.activeElement;
+      drawerBackdrop.classList.remove("hidden");
+      void drawerBackdrop.offsetWidth;
+      drawerBackdrop.classList.remove("opacity-0");
+      drawerBackdrop.classList.add("opacity-100");
+      drawer.classList.remove("-translate-x-full");
+      menuOpenIcon.classList.add("hidden");
+      menuCloseIcon.classList.remove("hidden");
+      menuBtn.setAttribute("aria-expanded", "true");
+      document.body.style.overflow = "hidden";
+      drawerCloseBtn?.focus();
+    }
+    function closeDrawer() {
+      if (!drawerOpen) return;
+      drawerOpen = false;
+      drawer.classList.add("-translate-x-full");
+      drawerBackdrop.classList.remove("opacity-100");
+      drawerBackdrop.classList.add("opacity-0");
+      menuOpenIcon.classList.remove("hidden");
+      menuCloseIcon.classList.add("hidden");
+      menuBtn.setAttribute("aria-expanded", "false");
+      document.body.style.overflow = "";
+      setTimeout(function () { drawerBackdrop.classList.add("hidden"); }, 320);
+      drawerLastFocused?.focus?.();
+    }
+    menuBtn?.addEventListener("click", function () { drawerOpen ? closeDrawer() : openDrawer(); });
+    drawerCloseBtn?.addEventListener("click", closeDrawer);
+    drawerBackdrop?.addEventListener("click", closeDrawer);
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && drawerOpen) closeDrawer();
+    });
+    document.querySelectorAll("#mobile-drawer a").forEach(function (link) {
+      link.addEventListener("click", closeDrawer);
+    });
+    let touchStartX = 0;
+    drawer?.addEventListener("touchstart", function (e) { touchStartX = e.touches[0].clientX; }, { passive: true });
+    drawer?.addEventListener("touchend", function (e) {
+      if (e.changedTouches[0].clientX - touchStartX < -60) closeDrawer();
+    }, { passive: true });
+    window.addEventListener("resize", function () {
+      if (window.innerWidth >= 768 && drawerOpen) closeDrawer();
+    });
+
+    /* -------- User dropdown -------- */
+    const userTrigger = document.getElementById("nav-user-trigger");
+    const userDropdown = document.getElementById("nav-user-dropdown");
+    const userChevron = document.getElementById("nav-user-chevron");
+
+    function openUserMenu() {
+      userDropdown.classList.remove("invisible", "opacity-0", "scale-95");
+      userDropdown.classList.add("opacity-100", "scale-100");
+      userTrigger?.setAttribute("aria-expanded", "true");
+      userChevron?.classList.add("rotate-180");
+    }
+    function closeUserMenu() {
+      userDropdown.classList.add("invisible", "opacity-0", "scale-95");
+      userDropdown.classList.remove("opacity-100", "scale-100");
+      userTrigger?.setAttribute("aria-expanded", "false");
+      userChevron?.classList.remove("rotate-180");
+    }
+    userTrigger?.addEventListener("click", function (e) {
+      e.stopPropagation();
+      const isOpen = !userDropdown.classList.contains("invisible");
+      isOpen ? closeUserMenu() : openUserMenu();
+    });
+    document.addEventListener("click", function (e) {
+      if (!userDropdown?.contains(e.target) && !userTrigger?.contains(e.target)) closeUserMenu();
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeUserMenu();
+    });
+
+    /* -------- Search (desktop) -------- */
+    const searchToggle = document.getElementById("nav-search-toggle");
+    const searchPanel = document.getElementById("nav-search-panel");
+    const searchInput = document.getElementById("nav-search-input");
+    const searchClose = document.getElementById("nav-search-close");
+    const searchForm = document.getElementById("nav-search-form");
+    const searchResults = document.getElementById("nav-search-results");
+    let searchOpen = false;
+    let searchAbort = null;
+    let searchDebounce = null;
+
+    function openSearch() {
+      if (searchOpen) return;
+      searchOpen = true;
+      closeMobileSearch();
+      searchPanel.classList.remove("hidden", "invisible", "opacity-0", "-translate-y-2");
+      searchPanel.classList.add("opacity-100", "translate-y-0");
+      searchToggle?.setAttribute("aria-expanded", "true");
+      setTimeout(function () { searchInput?.focus(); }, 80);
+    }
+    function closeSearch() {
+      if (!searchOpen) return;
+      searchOpen = false;
+      searchPanel.classList.add("invisible", "opacity-0", "-translate-y-2");
+      searchPanel.classList.remove("opacity-100", "translate-y-0");
+      searchToggle?.setAttribute("aria-expanded", "false");
+      if (searchResults) { searchResults.classList.add("hidden"); searchResults.innerHTML = ""; }
+      if (searchInput) searchInput.value = "";
+      searchAbort?.abort();
+      setTimeout(function () {
+        if (!searchOpen) searchPanel.classList.add("hidden");
+      }, 220);
+    }
+    searchToggle?.addEventListener("click", function (e) {
+      e.stopPropagation();
+      searchOpen ? closeSearch() : openSearch();
+    });
+    searchClose?.addEventListener("click", function (e) { e.stopPropagation(); closeSearch(); });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && searchOpen) closeSearch();
+    });
+
+    function renderResultsInto(container, items) {
+      if (!items || !items.length) {
+        container.innerHTML = '<p class="px-3 py-6 text-center text-sm text-slate-400">No results found.</p>';
+        container.classList.remove("hidden");
+        return;
+      }
+      container.innerHTML = items.map(function (item) {
+        return '<a href="' + (item.url || '#') + '" class="flex items-center gap-3 rounded-xl px-3 py-2 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">' +
+          '<span class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-[#0878E8]/10 text-[#0878E8]"><i class="' + (item.icon || 'fa-solid fa-file-lines') + '"></i></span>' +
+          '<span class="min-w-0 flex-1">' +
+            '<span class="block truncate text-sm font-medium text-[#022E5A] dark:text-white">' + item.title + '</span>' +
+            '<span class="block truncate text-xs text-slate-400">' + (item.subtitle || '') + '</span>' +
+          '</span>' +
+        '</a>';
+      }).join("");
+      container.classList.remove("hidden");
+    }
+
+    function runSearch(q, resultsEl) {
+      searchAbort?.abort();
+      searchAbort = new AbortController();
+      fetch("/search?q=" + encodeURIComponent(q) + "&limit=6", {
+        headers: { "Accept": "application/json" },
+        signal: searchAbort.signal
+      })
+        .then(function (res) { return res.ok ? res.json() : { results: [] }; })
+        .then(function (data) {
+          if (resultsEl) renderResultsInto(resultsEl, data.results || []);
+        })
+        .catch(function (err) { if (err.name !== "AbortError") console.warn(err); });
+    }
+
+    searchInput?.addEventListener("input", function () {
+      const q = searchInput.value.trim();
+      clearTimeout(searchDebounce);
+      if (!q) { searchResults?.classList.add("hidden"); return; }
+      searchDebounce = setTimeout(function () { runSearch(q, searchResults); }, 200);
+    });
+    searchForm?.addEventListener("submit", function (e) {
+      if (!searchInput?.value.trim()) e.preventDefault();
+    });
+
+    /* -------- Search (mobile) -------- */
+    const mobileSearchToggle = document.getElementById("mobile-search-toggle");
+    const mobileSearchPanel = document.getElementById("mobile-search-panel");
+    const mobileSearchInput = document.getElementById("mobile-search-input");
+    const mobileSearchClose = document.getElementById("mobile-search-close");
+    let mobileSearchOpen = false;
+
+    function openMobileSearch() {
+      if (mobileSearchOpen) return;
+      mobileSearchOpen = true;
+      closeSearch();
+      mobileSearchPanel.classList.remove("hidden", "invisible", "opacity-0", "-translate-y-2");
+      mobileSearchPanel.classList.add("opacity-100", "translate-y-0");
+      mobileSearchToggle?.setAttribute("aria-expanded", "true");
+      setTimeout(function () { mobileSearchInput?.focus(); }, 80);
+    }
+    function closeMobileSearch() {
+      if (!mobileSearchOpen) return;
+      mobileSearchOpen = false;
+      mobileSearchPanel.classList.add("invisible", "opacity-0", "-translate-y-2");
+      mobileSearchPanel.classList.remove("opacity-100", "translate-y-0");
+      mobileSearchToggle?.setAttribute("aria-expanded", "false");
+      if (mobileSearchInput) mobileSearchInput.value = "";
+      setTimeout(function () {
+        if (!mobileSearchOpen) mobileSearchPanel.classList.add("hidden");
+      }, 220);
+    }
+    mobileSearchToggle?.addEventListener("click", function (e) {
+      e.stopPropagation();
+      mobileSearchOpen ? closeMobileSearch() : openMobileSearch();
+    });
+    mobileSearchClose?.addEventListener("click", closeMobileSearch);
+
+    /* -------- Logout confirmation -------- */
+    const logoutRoot = document.getElementById("logout-modal-root");
+    const logoutOverlay = document.getElementById("logout-modal-overlay");
+    const logoutPanel = document.getElementById("logout-modal-panel");
+    const logoutCancel = document.getElementById("logout-cancel");
+    let logoutLastFocused = null;
+
+    function openLogoutModal() {
+      closeDrawer();
+      closeUserMenu();
+      logoutLastFocused = document.activeElement;
+      logoutRoot.classList.remove("hidden");
+      requestAnimationFrame(function () {
+        logoutOverlay.classList.add("opacity-100");
+        logoutPanel.classList.remove("opacity-0", "scale-95");
+        logoutPanel.classList.add("opacity-100", "scale-100");
+        logoutCancel?.focus();
+      });
+      document.body.style.overflow = "hidden";
+    }
+    function closeLogoutModal() {
+      logoutOverlay.classList.remove("opacity-100");
+      logoutPanel.classList.add("opacity-0", "scale-95");
+      logoutPanel.classList.remove("opacity-100", "scale-100");
+      setTimeout(function () {
+        logoutRoot.classList.add("hidden");
+        document.body.style.overflow = "";
+      }, 200);
+      logoutLastFocused?.focus?.();
+    }
+    document.querySelectorAll("[data-logout-trigger]").forEach(function (btn) {
+      btn.addEventListener("click", function (e) { e.preventDefault(); openLogoutModal(); });
+    });
+    logoutCancel?.addEventListener("click", closeLogoutModal);
+    logoutOverlay?.addEventListener("click", function (e) {
+      if (e.target === logoutOverlay) closeLogoutModal();
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && !logoutRoot.classList.contains("hidden")) closeLogoutModal();
+    });
+
+    document.getElementById("mobile-user-trigger")?.addEventListener("click", openDrawer);
+  })();
+</script>
