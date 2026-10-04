@@ -39,7 +39,7 @@ async function sendVerificationOTP(user) {
   user.otpExpires = Date.now() + OTP_EXPIRY_MS;
   await user.save();
 
-  const domain = process.env.DOMAIN || "https://rootshield.in";
+  const domain = process.env.DOMAIN || "https://notesphere.online";
 
   // HTML Email Template with RootShield Theme
   const htmlContent = `
@@ -234,7 +234,7 @@ async function sendVerificationOTP(user) {
         <div class="support-info">
           <p><strong>Need assistance?</strong></p>
           <p>If you didn't request this verification or need help, please contact our support team immediately:</p>
-          <p>📧 <a href="mailto:info.theloopsystem@gmail.com" class="contact-link">info.theloopsystem@gmail.com</a></p>
+          <p>📧 <a href="mailto:support.notesphere@gmail.com" class="contact-link">support.notesphere@gmail.com</a></p>
         </div>
       </div>
       
@@ -281,7 +281,7 @@ async function sendVerificationOTP(user) {
   Keep your account credentials secure. If you didn't request this verification, please contact our security team immediately.
   
   📞 SUPPORT:
-  Email: info.theloopsystem@gmail.com
+  Email: support.notesphere@gmail.com
   Website: ${domain}
   
   ---
@@ -295,7 +295,7 @@ async function sendVerificationOTP(user) {
 
   try {
     await emailApi.sendTransacEmail({
-      sender: { email: "info.theloopsystem@gmail.com", name: "RootShield Verification" },
+      sender: { email: "support.notesphere@gmail.com", name: "RootShield Verification" },
       to: [{ email: user.email, name: user.name || user.username }],
       subject: "🔐 Verify Your Email | RootShield Account Activation",
       htmlContent: htmlContent,
@@ -316,7 +316,7 @@ async function sendVerificationOTP(user) {
 
 // Professional Welcome Email Template
 async function sendWelcomeEmail(user) {
-  const domain = process.env.DOMAIN || "https://rootshield.in";
+  const domain = process.env.DOMAIN || "https://notesphere.online";
 
   const htmlContent = `
   <!DOCTYPE html>
@@ -531,7 +531,7 @@ async function sendWelcomeEmail(user) {
             Need assistance? Our support team is here to help.
           </p>
           <p style="margin-top: 10px;">
-            📧 <a href="mailto:info.theloopsystem@gmail.com" class="contact-link">info.theloopsystem@gmail.com</a> | 
+            📧 <a href="mailto:support.notesphere@gmail.com" class="contact-link">support.notesphere@gmail.com</a> | 
             🌐 <a href="${domain}" class="contact-link">Visit RootShield</a>
           </p>
         </div>
@@ -559,7 +559,7 @@ async function sendWelcomeEmail(user) {
 
   try {
     await apiInstance.sendTransacEmail({
-      sender: { email: "info.theloopsystem@gmail.com", name: "RootShield Welcome Team" },
+      sender: { email: "support.notesphere@gmail.com", name: "RootShield Welcome Team" },
       to: [{ email: user.email, name: user.name || user.username }],
       subject: "🎉 Welcome to RootShield! Your Account is Now Active",
       htmlContent: htmlContent,

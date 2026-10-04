@@ -319,9 +319,9 @@ module.exports.forgotPassword = async (req, res) => {
       https://rootshield.in
     `;
 
-    // SEND EMAIL
+    // SEND EMAIL 
     await apiInstance.sendTransacEmail({
-      sender: { email: "info.theloopsystem@gmail.com", name: "RootShield Security" },
+      sender: { email: "support.notesphere@gmail.com", name: "RootShield Security" },
       to: [{ email: user.email, name: user.name || user.username }],
       subject: "🔒 Reset Your Password | RootShield Account Security",
       htmlContent: htmlContent,
@@ -543,7 +543,7 @@ module.exports.postResetPassword = async (req, res) => {
               
               <div style="margin-top: 30px;">
                 <p style="color: #4b5563; font-size: 14px;">
-                  If you did not make this change, please contact our security team immediately at <strong>info.theloopsystem@gmail.com</strong>
+                  If you did not make this change, please contact our security team immediately at <strong>support.notesphere@gmail.com</strong>
                 </p>
               </div>
             </div>
@@ -565,7 +565,7 @@ module.exports.postResetPassword = async (req, res) => {
 
       await apiInstance.sendTransacEmail({
         sender: {
-          email: "info.theloopsystem@gmail.com",
+          email: "support.notesphere@gmail.com",
           name: "RootShield Security",
         },
         to: [{ email: user.email, name: user.name || user.username }],
