@@ -36,7 +36,7 @@ module.exports.forgotPassword = async (req, res) => {
     const domain =
       process.env.DOMAIN ||
       (process.env.NODE_ENV === "production"
-        ? "https://rootshield.in"
+        ? "https://notesphere.online"
         : "http://localhost:3000");
     const resetLink = `${domain}/reset-password/${token}`;
 
@@ -279,8 +279,8 @@ module.exports.forgotPassword = async (req, res) => {
             
             <div class="contact-info">
               <p>
-                📧 <a href="mailto:support@rootshield.in" class="contact-link">support@rootshield.in</a> | 
-                🌐 <a href="https://rootshield.in" class="contact-link">rootshield.in</a>
+                📧 <a href="mailto:support.notesphere@gmail.com" class="contact-link">support.notesphere@gmail.com</a> | 
+                🌐 <a href="https://notesphere.online" class="contact-link">notesphere.online</a>
               </p>
               <p style="margin-top: 15px; font-size: 12px; color: #9ca3af;">
                 This is an automated message. Please do not reply directly to this email.<br>
@@ -310,13 +310,13 @@ module.exports.forgotPassword = async (req, res) => {
       If you didn't request this password reset, please ignore this email.
       Your account security is important to us, and no changes have been made to your account.
 
-      Need help? Contact our support team at support@rootshield.in
+      Need help? Contact our support team at support@notesphere.online
 
       ---
       RootShield
       Cybersecurity & Web Development Education Platform
       Udyam Registered • Delhi, India
-      https://rootshield.in
+      https://notesphere.online
     `;
 
     // SEND EMAIL 

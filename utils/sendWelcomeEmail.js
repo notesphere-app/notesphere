@@ -358,7 +358,7 @@ module.exports.welComeEmail = async ({ name, email }) => {
                 
                 <!-- CTA Button -->
                 <div style="text-align: center;">
-                  <a href="${process.env.DOMAIN || "https://rootshield.in"}/dashboard" class="cta-button">
+                  <a href="${process.env.DOMAIN || "https://notesphere.online"}/dashboard" class="cta-button">
                     🚀 Go to Your Dashboard
                   </a>
                 </div>
@@ -399,8 +399,8 @@ module.exports.welComeEmail = async ({ name, email }) => {
                     Need assistance or have questions about getting started?
                   </p>
                   <p style="margin-top: 10px;">
-                    📧 <a href="mailto:info@rootshield.in" class="contact-link">info@rootshield.in</a> | 
-                    🌐 <a href="${process.env.DOMAIN || "https://rootshield.in"}" class="contact-link">Visit Our Website</a>
+                    📧 <a href="mailto:support.notesphere@gmail.com" class="contact-link">support.notesphere@gmail.com</a> | 
+                    🌐 <a href="${process.env.DOMAIN || "https://notesphere.online"}" class="contact-link">Visit Our Website</a>
                   </p>
                 </div>
               </div>
@@ -414,8 +414,8 @@ module.exports.welComeEmail = async ({ name, email }) => {
                 
                 <div class="contact-info">
                   <p>📍 Delhi, India<br>
-                  📧 <a href="mailto:info@rootshield.in" class="contact-link">info@rootshield.in</a><br>
-                  🔗 <a href="${process.env.DOMAIN || "https://rootshield.in"}" class="contact-link">rootshield.in</a></p>
+                  📧 <a href="mailto:support.notesphere@gmail.com" class="contact-link">support.notesphere@gmail.com</a><br>
+                  🔗 <a href="${process.env.DOMAIN || "https://notesphere.online"}" class="contact-link">notesphere.online</a></p>
                 </div>
                 
                 <div class="social-links">
@@ -429,7 +429,7 @@ module.exports.welComeEmail = async ({ name, email }) => {
                   <p>
                     This is an automated welcome email. Please do not reply directly.<br>
                     Protecting your data is our priority. Read our 
-                    <a href="${process.env.DOMAIN || "https://rootshield.in"}/privacy" style="color: #6b7280; text-decoration: underline;">Privacy Policy</a>.
+                    <a href="${process.env.DOMAIN || "https://notesphere.online"}/privacy" style="color: #6b7280; text-decoration: underline;">Privacy Policy</a>.
                   </p>
                   <p style="margin-top: 15px;">
                     © ${new Date().getFullYear()} RootShield. All rights reserved.<br>
@@ -467,7 +467,7 @@ module.exports.welComeEmail = async ({ name, email }) => {
           - Account status: Verified & Active
           
           🚀 GET STARTED:
-          Visit your dashboard: ${process.env.DOMAIN || "https://rootshield.in"}/dashboard
+          Visit your dashboard: ${process.env.DOMAIN || "https://notesphere.online"}/dashboard
           
           📚 OUR OFFERINGS:
           • Cybersecurity Courses (Ethical Hacking, Network Security, etc.)
@@ -480,25 +480,25 @@ module.exports.welComeEmail = async ({ name, email }) => {
           by the Indian government and enhance your career prospects.
           
           📞 NEED HELP?
-          Email: info@rootshield.in
-          Website: ${process.env.DOMAIN || "https://rootshield.in"}
-          
+          Email: support.notesphere@gmail.com
+          Website: ${process.env.DOMAIN || "https://notesphere.online"}
+
           ---
-          RootShield | Udyam Registered Education Platform
-          Delhi, India | info@rootshield.in | rootshield.in
+          Notesphere | Udyam Registered Education Platform
+          Delhi, India | support.notesphere@gmail.com | notesphere.online
           
           This is an automated welcome email. Please do not reply directly.
-          © ${new Date().getFullYear()} RootShield. All rights reserved.
+          © ${new Date().getFullYear()} Notesphere. All rights reserved.
         `;
 
   try {
     await apiInstance.sendTransacEmail({
       sender: {
-        email: "info@rootshield.in",
-        name: "RootShield Welcome Team",
+        email: "support.notesphere@gmail.com",
+        name: "Notesphere Welcome Team",
       },
       to: [{ email, name }],
-      subject: "🎉 Welcome to RootShield! Your Cybersecurity Journey Begins",
+      subject: "🎉 Welcome to Notesphere! Your Cybersecurity Journey Begins",
       htmlContent: htmlContent,
       textContent: textContent,
     });
