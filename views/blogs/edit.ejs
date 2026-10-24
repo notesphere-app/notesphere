@@ -1,20 +1,22 @@
 <% layout("/layouts/boilerplate") -%>
 
-<div class="min-h-screen bg-gradient-to-b from-gray-50 to-white py-8 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-4xl mx-auto">
+<div class="min-h-screen bg-[#FBFAF7] px-4 py-8 dark:bg-slate-950 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-4xl">
     <!-- Header -->
-    <div class="text-center mb-10">
-      <h1 class="text-3xl font-bold text-gray-900 sm:text-4xl">
+    <div class="mb-8">
+      <a href="/blogs/yourblogs" class="inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-[#0878E8] dark:text-slate-400"><i class="fa-solid fa-arrow-left text-xs"></i> Manage blogs</a>
+      <h1 class="mt-4 text-3xl font-bold text-[#022E5A] dark:text-white sm:text-4xl">
         Edit Blog
       </h1>
-      <p class="mt-3 text-lg text-gray-600">
+      <p class="mt-2 text-sm text-slate-600 dark:text-slate-300 sm:text-base">
         Update your blog content, category and details below.
       </p>
     </div>
 
     <!-- Form Card -->
-    <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 md:p-10 border border-gray-100">
+    <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
       <form 
+        id="edit-blog-form"
         action="/blogs/<%= blog._id %>?_method=PUT" 
         method="POST" 
         class="space-y-8"
@@ -22,7 +24,7 @@
       >
         <!-- Title -->
         <div>
-          <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
+          <label for="title" class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
             Title <span class="text-red-500">*</span>
           </label>
           <input
@@ -30,24 +32,24 @@
             name="title"
             id="title"
             value="<%= blog.title %>"
-            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 transition focus:border-[#0878E8] focus:outline-none focus:ring-2 focus:ring-[#0878E8]/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
             placeholder="Enter blog title..."
             required
           >
-          <p class="mt-2 text-sm text-gray-500">
+          <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
             A clear and engaging title that captures attention
           </p>
         </div>
 
         <!-- Category -->
         <div>
-          <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
+          <label for="category" class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
             Category <span class="text-red-500">*</span>
           </label>
           <select 
             name="category" 
             id="category" 
-            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors appearance-none bg-white"
+            class="w-full appearance-none rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 transition focus:border-[#0878E8] focus:outline-none focus:ring-2 focus:ring-[#0878E8]/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
             required
           >
             <option value="">Select a category</option>
@@ -55,37 +57,37 @@
               <option value="<%= category %>" <%= blog.category === category ? "selected" : "" %>><%= category %></option>
             <% }); %>
           </select>
-          <p class="mt-2 text-sm text-gray-500">
+          <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
             Choose the most relevant category for your blog
           </p>
         </div>
 
         <!-- Short Description -->
         <div>
-          <label for="shortdescription" class="block text-sm font-medium text-gray-700 mb-2">
+          <label for="shortdescription" class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
             Short Description <span class="text-red-500">*</span>
           </label>
           <textarea
             name="shortdescription"
             id="shortdescription"
             rows="3"
-            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-y"
+            class="w-full resize-y rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 transition focus:border-[#0878E8] focus:outline-none focus:ring-2 focus:ring-[#0878E8]/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
             placeholder="A short summary of the blog (appears in blog listings)..."
             required
           ><%= blog.shortdescription %></textarea>
-          <p class="mt-2 text-sm text-gray-500">
+          <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
             150-200 characters recommended for best display
           </p>
         </div>
 
         <!-- Current Image Preview -->
         <% if (originalImageUrl) { %>
-          <div class="bg-gray-50 rounded-xl p-6">
-            <label class="block text-sm font-medium text-gray-700 mb-4">
+          <div id="current-image-card" class="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950 sm:p-6">
+            <label class="mb-4 block text-sm font-semibold text-slate-700 dark:text-slate-200">
               Current Image
             </label>
             <div class="flex flex-col sm:flex-row items-start gap-6">
-              <div class="w-full sm:w-48 h-48 rounded-xl overflow-hidden border border-gray-200 bg-gray-100 flex-shrink-0">
+              <div class="h-48 w-full shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900 sm:w-48">
                 <img 
                   src="<%= originalImageUrl %>" 
                   alt="<%= blog.imageTitle || 'Blog image' %>"
@@ -95,15 +97,15 @@
               <div class="flex-1">
                 <div class="space-y-4">
                   <div>
-                    <h4 class="text-sm font-medium text-gray-700">Current Image Details</h4>
-                    <p class="text-sm text-gray-600 mt-1">
+                    <h4 class="text-sm font-semibold text-slate-700 dark:text-slate-200">Current Image Details</h4>
+                    <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
                       This image is currently displayed with your blog. Upload a new image below if you want to change it.
                     </p>
                   </div>
                   <% if (blog.imageTitle) { %>
                     <div>
-                      <h4 class="text-sm font-medium text-gray-700">Current Alt Text</h4>
-                      <p class="text-sm text-gray-600 mt-1">
+                      <h4 class="text-sm font-semibold text-slate-700 dark:text-slate-200">Current Alt Text</h4>
+                      <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
                         <%= blog.imageTitle %>
                       </p>
                     </div>
@@ -117,36 +119,36 @@
         <!-- Upload New Image -->
         <div class="space-y-6">
           <!-- Image Upload -->
-          <div>
-            <label for="image" class="block text-sm font-medium text-gray-700 mb-2">
+          <div id="image-upload-field">
+            <label for="image" class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
               Upload New Image
               <span class="text-gray-500 font-normal">(Optional)</span>
             </label>
-            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-blue-400 transition-colors">
+            <div class="mt-1 flex justify-center rounded-2xl border-2 border-dashed border-slate-300 px-6 py-6 transition-colors hover:border-[#0878E8] dark:border-slate-700 dark:hover:border-[#0878E8]">
               <div class="space-y-1 text-center">
                 <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                   <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                <div class="flex text-sm text-gray-600">
-                  <label for="image" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                <div class="flex flex-wrap justify-center gap-1 text-sm text-slate-600 dark:text-slate-300">
+                  <label for="image" class="relative cursor-pointer rounded-md bg-white font-semibold text-[#0878E8] hover:text-[#0668CC] focus-within:outline-none focus-within:ring-2 focus-within:ring-[#0878E8] dark:bg-slate-900">
                     <span>Upload a file</span>
-                    <input id="image" name="image" type="file" class="sr-only" accept="image/*">
+                    <input id="image" name="image" type="file" class="sr-only" accept="image/jpeg,image/png,image/webp,image/gif">
                   </label>
-                  <p class="pl-1">or drag and drop</p>
+                  <p>to preview a new cover image</p>
                 </div>
-                <p class="text-xs text-gray-500">
-                  PNG, JPG, GIF up to 5MB
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                  PNG, JPG, WebP, or GIF · up to 5 MB
                 </p>
               </div>
             </div>
-            <p class="mt-2 text-sm text-gray-500">
+            <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
               Recommended size: 1200×630px for optimal display
             </p>
           </div>
 
           <!-- Image Alt Text -->
           <div>
-            <label for="imageTitle" class="block text-sm font-medium text-gray-700 mb-2">
+            <label for="imageTitle" class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
               Image Alt Text
               <span class="text-gray-500 font-normal">(Optional)</span>
             </label>
@@ -155,10 +157,10 @@
               name="imageTitle"
               id="imageTitle"
               value="<%= blog.imageTitle || '' %>"
-              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 transition focus:border-[#0878E8] focus:outline-none focus:ring-2 focus:ring-[#0878E8]/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
               placeholder="Describe the image for SEO and accessibility..."
             >
-            <p class="mt-2 text-sm text-gray-500">
+            <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
               This helps with search engines and screen readers. Example: "Person writing code on laptop"
             </p>
           </div>
@@ -166,71 +168,57 @@
 
         <!-- Keywords -->
         <div>
-          <label for="Keywords" class="block text-sm font-medium text-gray-700 mb-2">
+          <label for="Keywords" class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
             Keywords <span class="text-red-500">*</span>
           </label>
           <textarea
             name="Keywords"
             id="Keywords"
             rows="2"
-            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-y"
+            class="w-full resize-y rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 transition focus:border-[#0878E8] focus:outline-none focus:ring-2 focus:ring-[#0878E8]/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
             placeholder="Enter keywords separated by commas (e.g., machine learning, Python basics, career tips, engineering exams)"
             required
           ><%= blog.Keywords %></textarea>
-          <p class="mt-2 text-sm text-gray-500">
+          <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
             Separate keywords with commas. These help readers find your content
           </p>
         </div>
 
         <!-- Full Content -->
         <div>
-          <label for="content" class="block text-sm font-medium text-gray-700 mb-2">
+          <label for="content" class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
             Content <span class="text-red-500">*</span>
           </label>
           <textarea
             name="content"
             id="content"
             rows="12"
-            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-y font-mono text-sm"
-            placeholder="Write your full blog content here... Use Markdown formatting"
+            class="min-h-72 w-full resize-y rounded-xl border border-slate-300 bg-white px-4 py-3 font-mono text-sm text-slate-900 transition focus:border-[#0878E8] focus:outline-none focus:ring-2 focus:ring-[#0878E8]/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+            placeholder="Write HTML blog content or use the formatting buttons below"
             required
-          ><%- blog.content %></textarea>
-          <div class="mt-3 flex flex-wrap gap-3">
-            <div class="flex items-center text-sm text-gray-600">
-              <i class="fas fa-bold mr-1"></i>
-              <span>**Bold**</span>
-            </div>
-            <div class="flex items-center text-sm text-gray-600">
-              <i class="fas fa-italic mr-1"></i>
-              <span>*Italic*</span>
-            </div>
-            <div class="flex items-center text-sm text-gray-600">
-              <i class="fas fa-link mr-1"></i>
-              <span>[Link](url)</span>
-            </div>
-            <div class="flex items-center text-sm text-gray-600">
-              <i class="fas fa-list-ul mr-1"></i>
-              <span>- List item</span>
-            </div>
-            <div class="flex items-center text-sm text-gray-600">
-              <i class="fas fa-heading mr-1"></i>
-              <span>## Heading</span>
-            </div>
+          ><%= blog.content %></textarea>
+          <div class="mt-3 flex flex-wrap gap-2" role="toolbar" aria-label="Blog content formatting">
+            <button type="button" data-format="h2" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:border-[#0878E8] hover:text-[#0878E8] dark:border-slate-700 dark:text-slate-200"><i class="fa-solid fa-heading mr-1"></i> Heading</button>
+            <button type="button" data-format="strong" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:border-[#0878E8] hover:text-[#0878E8] dark:border-slate-700 dark:text-slate-200"><i class="fa-solid fa-bold mr-1"></i> Bold</button>
+            <button type="button" data-format="em" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:border-[#0878E8] hover:text-[#0878E8] dark:border-slate-700 dark:text-slate-200"><i class="fa-solid fa-italic mr-1"></i> Italic</button>
+            <button type="button" data-format="a" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:border-[#0878E8] hover:text-[#0878E8] dark:border-slate-700 dark:text-slate-200"><i class="fa-solid fa-link mr-1"></i> Link</button>
+            <button type="button" data-format="ul" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:border-[#0878E8] hover:text-[#0878E8] dark:border-slate-700 dark:text-slate-200"><i class="fa-solid fa-list-ul mr-1"></i> List</button>
           </div>
+          <p class="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">Use H2 and H3 headings to create sections. The article page builds its table of contents from these headings.</p>
         </div>
 
         <!-- Action Buttons -->
-        <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+        <div class="flex flex-col gap-3 border-t border-slate-200 pt-6 dark:border-slate-800 sm:flex-row">
           <button
             type="submit"
-            class="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium py-3 px-6 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            class="flex-1 rounded-xl bg-[#0878E8] px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-[#0668CC] focus:outline-none focus:ring-2 focus:ring-[#0878E8] focus:ring-offset-2"
           >
             <i class="fas fa-save mr-2"></i>
             Update Blog
           </button>
           <a
             href="/blogs/<%= blog._id %>"
-            class="flex-1 bg-gray-100 text-gray-700 font-medium py-3 px-6 rounded-xl hover:bg-gray-200 transition-colors text-center"
+            class="flex-1 rounded-xl border border-slate-200 px-6 py-3 text-center font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
           >
             <i class="fas fa-times mr-2"></i>
             Cancel
@@ -240,29 +228,29 @@
     </div>
 
     <!-- Help Tips -->
-    <div class="mt-8 bg-blue-50 rounded-xl p-6 border border-blue-100">
+    <div class="mt-8 rounded-2xl border border-[#0878E8]/15 bg-[#0878E8]/5 p-6 dark:border-blue-900/60 dark:bg-blue-950/30">
       <div class="flex items-start">
         <div class="flex-shrink-0">
           <i class="fas fa-lightbulb text-blue-600 text-xl"></i>
         </div>
         <div class="ml-4">
-          <h3 class="text-lg font-medium text-blue-900">Editing Tips</h3>
+          <h3 class="text-lg font-semibold text-[#022E5A] dark:text-white">Editing Tips</h3>
           <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="text-sm text-blue-800">
-              <p class="font-medium">✓ Title & Description</p>
-              <p class="mt-1">Make them compelling to increase readership</p>
+            <div class="text-sm text-slate-700 dark:text-slate-300">
+              <p class="font-semibold">Title & Description</p>
+              <p class="mt-1">Make them clear and useful to readers.</p>
             </div>
-            <div class="text-sm text-blue-800">
-              <p class="font-medium">✓ Keywords</p>
-              <p class="mt-1">Use specific terms your audience searches for</p>
+            <div class="text-sm text-slate-700 dark:text-slate-300">
+              <p class="font-semibold">Keywords</p>
+              <p class="mt-1">Use specific terms your audience searches for.</p>
             </div>
-            <div class="text-sm text-blue-800">
-              <p class="font-medium">✓ Images</p>
-              <p class="mt-1">High-quality images improve engagement by 47%</p>
+            <div class="text-sm text-slate-700 dark:text-slate-300">
+              <p class="font-semibold">Images</p>
+              <p class="mt-1">Use a relevant, accessible cover image.</p>
             </div>
-            <div class="text-sm text-blue-800">
-              <p class="font-medium">✓ Content</p>
-              <p class="mt-1">Use subheadings and paragraphs for readability</p>
+            <div class="text-sm text-slate-700 dark:text-slate-300">
+              <p class="font-semibold">Content</p>
+              <p class="mt-1">Use subheadings and paragraphs for readability.</p>
             </div>
           </div>
         </div>
@@ -273,196 +261,113 @@
 
 <!-- JavaScript for Form Enhancement -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Prevent multiple submissions
-  const form = document.querySelector('form');
-  const submitBtn = form.querySelector('button[type="submit"]');
-  
-  form.addEventListener('submit', function(e) {
-    if (submitBtn.classList.contains('submitting')) {
-      e.preventDefault();
-      return;
-    }
-    
-    submitBtn.classList.add('submitting');
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Updating...';
-    submitBtn.disabled = true;
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("edit-blog-form");
+  if (!form) return;
+
+  const submitButton = form.querySelector('button[type="submit"]');
+  form.addEventListener("submit", function () {
+    if (!form.reportValidity()) return;
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Saving changes…';
   });
 
-  // File upload preview
-  const fileInput = document.getElementById('image');
-  if (fileInput) {
-    fileInput.addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          // Create preview if it doesn't exist
-          let previewContainer = document.querySelector('.image-preview');
-          if (!previewContainer) {
-            previewContainer = document.createElement('div');
-            previewContainer.className = 'mt-4 image-preview';
-            
-            const currentImageContainer = document.querySelector('.bg-gray-50.rounded-xl');
-            if (currentImageContainer) {
-              currentImageContainer.insertAdjacentElement('afterend', previewContainer);
-            } else {
-              fileInput.parentNode.parentNode.insertAdjacentElement('afterend', previewContainer);
-            }
-          }
-          
-          previewContainer.innerHTML = `
-            <div class="bg-green-50 rounded-xl p-6 border border-green-200">
-              <div class="flex items-center justify-between mb-4">
-                <h4 class="text-sm font-medium text-green-900">New Image Preview</h4>
-                <button type="button" onclick="this.closest('.image-preview').remove()" class="text-green-700 hover:text-green-900">
-                  <i class="fas fa-times"></i>
-                </button>
-              </div>
-              <div class="flex items-center gap-4">
-                <div class="w-32 h-32 rounded-lg overflow-hidden border border-green-300">
-                  <img src="${e.target.result}" alt="Preview" class="w-full h-full object-cover">
-                </div>
-                <div class="flex-1">
-                  <p class="text-sm text-green-800">
-                    <strong>File:</strong> ${file.name}<br>
-                    <strong>Size:</strong> ${(file.size / 1024).toFixed(2)} KB<br>
-                    <strong>Type:</strong> ${file.type}
-                  </p>
-                  <p class="text-xs text-green-600 mt-2">
-                    This image will replace the current one when you update the blog.
-                  </p>
-                </div>
-              </div>
-            </div>
-          `;
-        };
-        reader.readAsDataURL(file);
+  const content = document.getElementById("content");
+  form.querySelectorAll("[data-format]").forEach(function (button) {
+    button.addEventListener("click", function () {
+      const type = button.dataset.format;
+      const start = content.selectionStart;
+      const end = content.selectionEnd;
+      const selected = content.value.slice(start, end);
+      let insertion;
+
+      if (type === "a") {
+        const url = window.prompt("Enter the link URL (https://…):");
+        if (!url) return;
+        try {
+          const parsedUrl = new URL(url);
+          if (!["http:", "https:"].includes(parsedUrl.protocol)) throw new Error("Unsupported URL");
+          insertion = `<a href="${parsedUrl.href}">${selected || "Link text"}</a>`;
+        } catch {
+          window.alert("Enter a valid http or https URL.");
+          return;
+        }
+      } else if (type === "ul") {
+        const items = (selected || "List item").split(/\r?\n/).filter(Boolean);
+        insertion = `<ul>\n${items.map((item) => `<li>${item}</li>`).join("\n")}\n</ul>`;
+      } else {
+        const defaults = { h2: "Section heading", strong: "Bold text", em: "Emphasized text" };
+        insertion = `<${type}>${selected || defaults[type]}</${type}>`;
       }
+
+      content.setRangeText(insertion, start, end, "select");
+      content.focus();
+      content.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+  });
+
+  const fileInput = document.getElementById("image");
+  if (fileInput) {
+    fileInput.addEventListener("change", function () {
+      const file = fileInput.files[0];
+      let preview = form.querySelector(".image-preview");
+      if (preview) preview.remove();
+      if (!file) return;
+
+      const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+      if (!allowedTypes.includes(file.type) || file.size > 5 * 1024 * 1024) {
+        window.alert("Choose a JPG, PNG, WebP, or GIF image up to 5 MB.");
+        fileInput.value = "";
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.addEventListener("load", function () {
+        preview = document.createElement("div");
+        preview.className = "image-preview mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900/60 dark:bg-emerald-950/30";
+
+        const heading = document.createElement("p");
+        heading.className = "mb-3 text-sm font-semibold text-emerald-800 dark:text-emerald-200";
+        heading.textContent = "New cover image preview";
+
+        const row = document.createElement("div");
+        row.className = "flex flex-col gap-3 sm:flex-row sm:items-center";
+        const image = document.createElement("img");
+        image.src = String(reader.result);
+        image.alt = "Selected cover preview";
+        image.className = "h-32 w-48 rounded-xl border border-emerald-200 bg-white object-contain dark:border-emerald-900";
+
+        const details = document.createElement("p");
+        details.className = "min-w-0 break-words text-sm text-emerald-900 dark:text-emerald-100";
+        details.textContent = `${file.name} · ${(file.size / 1024).toFixed(1)} KB`;
+
+        const removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.className = "self-start rounded-lg px-3 py-2 text-sm font-semibold text-emerald-800 hover:bg-emerald-100 dark:text-emerald-200 dark:hover:bg-emerald-900/50 sm:ml-auto";
+        removeButton.textContent = "Remove";
+        removeButton.addEventListener("click", function () {
+          fileInput.value = "";
+          preview.remove();
+        });
+
+        row.append(image, details, removeButton);
+        preview.append(heading, row);
+        document.getElementById("image-upload-field").appendChild(preview);
+      });
+      reader.readAsDataURL(file);
     });
   }
 
-  // Character counter for short description
-  const shortDesc = document.getElementById('shortdescription');
-  if (shortDesc) {
-    const counter = document.createElement('div');
-    counter.className = 'text-xs text-gray-500 mt-1 text-right';
-    shortDesc.parentNode.appendChild(counter);
-    
-    function updateCounter() {
-      const length = shortDesc.value.length;
-      counter.textContent = `${length} characters`;
-      
-      if (length < 150) {
-        counter.className = 'text-xs text-yellow-600 mt-1 text-right';
-      } else if (length > 200) {
-        counter.className = 'text-xs text-red-600 mt-1 text-right';
-      } else {
-        counter.className = 'text-xs text-green-600 mt-1 text-right';
-      }
-    }
-    
-    shortDesc.addEventListener('input', updateCounter);
+  const shortDescription = document.getElementById("shortdescription");
+  if (shortDescription) {
+    const counter = document.createElement("p");
+    counter.className = "mt-1 text-right text-xs text-slate-500 dark:text-slate-400";
+    shortDescription.parentNode.appendChild(counter);
+    const updateCounter = function () {
+      counter.textContent = `${shortDescription.value.length} characters`;
+    };
+    shortDescription.addEventListener("input", updateCounter);
     updateCounter();
   }
-
-  // Form validation styling
-  const inputs = form.querySelectorAll('input, textarea, select');
-  inputs.forEach(input => {
-    input.addEventListener('invalid', function(e) {
-      e.preventDefault();
-      this.classList.add('border-red-500', 'ring-2', 'ring-red-200');
-    });
-    
-    input.addEventListener('input', function() {
-      if (this.classList.contains('border-red-500')) {
-        this.classList.remove('border-red-500', 'ring-2', 'ring-red-200');
-      }
-    });
-  });
 });
 </script>
-
-<!-- Custom Styles -->
-<style>
-/* Custom select arrow */
-select {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-  background-position: right 0.5rem center;
-  background-repeat: no-repeat;
-  background-size: 1.5em 1.5em;
-  padding-right: 2.5rem;
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
-}
-
-/* Remove default focus outline and add custom */
-select:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-/* Textarea resize handle */
-textarea::-webkit-resizer {
-  border-width: 8px;
-  border-style: solid;
-  border-color: transparent #d1d5db #d1d5db transparent;
-}
-
-/* Smooth transitions */
-input, textarea, select, button {
-  transition: all 0.2s ease-in-out;
-}
-
-/* Form validation error styling */
-.border-red-500 {
-  border-color: #ef4444 !important;
-}
-
-.ring-red-200 {
-  --tw-ring-color: rgba(254, 202, 202, 0.5) !important;
-}
-
-/* Gradient border for card */
-.bg-white {
-  position: relative;
-}
-
-.bg-white::before {
-  content: '';
-  position: absolute;
-  inset: -1px;
-  background: linear-gradient(45deg, transparent, rgba(59, 130, 246, 0.1), transparent);
-  border-radius: 1rem;
-  z-index: -1;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.bg-white:hover::before {
-  opacity: 1;
-}
-
-/* Custom scrollbar */
-textarea {
-  scrollbar-width: thin;
-  scrollbar-color: #d1d5db transparent;
-}
-
-textarea::-webkit-scrollbar {
-  width: 6px;
-}
-
-textarea::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-textarea::-webkit-scrollbar-thumb {
-  background-color: #d1d5db;
-  border-radius: 20px;
-}
-
-textarea::-webkit-scrollbar-thumb:hover {
-  background-color: #9ca3af;
-}
-</style>

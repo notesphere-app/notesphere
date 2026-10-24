@@ -1,154 +1,204 @@
 <% layout("/layouts/boilerplate") -%>
+<%
+  const blogs = Array.isArray(allBlogs) ? allBlogs : [];
+  const publishedCount = blogs.filter((blog) => blog.isvalid && !blog.blocked).length;
+  const reviewCount = blogs.filter((blog) => !blog.isvalid && !blog.blocked).length;
+  const blockedCount = blogs.filter((blog) => blog.blocked).length;
+  const formatDate = (date) => date
+    ? new Date(date).toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata", year: "numeric", month: "short", day: "numeric" })
+    : "Date unavailable";
+%>
 
-<div class="container py-5">
-  <h2 class="fw-bold mb-4 text-center">Your Blogs</h2>
-
-  <% if (allBlogs.length === 0) { %>
-  <div class="card border-0 shadow-sm rounded-4 text-center p-4 my-4">
-    <div class="card-body">
-
-      <div class="mb-3">
-        <i class="bi bi-pencil-square fs-1 text-[#A23E48] "></i>
-      </div>
-
-      <h4 class="fw-semibold mb-2">
-        You haven’t written any blogs yet
-      </h4>
-
-      <p class="text-muted mb-4">
-        Share your knowledge, opinions, and experiences with the community.
-        Writing blogs helps others learn — and helps you grow too.
-      </p>
-
-      <a href="/blogs/new" class="btn btn-primary px-4 py-2 rounded-pill">
-        Start Writing Your First Blog
+<main class="min-h-screen bg-[#FBFAF7] dark:bg-slate-950">
+  <section class="relative isolate overflow-hidden border-b border-slate-200/70 bg-white dark:border-slate-800 dark:bg-slate-900">
+    <div class="pointer-events-none absolute -right-24 -top-32 -z-10 h-80 w-80 rounded-full bg-[#0878E8]/10 blur-3xl"></div>
+    <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+      <a href="/admin/dashboard" class="inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-[#0878E8] dark:text-slate-400">
+        <i class="fa-solid fa-arrow-left text-xs"></i> Admin dashboard
       </a>
+      <div class="mt-5 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+        <div class="max-w-2xl">
+          <span class="inline-flex items-center gap-2 rounded-full border border-[#0878E8]/20 bg-[#0878E8]/5 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#0878E8]">
+            <i class="fa-solid fa-feather-pointed"></i> Admin workspace
+          </span>
+          <h1 class="mt-4 text-3xl font-bold tracking-tight text-[#022E5A] dark:text-white sm:text-4xl">Manage blogs</h1>
+          <p class="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300 sm:text-base">
+            Create, review, and manage NoteSphere articles from one place.
+          </p>
+        </div>
+        <a href="/blogs/new" class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#0878E8] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0668CC] focus:outline-none focus:ring-2 focus:ring-[#0878E8] focus:ring-offset-2 sm:w-auto">
+          <i class="fa-solid fa-plus"></i> Create blog
+        </a>
+      </div>
 
+      <div class="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="rounded-2xl border border-slate-200/80 bg-[#FBFAF7] p-4 dark:border-slate-800 dark:bg-slate-950">
+          <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">All your blogs</p>
+          <p class="mt-2 text-2xl font-bold text-[#022E5A] dark:text-white"><%= Number(totalBlogs || 0).toLocaleString("en-IN") %></p>
+        </div>
+        <div class="rounded-2xl border border-emerald-200/70 bg-emerald-50/70 p-4 dark:border-emerald-900/60 dark:bg-emerald-950/30">
+          <p class="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">Published · this page</p>
+          <p class="mt-2 text-2xl font-bold text-emerald-800 dark:text-emerald-200"><%= publishedCount %></p>
+        </div>
+        <div class="rounded-2xl border border-amber-200/70 bg-amber-50/70 p-4 dark:border-amber-900/60 dark:bg-amber-950/30">
+          <p class="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-300">Under review · this page</p>
+          <p class="mt-2 text-2xl font-bold text-amber-800 dark:text-amber-200"><%= reviewCount %></p>
+        </div>
+        <div class="rounded-2xl border border-rose-200/70 bg-rose-50/70 p-4 dark:border-rose-900/60 dark:bg-rose-950/30">
+          <p class="text-xs font-semibold uppercase tracking-wide text-rose-700 dark:text-rose-300">Blocked · this page</p>
+          <p class="mt-2 text-2xl font-bold text-rose-800 dark:text-rose-200"><%= blockedCount %></p>
+        </div>
+      </div>
     </div>
-  </div>
-<% } %>
+  </section>
 
+  <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+    <% if (!blogs.length) { %>
+      <div class="rounded-3xl border border-dashed border-slate-300 bg-white px-5 py-14 text-center dark:border-slate-700 dark:bg-slate-900 sm:px-10">
+        <span class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#0878E8]/10 text-xl text-[#0878E8]"><i class="fa-solid fa-feather-pointed"></i></span>
+        <h2 class="mt-5 text-xl font-bold text-[#022E5A] dark:text-white">No blogs yet</h2>
+        <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500 dark:text-slate-400">Your articles will show here. Start by creating a post for the NoteSphere community.</p>
+        <a href="/blogs/new" class="mt-6 inline-flex items-center gap-2 rounded-full bg-[#0878E8] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0668CC]">
+          <i class="fa-solid fa-plus"></i> Create your first blog
+        </a>
+      </div>
+    <% } else { %>
+      <div class="mb-5 flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 class="text-lg font-bold text-[#022E5A] dark:text-white">Your articles</h2>
+          <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Page <%= currentPage %> of <%= totalPages %></p>
+        </div>
+        <span class="text-xs text-slate-500 dark:text-slate-400">Newest first</span>
+      </div>
 
-  <div class="row justify-content-center g-4">
-    <% allBlogs.forEach(blog => { %>
-      <div class="col-12 col-md-10 col-lg-8">
-        <div class="card shadow-sm border-0 rounded-4 overflow-hidden 
-          <%= blog.isvalid 
-            ? 'bg-success-subtle' 
-            : blog.blocked 
-              ? 'bg-danger-subtle' 
-              : 'bg-warning-subtle' %>">
-
-          <div class="row g-0 align-items-center">
-            
-            <!-- Blog Image -->
-            <div class="col-12 col-md-4">
-              <img 
-                src="<%= blog.image && blog.image.url ? blog.image.url : '/images/logo.png' %>"
-                alt="<%= blog.title %>"
-                class="img-fluid w-100 h-100 object-fit-cover"
-                style="max-height: 220px; object-fit: cover;"
+      <div class="grid gap-5 lg:grid-cols-2">
+        <% blogs.forEach((blog) => {
+          const blogUrl = blog.id && blog.id.trim() ? blog.id : blog._id;
+          const title = blog.title || "Untitled blog";
+          const status = blog.blocked
+            ? { label: "Blocked", classes: "bg-rose-50 text-rose-700 ring-rose-200 dark:bg-rose-400/10 dark:text-rose-300 dark:ring-rose-900/60", icon: "fa-ban" }
+            : blog.isvalid
+              ? { label: "Published", classes: "bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-400/10 dark:text-emerald-300 dark:ring-emerald-900/60", icon: "fa-circle-check" }
+              : { label: "Under review", classes: "bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-400/10 dark:text-amber-300 dark:ring-amber-900/60", icon: "fa-clock" };
+        %>
+          <article class="group overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900">
+            <div class="relative aspect-[16/7] overflow-hidden bg-slate-100 dark:bg-slate-800">
+              <img
+                src="<%= blog.image?.url || '/images/logo.png' %>"
+                alt="<%= blog.imageTitle || title %>"
+                class="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]"
+                loading="lazy"
+                onerror="this.onerror=null;this.src='/images/logo.png';"
               >
+              <span class="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ring-1 <%= status.classes %>">
+                <i class="fa-solid <%= status.icon %>"></i> <%= status.label %>
+              </span>
             </div>
 
-            <!-- Blog Content -->
-            <div class="col-12 col-md-8 p-3 p-md-4">
-              <h5 class="fw-semibold mb-2"><%= blog.title %></h5>
-              <div class="mb-2 text-muted small">
-                <span class="badge bg-primary me-1"><%= blog.category %></span>
-                <i class="bi bi-calendar-event me-1"></i>
-                <%= new Date(blog.createdAt).toLocaleDateString('en-IN', {
-                  timeZone: 'Asia/Kolkata', year: 'numeric', month: 'short', day: 'numeric'
-                }) %>
-              </div>
-              <p class="small text-muted mb-3"><%= blog.shortdescription %></p>
-
-              <!-- Buttons -->
-              <div class="d-flex flex-wrap gap-2">
-                <a href="/blogs/<%= blog.id %>" class="btn btn-sm btn-outline-info">
-                  <i class="bi bi-eye me-1"></i>View
-                </a>
-                <a href="/blogs/<%= blog._id %>/edit" class="btn btn-sm btn-outline-secondary">
-                  <i class="bi bi-pencil-square me-1"></i>Edit
-                </a>
-
-                <% if (blog.isvalid) { %>
-                  <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal<%= blog._id %>">
-                    <i class="bi bi-trash me-1"></i>Delete
-                  </button>
-
-                  <% if (blog.usersSeen.length > 0) { %>
-                    <a href="/blogs/<%= blog._id %>/views" class="btn btn-sm btn-outline-success">
-                      <i class="bi bi-person-lines-fill me-1"></i>View Viewers
-                    </a>
-                  <% } else { %>
-                    <button class="btn btn-sm btn-outline-secondary" disabled>
-                      <i class="bi bi-person-dash me-1"></i>No Viewers
-                    </button>
-                  <% } %>
-                
-                <% } else if (blog.blocked) { %>
-                  <button class="btn btn-sm btn-danger" disabled>
-                    <i class="bi bi-slash-circle me-1"></i>Blocked
-                  </button>
-                <% } else { %>
-                  <button class="btn btn-sm btn-warning text-dark" disabled>
-                    <i class="bi bi-hourglass-split me-1"></i>Under Review
-                  </button>
+            <div class="p-5 sm:p-6">
+              <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                <% if (blog.category) { %>
+                  <span class="rounded-full bg-[#0878E8]/10 px-2.5 py-1 font-semibold text-[#0878E8] dark:bg-blue-400/10 dark:text-blue-300"><%= blog.category %></span>
                 <% } %>
+                <span><i class="fa-regular fa-calendar mr-1"></i><%= formatDate(blog.updatedAt || blog.createdAt) %></span>
+              </div>
+
+              <h3 class="mt-3 line-clamp-2 text-xl font-bold leading-snug text-[#022E5A] dark:text-white"><%= title %></h3>
+              <p class="mt-2 line-clamp-2 min-h-10 text-sm leading-5 text-slate-600 dark:text-slate-300"><%= blog.shortdescription || "No summary added for this article." %></p>
+
+              <div class="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-slate-100 pt-4 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
+                <span><i class="fa-regular fa-eye mr-1"></i><%= (blog.usersSeen || []).length %> readers</span>
+                <span><i class="fa-regular fa-thumbs-up mr-1"></i><%= (blog.likes || []).length %> likes</span>
+                <span><i class="fa-regular fa-comments mr-1"></i><%= (blog.comments || []).length %> comments</span>
+              </div>
+
+              <div class="mt-5 flex flex-wrap gap-2">
+                <a href="/blogs/<%= blogUrl %>" class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#0878E8] px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0668CC]">
+                  <i class="fa-regular fa-eye"></i> View
+                </a>
+                <a href="/blogs/<%= blog._id %>/edit" class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-semibold text-[#022E5A] transition hover:border-[#0878E8] hover:text-[#0878E8] dark:border-slate-700 dark:text-slate-100">
+                  <i class="fa-regular fa-pen-to-square"></i> Edit
+                </a>
+                <a href="/blogs/<%= blog._id %>/views" class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-semibold text-slate-600 transition hover:border-[#0878E8] hover:text-[#0878E8] dark:border-slate-700 dark:text-slate-300" aria-label="View readers">
+                  <i class="fa-solid fa-chart-simple"></i><span class="sm:hidden">Readers</span>
+                </a>
+                <button type="button" data-delete-open="<%= blog._id %>" class="inline-flex items-center justify-center gap-2 rounded-xl border border-rose-200 px-3 py-2.5 text-sm font-semibold text-rose-600 transition hover:bg-rose-50 dark:border-rose-900/60 dark:text-rose-300 dark:hover:bg-rose-400/10" aria-label="Delete blog">
+                  <i class="fa-regular fa-trash-can"></i><span class="sm:hidden">Delete</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <div id="delete-blog-<%= blog._id %>" class="fixed inset-0 z-[140] hidden items-center justify-center overflow-y-auto bg-slate-950/60 p-4" role="dialog" aria-modal="true" aria-labelledby="delete-title-<%= blog._id %>">
+            <div class="my-auto w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-800 dark:bg-slate-900 sm:p-7">
+              <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-rose-600 dark:bg-rose-400/10 dark:text-rose-300"><i class="fa-regular fa-trash-can"></i></div>
+              <h2 id="delete-title-<%= blog._id %>" class="mt-4 text-lg font-bold text-[#022E5A] dark:text-white">Delete this blog?</h2>
+              <p class="mt-2 break-words text-sm leading-6 text-slate-600 dark:text-slate-300"><span class="font-semibold"><%= title %></span> will be permanently removed. This action cannot be undone.</p>
+              <div class="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                <button type="button" data-delete-close="<%= blog._id %>" class="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800">Cancel</button>
+                <form action="/blogs/<%= blog._id %>?_method=DELETE" method="POST">
+                  <button type="submit" class="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-rose-700 sm:w-auto">Delete blog</button>
+                </form>
               </div>
             </div>
           </div>
-        </div>
+        <% }) %>
       </div>
 
-      <!-- Delete Confirmation Modal -->
-      <div class="modal fade" id="confirmDeleteModal<%= blog._id %>" tabindex="-1" aria-labelledby="confirmDeleteModalLabel<%= blog._id %>" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content border-danger">
-            <div class="modal-header bg-danger text-white">
-              <h5 class="modal-title" id="confirmDeleteModalLabel<%= blog._id %>">Confirm Blog Deletion</h5>
-              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              Are you sure you want to delete the blog titled "<strong><%= blog.title %></strong>"?  
-              This action cannot be undone.
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-              <form action="/blogs/<%= blog._id %>?_method=DELETE" method="POST" class="d-inline">
-                <button type="submit" class="btn btn-danger btn-sm prevent-multi-submit">Yes, Delete</button>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
+      <% if (totalPages > 1) { %>
+        <nav class="mt-8 flex items-center justify-center gap-2" aria-label="Blog management pages">
+          <% if (currentPage > 1) { %>
+            <a href="?page=<%= currentPage - 1 %>" class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-[#0878E8] hover:text-[#0878E8] dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">Previous</a>
+          <% } %>
+          <span class="px-3 text-sm font-medium text-slate-500 dark:text-slate-400">Page <%= currentPage %> of <%= totalPages %></span>
+          <% if (currentPage < totalPages) { %>
+            <a href="?page=<%= currentPage + 1 %>" class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-[#0878E8] hover:text-[#0878E8] dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">Next</a>
+          <% } %>
+        </nav>
+      <% } %>
+    <% } %>
+  </section>
+</main>
 
-    <% }) %>
-  </div>
+<script>
+  (function () {
+    let openDialog;
 
-  <!-- Pagination -->
-  <% if (totalPages > 1) { %>
-    <nav aria-label="Your Blogs Pagination">
-      <ul class="pagination justify-content-center mt-4">
-        <% if (currentPage > 1) { %>
-          <li class="page-item">
-            <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
-          </li>
-        <% } %>
+    document.addEventListener("click", function (event) {
+      const openButton = event.target.closest("[data-delete-open]");
+      const closeButton = event.target.closest("[data-delete-close]");
 
-        <% for (let i = 1; i <= totalPages; i++) { %>
-          <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-            <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-          </li>
-        <% } %>
+      if (openButton) {
+        const dialog = document.getElementById(`delete-blog-${openButton.dataset.deleteOpen}`);
+        if (!dialog) return;
+        openDialog = dialog;
+        dialog.classList.remove("hidden");
+        dialog.classList.add("flex");
+        document.body.style.overflow = "hidden";
+        dialog.querySelector("[data-delete-close]")?.focus();
+      }
 
-        <% if (currentPage < totalPages) { %>
-          <li class="page-item">
-            <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
-          </li>
-        <% } %>
-      </ul>
-    </nav>
-  <% } %>
-</div>
+      if (closeButton) closeDeleteDialog(closeButton.dataset.deleteClose);
+
+      if (event.target.classList.contains("fixed") && event.target.getAttribute("role") === "dialog") {
+        closeDeleteDialog(event.target.id.replace("delete-blog-", ""));
+      }
+    });
+
+    function closeDeleteDialog(id) {
+      const dialog = document.getElementById(`delete-blog-${id}`);
+      if (!dialog) return;
+      dialog.classList.add("hidden");
+      dialog.classList.remove("flex");
+      document.body.style.overflow = "";
+      openDialog = null;
+      document.querySelector(`[data-delete-open="${id}"]`)?.focus();
+    }
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && openDialog) {
+        closeDeleteDialog(openDialog.id.replace("delete-blog-", ""));
+      }
+    });
+  })();
+</script>
