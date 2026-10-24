@@ -7,15 +7,38 @@ function getRecaptchaClient(projectId) {
   if (recaptchaClient) return recaptchaClient;
 
   const credentialJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
-  if (credentialJson) {
+  const credentialJsonBase64 = process.env.GOOGLE_SERVICE_ACCOUNT_JSON_BASE64;
+  if (credentialJson || credentialJsonBase64) {
     let credentials;
+    const credentialVariable = credentialJsonBase64
+      ? "GOOGLE_SERVICE_ACCOUNT_JSON_BASE64"
+      : "GOOGLE_SERVICE_ACCOUNT_JSON";
+    const jsonCandidates = credentialJsonBase64
+      ? [Buffer.from(credentialJsonBase64, "base64").toString("utf8")]
+      : [
+          credentialJson,
+          Buffer.from(credentialJson.trim(), "base64").toString("utf8"),
+        ];
+    let parseError;
     try {
-      credentials = JSON.parse(credentialJson);
+      for (const json of jsonCandidates) {
+        try {
+          credentials = JSON.parse(json);
+          break;
+        } catch (error) {
+          parseError = error;
+        }
+      }
+      if (!credentials) throw parseError;
     } catch (error) {
-      throw new Error("GOOGLE_SERVICE_ACCOUNT_JSON must contain valid service-account JSON.");
+      const configurationError = new Error(`${credentialVariable} must contain valid service-account JSON or its base64 encoding.`);
+      configurationError.code = "INVALID_RECAPTCHA_CREDENTIALS";
+      throw configurationError;
     }
     if (!credentials.client_email || !credentials.private_key) {
-      throw new Error("GOOGLE_SERVICE_ACCOUNT_JSON is missing service-account credentials.");
+      const configurationError = new Error(`${credentialVariable} must contain client_email and private_key fields.`);
+      configurationError.code = "INVALID_RECAPTCHA_CREDENTIALS";
+      throw configurationError;
     }
     recaptchaClient = new RecaptchaEnterpriseServiceClient({ projectId, credentials });
     return recaptchaClient;
@@ -24,7 +47,7 @@ function getRecaptchaClient(projectId) {
   const isRender = process.env.RENDER === "true" || Boolean(process.env.RENDER_SERVICE_ID);
   if (isRender && !process.env.GOOGLE_APPLICATION_CREDENTIALS) {
     throw new Error(
-      "Render needs GOOGLE_SERVICE_ACCOUNT_JSON or a GOOGLE_APPLICATION_CREDENTIALS secret-file path for reCAPTCHA Enterprise.",
+      "Render needs GOOGLE_SERVICE_ACCOUNT_JSON, GOOGLE_SERVICE_ACCOUNT_JSON_BASE64, or a GOOGLE_APPLICATION_CREDENTIALS secret-file path for reCAPTCHA Enterprise.",
     );
   }
 
@@ -68,7 +91,12 @@ module.exports.verifyRecaptcha = (action) => async (req, res, next) => {
   }
 
   const isRender = process.env.RENDER === "true" || Boolean(process.env.RENDER_SERVICE_ID);
-  if (isRender && !process.env.GOOGLE_SERVICE_ACCOUNT_JSON && !process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+  if (
+    isRender &&
+    !process.env.GOOGLE_SERVICE_ACCOUNT_JSON &&
+    !process.env.GOOGLE_SERVICE_ACCOUNT_JSON_BASE64 &&
+    !process.env.GOOGLE_APPLICATION_CREDENTIALS
+  ) {
     console.error(
       "reCAPTCHA Enterprise is unavailable: configure a service-account secret in Render.",
     );
@@ -122,6 +150,12 @@ module.exports.verifyRecaptcha = (action) => async (req, res, next) => {
       message: error.message,
       code: error.code,
     });
+    if (error.code === "INVALID_RECAPTCHA_CREDENTIALS") {
+      return res.status(503).json({
+        success: false,
+        message: "Google reCAPTCHA Enterprise credentials are invalid. Please contact the site administrator.",
+      });
+    }
     return res.status(503).json({ success: false, message: "CAPTCHA verification is temporarily unavailable." });
   }
 };
