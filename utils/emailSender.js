@@ -1,5 +1,5 @@
 module.exports.getEmailSender = () => {
-  const email = process.env.EMAIL_FROM;
+  const email = process.env.ADMIN_EMAIL;
   if (!email) {
     throw new Error("EMAIL_FROM must be set to a verified sender address.");
   }
