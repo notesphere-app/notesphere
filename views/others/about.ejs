@@ -219,25 +219,49 @@ const memberTotal = Number(totalUsers) || 0;
     </div>
 
     <div data-reveal data-reveal-delay="100">
-      <h3 class="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Recent members</h3>
       <% if (members.length) { %>
-        <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <% members.forEach(function (member) { const memberName = member.name || member.username || "Student"; %>
-            <div class="flex min-w-0 items-center gap-3 rounded-2xl bg-white p-3 shadow-sm ring-1 ring-slate-200/70 dark:bg-slate-900 dark:ring-slate-800">
-              <% if (member.avatar) { %>
-                <img src="<%= member.avatar %>" alt="" class="h-11 w-11 shrink-0 rounded-full object-cover" loading="lazy" />
-              <% } else { %>
-                <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0878E8]/10 font-semibold text-[#0878E8]"><%= memberName.charAt(0).toUpperCase() %></span>
-              <% } %>
-              <div class="min-w-0">
-                <p class="truncate text-sm font-semibold text-[#022E5A] dark:text-white"><%= memberName %></p>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Joined <%= member.createdAt ? new Date(member.createdAt).toLocaleDateString("en-IN", { month: "short", year: "numeric" }) : "recently" %></p>
-              </div>
+        <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300">
+                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                Growing together
+              </span>
+              <h3 class="mt-3 text-lg font-semibold text-[#022E5A] dark:text-white">Recent members</h3>
+              <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Students joining the NoteSphere community</p>
             </div>
-          <% }) %>
+            <span class="rounded-xl bg-[#0878E8]/5 px-3 py-2 text-right dark:bg-blue-400/10">
+              <span class="block text-lg font-bold leading-tight text-[#0878E8]"><%= memberTotal.toLocaleString("en-IN") %></span>
+              <span class="text-[11px] font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">members</span>
+            </span>
+          </div>
+          <div class="mt-6 flex flex-wrap items-center gap-y-3">
+            <div class="flex shrink-0 items-center pl-1" aria-label="Recently joined members">
+              <% members.forEach(function (member, index) { const memberName = member.name || member.username || "Student"; const initials = memberName.trim().split(/\s+/).slice(0, 2).map(function (part) { return part.charAt(0); }).join("").toUpperCase(); const avatarColors = ["bg-[#0878E8] text-white", "bg-[#0F766E] text-white", "bg-[#7C3AED] text-white", "bg-[#EA580C] text-white", "bg-[#BE185D] text-white"]; %>
+                <span class="-ml-2 flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border-[3px] border-white text-[10px] font-bold shadow-sm first:ml-0 dark:border-slate-900 sm:h-11 sm:w-11 sm:text-xs <%= avatarColors[index % avatarColors.length] %>" title="<%= memberName %>">
+                  <% if (member.avatar) { %>
+                    <img src="<%= member.avatar %>" alt="" class="h-full w-full object-cover" loading="lazy" />
+                  <% } else { %>
+                    <%= initials %>
+                  <% } %>
+                </span>
+              <% }) %>
+            </div>
+            <p class="ml-3 min-w-0 flex-1 basis-[120px] text-sm leading-5 text-slate-600 dark:text-slate-300 sm:ml-4">
+              <span class="font-semibold text-[#022E5A] dark:text-white"><%= members.length %> new <%= members.length === 1 ? "member" : "members" %></span>
+              <span class="block text-xs text-slate-500 dark:text-slate-400">and a community of <%= memberTotal.toLocaleString("en-IN") %></span>
+            </p>
+          </div>
         </div>
       <% } else { %>
-        <p class="mt-4 rounded-2xl bg-white p-5 text-sm text-slate-500 shadow-sm dark:bg-slate-900 dark:text-slate-400">Recent members will appear here when students join.</p>
+        <div class="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center dark:border-slate-700 dark:bg-slate-900">
+          <span class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#0878E8]/10 text-[#0878E8]"><i class="fa-solid fa-user-group"></i></span>
+          <h3 class="mt-3 font-semibold text-[#022E5A] dark:text-white">Our community is just getting started</h3>
+          <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Be one of the first students to join NoteSphere.</p>
+          <% if (!currUser) { %>
+            <a href="/signup" class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#0878E8] hover:underline">Join the community <i class="fa-solid fa-arrow-right"></i></a>
+          <% } %>
+        </div>
       <% } %>
     </div>
   </div>

@@ -1,5 +1,81 @@
 const Course = require("../models/course");
 const Note = require("../models/note");
+const { GoogleGenAI, Modality } = require("@google/genai");
+
+function generateLiveReply({ apiKey, model, systemPrompt, contents }) {
+  let session;
+  let timeout;
+  let completionTimer;
+  let settled = false;
+  let turnComplete = false;
+  let reply = "";
+
+  return new Promise((resolve, reject) => {
+    const finish = (error) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeout);
+      clearTimeout(completionTimer);
+      if (session) {
+        try {
+          session.close();
+        } catch (closeError) {
+          console.error("Could not close Gemini Live API session:", closeError.message);
+        }
+      }
+      if (error) reject(error);
+      else resolve(reply.trim());
+    };
+
+    timeout = setTimeout(() => finish(new Error("Gemini Live API request timed out.")), 15000);
+
+    (async () => {
+      try {
+        const ai = new GoogleGenAI({ apiKey });
+        session = await ai.live.connect({
+          model,
+          config: {
+            responseModalities: [Modality.AUDIO],
+            outputAudioTranscription: {},
+            systemInstruction: systemPrompt,
+            temperature: 0.3,
+            maxOutputTokens: 500,
+          },
+          callbacks: {
+            onmessage: (message) => {
+              const serverContent = message.serverContent;
+              const transcription = serverContent?.outputTranscription;
+              if (transcription?.text) reply += transcription.text;
+
+              if (transcription?.finished) {
+                finish();
+              } else if (serverContent?.turnComplete) {
+                turnComplete = true;
+                completionTimer = setTimeout(() => finish(), 1000);
+              } else if (turnComplete && transcription?.text) {
+                clearTimeout(completionTimer);
+                completionTimer = setTimeout(() => finish(), 1000);
+              }
+            },
+            onerror: (error) => finish(error),
+            onclose: (event) => {
+              if (!settled) finish(new Error(event.reason || "Gemini Live API connection closed unexpectedly."));
+            },
+          },
+        });
+
+        if (settled) {
+          session.close();
+          return;
+        }
+
+        session.sendClientContent({ turns: contents, turnComplete: true });
+      } catch (error) {
+        finish(error);
+      }
+    })();
+  });
+}
 
 module.exports.reply = async (req, res) => {
   const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_GEMINI_API_KEY;
@@ -55,62 +131,35 @@ module.exports.reply = async (req, res) => {
   }));
   contents.push({ role: "user", parts: [{ text: message }] });
 
-  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite";
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+  const model = "gemini-3.8-live";
   try {
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: systemPrompt }] },
-        contents,
-        generationConfig: { maxOutputTokens: 500, temperature: 0.3 },
-      }),
-      signal: AbortSignal.timeout(15000),
-    });
-    if (!response.ok) {
-      const errorBody = await response.json().catch(() => ({}));
-      const apiError = errorBody.error || {};
-      const apiMessage = typeof apiError.message === "string" ? apiError.message : "";
-      const apiStatus = typeof apiError.status === "string" ? apiError.status : "";
-      console.error("Gemini API request failed:", {
-        status: response.status,
-        apiStatus,
-        message: apiMessage.slice(0, 500),
-        model,
-      });
-
-      if (response.status === 429 || apiStatus === "RESOURCE_EXHAUSTED") {
-        return res.status(503).json({
-          success: false,
-          message: "The free AI assistant has reached its current usage limit. Please wait a little and try again.",
-        });
-      }
-      if (response.status === 401 || response.status === 403) {
-        return res.status(503).json({
-          success: false,
-          message: "The AI assistant API key is invalid or does not have access to this model. Please contact the site administrator.",
-        });
-      }
-      if (response.status === 404) {
-        return res.status(503).json({
-          success: false,
-          message: "The configured free Gemini model is unavailable. Please contact the site administrator.",
-        });
-      }
-      return res.status(502).json({ success: false, message: "The assistant could not respond just now. Please try again." });
-    }
-    const result = await response.json();
-    const reply = result.candidates?.[0]?.content?.parts
-      ?.map((part) => part.text || "")
-      .join("")
-      .trim();
+    const reply = await generateLiveReply({ apiKey, model, systemPrompt, contents });
     if (!reply) {
       return res.status(502).json({ success: false, message: "The assistant returned an empty response. Please try again." });
     }
     return res.json({ success: true, reply: reply.slice(0, 4000) });
   } catch (error) {
-    console.error("Gemini request failed:", error.message);
+    const message = typeof error?.message === "string" ? error.message : "";
+    const status = Number(error?.status) || 0;
+    console.error("Gemini Live API request failed:", { status, message: message.slice(0, 500), model });
+    if (status === 429 || /quota|resource[_ ]exhausted|rate limit/i.test(message)) {
+      return res.status(503).json({
+        success: false,
+        message: "The AI assistant has reached its current usage limit. Please wait a little and try again.",
+      });
+    }
+    if (status === 401 || status === 403 || /api key|unauthorized|permission denied/i.test(message)) {
+      return res.status(503).json({
+        success: false,
+        message: "The AI assistant API key is invalid or does not have access to this model. Please contact the site administrator.",
+      });
+    }
+    if (status === 404 || /model.*not found|not supported/i.test(message)) {
+      return res.status(503).json({
+        success: false,
+        message: "The configured Gemini Live model is unavailable. Please contact the site administrator.",
+      });
+    }
     return res.status(502).json({ success: false, message: "The assistant is temporarily unavailable. Please try again." });
   }
 };
