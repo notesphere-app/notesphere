@@ -2,7 +2,7 @@ const Course = require("../models/course");
 const Note = require("../models/note");
 
 module.exports.reply = async (req, res) => {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_GEMINI_API_KEY;
   if (!apiKey) {
     return res.status(503).json({ success: false, message: "The assistant is not configured yet." });
   }
@@ -69,7 +69,35 @@ module.exports.reply = async (req, res) => {
       signal: AbortSignal.timeout(15000),
     });
     if (!response.ok) {
-      console.error("Gemini API returned status:", response.status);
+      const errorBody = await response.json().catch(() => ({}));
+      const apiError = errorBody.error || {};
+      const apiMessage = typeof apiError.message === "string" ? apiError.message : "";
+      const apiStatus = typeof apiError.status === "string" ? apiError.status : "";
+      console.error("Gemini API request failed:", {
+        status: response.status,
+        apiStatus,
+        message: apiMessage.slice(0, 500),
+        model,
+      });
+
+      if (response.status === 429 || apiStatus === "RESOURCE_EXHAUSTED") {
+        return res.status(503).json({
+          success: false,
+          message: "The free AI assistant has reached its current usage limit. Please wait a little and try again.",
+        });
+      }
+      if (response.status === 401 || response.status === 403) {
+        return res.status(503).json({
+          success: false,
+          message: "The AI assistant API key is invalid or does not have access to this model. Please contact the site administrator.",
+        });
+      }
+      if (response.status === 404) {
+        return res.status(503).json({
+          success: false,
+          message: "The configured free Gemini model is unavailable. Please contact the site administrator.",
+        });
+      }
       return res.status(502).json({ success: false, message: "The assistant could not respond just now. Please try again." });
     }
     const result = await response.json();

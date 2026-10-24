@@ -19,8 +19,8 @@ Set these values in the deployment environment (or a local, untracked environmen
 
 | Variable | Purpose |
 | --- | --- |
-| `GEMINI_API_KEY` | Server-side Gemini API key for the chatbot. |
-| `GEMINI_MODEL` | Optional Gemini model override; defaults to `gemini-2.5-flash-lite`. |
+| `GEMINI_API_KEY` | Server-side Gemini API key for the chatbot. `GOOGLE_GEMINI_API_KEY` is also accepted. |
+| `GEMINI_MODEL` | Optional Gemini model override; defaults to the budget-friendly `gemini-2.5-flash-lite` model. Configure a model available to your AI Studio API key's free tier. |
 | `GOOGLE_RECAPTCHA_SITE_KEY` | Public reCAPTCHA Enterprise site key rendered by protected forms. |
 | `GOOGLE_CLOUD_PROJECT_ID` | Google Cloud project ID that owns the reCAPTCHA Enterprise key. `GOOGLE_CLOUD_PROJECT` and `GCLOUD_PROJECT` are also recognized. |
 | `GOOGLE_SERVICE_ACCOUNT_JSON` | Optional server-only service-account JSON for platforms such as Render that do not provide Google Cloud ADC automatically. Alternatively, use `GOOGLE_SERVICE_ACCOUNT_JSON_BASE64` or `GOOGLE_APPLICATION_CREDENTIALS` to point to a mounted secret file. |
@@ -34,6 +34,8 @@ Set these values in the deployment environment (or a local, untracked environmen
 
 Never expose Gemini, Google Cloud credentials, email-provider, or application signing keys in client-side code or commit them to the repository.
 Support contact displayed by the app: `support.notesphere@gmail.com`.
+
+The chatbot uses the Gemini Developer API endpoint. The default Flash-Lite model is intended to keep usage low; the free tier has rate and quota limits, so users may need to retry later when those limits are reached. No fallback model is automatically called to avoid unexpectedly switching models or usage tiers.
 
 ### reCAPTCHA Enterprise setup
 
