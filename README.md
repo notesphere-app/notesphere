@@ -23,10 +23,11 @@ Set these values in the deployment environment (or a local, untracked environmen
 | `GEMINI_MODEL` | Optional Gemini model override; defaults to `gemini-2.5-flash-lite`. |
 | `GOOGLE_RECAPTCHA_SITE_KEY` | Public reCAPTCHA Enterprise site key rendered by protected forms. |
 | `GOOGLE_CLOUD_PROJECT_ID` | Google Cloud project ID that owns the reCAPTCHA Enterprise key. `GOOGLE_CLOUD_PROJECT` and `GCLOUD_PROJECT` are also recognized. |
+| `GOOGLE_SERVICE_ACCOUNT_JSON` | Optional server-only service-account JSON for platforms such as Render that do not provide Google Cloud ADC automatically. Alternatively, use `GOOGLE_APPLICATION_CREDENTIALS` to point to a mounted secret file. |
 | `GOOGLE_RECAPTCHA_SCORE_THRESHOLD` | Optional Enterprise risk-score threshold from `0` to `1`; defaults to `0.5`. |
 | `EMAIL_FROM` | Verified sender email address used for application email; configure it as `support.notesphere@gmail.com` if that address is verified with your email provider. |
 | `EMAIL_FROM_NAME` | Optional sender display name; defaults to `NoteSphere`. |
-| `TRUST_PROXY` | Optional trusted proxy hop count when deployed behind a reverse proxy. |
+| `TRUST_PROXY` | Optional trusted proxy setting. Render defaults to one trusted proxy hop; set this explicitly only when your deployment topology requires a different value. |
 | `DOMAIN` | Public site origin; defaults to `https://notesphere.online` for application links and authentication callbacks. |
 | `RAZORPAY_KEY_ID` | Razorpay key ID used to open Checkout and create payment orders. |
 | `RAZORPAY_KEY_SECRET` | Server-only Razorpay secret used to authenticate order creation and verify payment signatures. |
@@ -36,7 +37,7 @@ Support contact displayed by the app: `support.notesphere@gmail.com`.
 
 ### reCAPTCHA Enterprise setup
 
-Protected forms use the Enterprise browser API and create server-side assessments through Application Default Credentials (ADC). Set `GOOGLE_RECAPTCHA_SITE_KEY` and `GOOGLE_CLOUD_PROJECT_ID` in the deployment environment, enable the reCAPTCHA Enterprise API in that Cloud project, and grant the runtime identity permission to create assessments (for example, `roles/recaptchaenterprise.agent`). On Google Cloud, use the service account attached to the runtime. For local development, authenticate ADC with `gcloud auth application-default login`. Do not use the legacy `GOOGLE_RECAPTCHA_SECRET_KEY` or place service-account credentials in client-side code.
+Protected forms use the Enterprise browser API and create server-side assessments through Application Default Credentials (ADC) or an explicitly configured service account. Set `GOOGLE_RECAPTCHA_SITE_KEY` and `GOOGLE_CLOUD_PROJECT_ID` in the deployment environment, enable the reCAPTCHA Enterprise API in that Cloud project, and grant the runtime identity permission to create assessments (for example, `roles/recaptchaenterprise.agent`). On Google Cloud, use the service account attached to the runtime. For Render, store the service-account JSON as the secret `GOOGLE_SERVICE_ACCOUNT_JSON` (or add it as a secret file and set `GOOGLE_APPLICATION_CREDENTIALS` to its path); do not commit it. For local development, authenticate ADC with `gcloud auth application-default login`. Do not use the legacy `GOOGLE_RECAPTCHA_SECRET_KEY` or place service-account credentials in client-side code.
 
 The action sent by each protected form is normalized to uppercase with underscores (for example, `password-reset` becomes `PASSWORD_RESET`) and checked against the action returned in the Enterprise assessment.
 

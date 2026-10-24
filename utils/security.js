@@ -3,6 +3,35 @@ const { RecaptchaEnterpriseServiceClient } = require("@google-cloud/recaptcha-en
 
 let recaptchaClient;
 
+function getRecaptchaClient(projectId) {
+  if (recaptchaClient) return recaptchaClient;
+
+  const credentialJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+  if (credentialJson) {
+    let credentials;
+    try {
+      credentials = JSON.parse(credentialJson);
+    } catch (error) {
+      throw new Error("GOOGLE_SERVICE_ACCOUNT_JSON must contain valid service-account JSON.");
+    }
+    if (!credentials.client_email || !credentials.private_key) {
+      throw new Error("GOOGLE_SERVICE_ACCOUNT_JSON is missing service-account credentials.");
+    }
+    recaptchaClient = new RecaptchaEnterpriseServiceClient({ projectId, credentials });
+    return recaptchaClient;
+  }
+
+  const isRender = process.env.RENDER === "true" || Boolean(process.env.RENDER_SERVICE_ID);
+  if (isRender && !process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+    throw new Error(
+      "Render needs GOOGLE_SERVICE_ACCOUNT_JSON or a GOOGLE_APPLICATION_CREDENTIALS secret-file path for reCAPTCHA Enterprise.",
+    );
+  }
+
+  recaptchaClient = new RecaptchaEnterpriseServiceClient({ projectId });
+  return recaptchaClient;
+}
+
 function createRateLimiter(windowMs, limit, message) {
   return rateLimit({
     windowMs,
@@ -38,18 +67,27 @@ module.exports.verifyRecaptcha = (action) => async (req, res, next) => {
     });
   }
 
+  const isRender = process.env.RENDER === "true" || Boolean(process.env.RENDER_SERVICE_ID);
+  if (isRender && !process.env.GOOGLE_SERVICE_ACCOUNT_JSON && !process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+    console.error(
+      "reCAPTCHA Enterprise is unavailable: configure a service-account secret in Render.",
+    );
+    return res.status(503).json({
+      success: false,
+      message: "Google reCAPTCHA Enterprise credentials are not configured. Please contact the site administrator.",
+    });
+  }
+
   const token = req.body?.["g-recaptcha-response"];
   if (typeof token !== "string" || !token) {
     return res.status(400).json({ success: false, message: "Complete the CAPTCHA and try again." });
   }
 
   try {
-    if (!recaptchaClient) {
-      recaptchaClient = new RecaptchaEnterpriseServiceClient();
-    }
+    const client = getRecaptchaClient(projectId);
     const expectedAction = action.toUpperCase().replace(/[^A-Z0-9]+/g, "_");
-    const [assessment] = await recaptchaClient.createAssessment({
-      parent: recaptchaClient.projectPath(projectId),
+    const [assessment] = await client.createAssessment({
+      parent: client.projectPath(projectId),
       assessment: {
         event: { token, siteKey },
       },

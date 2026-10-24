@@ -7,6 +7,8 @@ const app = express();
 if (process.env.TRUST_PROXY) {
   const trustProxy = Number(process.env.TRUST_PROXY);
   app.set("trust proxy", Number.isInteger(trustProxy) && trustProxy >= 0 ? trustProxy : process.env.TRUST_PROXY);
+} else if (process.env.RENDER === "true" || process.env.RENDER_SERVICE_ID) {
+  app.set("trust proxy", 1);
 }
 const path = require("path");
 const mongoose = require("mongoose");
