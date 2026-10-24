@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 const User = require("../models/user.js");
 const { getEmailSender, getSupportEmail } = require("../utils/emailSender");
+const { renderEmail } = require("../utils/emailTemplate");
 const { recordAuthActivity, getEmail } = require("../utils/authActivity");
 
 // Load .env in development
@@ -57,7 +58,7 @@ module.exports.forgotPassword = async (req, res) => {
     );
 
     // Use the NoteSphere account-security email layout.
-    const htmlContent = `
+    let htmlContent = `
       <!DOCTYPE html>
       <html>
       <head>
@@ -302,38 +303,23 @@ module.exports.forgotPassword = async (req, res) => {
       </html>
     `;
 
-    // Plain text version for email clients that don't support HTML
-    const textContent = `
-      Reset Your NoteSphere Password
-      ===============================
+    htmlContent = renderEmail({
+      title: "Reset your password",
+      greeting: user.name || user.username || "NoteSphere user",
+      paragraphs: ["We received a request to reset your NoteSphere password. Use the secure button below to choose a new password."],
+      actionLabel: "Reset password",
+      actionUrl: resetLink,
+      notice: "This link expires in 1 hour. If you did not request a reset, ignore this message; your password has not changed.",
+    });
 
-      Hello ${user.name || user.username || "NoteSphere User"},
-
-      We received a request to reset your password for your NoteSphere account.
-
-      To reset your password, please visit the following link:
-      ${resetLink}
-
-      This link will expire in 1 hour.
-
-      If you didn't request this password reset, please ignore this email.
-      Your account security is important to us, and no changes have been made to your account.
-
-      Need help? Contact our support team at ${supportEmail}
-
-      ---
-      NoteSphere
-      Student notes, courses, and learning resources
-      Udyam Registered • Delhi, India
-      ${domain}
-    `;
+    const textContent = `Hello ${user.name || user.username || "there"},\n\nWe received a request to reset your NoteSphere password. Use this link within 1 hour:\n${resetLink}\n\nIf you did not request this, ignore this email. Your password has not changed.\n\nNeed help? ${supportEmail}\nNoteSphere`;
 
     // SEND EMAIL 
     await apiInstance.sendTransacEmail({
       sender: getEmailSender(),
       to: [{ email: user.email, name: user.name || user.username }],
-      subject: "🔒 Reset Your Password | NoteSphere Account Security",
-      htmlContent: htmlContent,
+      subject: "Reset your NoteSphere password",
+      htmlContent,
       textContent: textContent,
     });
 
@@ -466,7 +452,7 @@ module.exports.postResetPassword = async (req, res) => {
         process.env.BREVO_API_KEY,
       );
 
-      const htmlContent = `
+      let htmlContent = `
         <!DOCTYPE html>
         <html>
         <head>
@@ -614,12 +600,19 @@ module.exports.postResetPassword = async (req, res) => {
         </html>
       `;
 
+      htmlContent = renderEmail({
+        title: "Your password was updated",
+        greeting: user.name || user.username || "NoteSphere user",
+        paragraphs: [`Your NoteSphere account password was updated on ${new Date().toLocaleString()}.`],
+        notice: `If you did not make this change, contact support immediately at ${supportEmail}.`,
+      });
+
       await apiInstance.sendTransacEmail({
         sender: getEmailSender(),
         to: [{ email: user.email, name: user.name || user.username }],
-        subject:
-          "✅ Password Successfully Updated | NoteSphere Security Notification",
-        htmlContent: htmlContent,
+        subject: "Your NoteSphere password was updated",
+        htmlContent,
+        textContent: `Hello ${user.name || user.username || "there"},\n\nYour NoteSphere password was updated on ${new Date().toLocaleString()}.\n\nIf you did not make this change, contact ${supportEmail}.\n\nNoteSphere`,
       });
     } catch (emailErr) {
       console.error("Confirmation email error:", emailErr);

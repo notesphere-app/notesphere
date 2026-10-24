@@ -11,6 +11,7 @@ const recordLogin = require("../utils/loginHistory");
 const Download = require("../models/download");
 const Note = require("../models/note");
 const { getEmailSender, getSupportEmail } = require("../utils/emailSender");
+const { renderEmail } = require("../utils/emailTemplate");
 const { welComeEmail: welcomeEmail } = require("../utils/sendWelcomeEmail");
 const { recordAuthActivity, completeAuthActivity, getEmail } = require("../utils/authActivity");
 
@@ -50,7 +51,7 @@ async function sendVerificationOTP(user) {
   const domain = (process.env.DOMAIN || "https://notesphere.online").replace(/\/$/, "");
 
   // HTML Email Template with NoteSphere Theme
-  const htmlContent = `
+  let htmlContent = `
   <!DOCTYPE html>
   <html>
   <head>
@@ -266,47 +267,26 @@ async function sendVerificationOTP(user) {
   </body>
   </html>
   `;
+  htmlContent = renderEmail({
+    title: "Verify your email",
+    greeting: user.name || user.username || "NoteSphere student",
+    paragraphs: [
+      "Thanks for joining NoteSphere. Enter this code to verify your email address and activate your account.",
+      `This code expires in ${OTP_EXPIRY_MINUTES} minutes. Never share it with anyone.`,
+    ],
+    code: otp,
+    notice: "If you did not request this verification, you can ignore this email.",
+  });
 
-  // Plain text version
-  const textContent = `
-  NOTESPHERE EMAIL VERIFICATION
-  ==============================
-  
-  Hello ${user.name || user.username || "NoteSphere user"},
-  
-  Thanks for joining NoteSphere, a community for finding and sharing student notes.
-  
-  EMAIL VERIFICATION REQUIRED:
-  
-  Your One-Time Password (OTP): ${otp}
-  
-  ⚠️ IMPORTANT NOTES:
-  • This OTP expires in ${OTP_EXPIRY_MINUTES} minutes
-  • Never share this code with anyone
-  • NoteSphere staff will NEVER ask for your OTP
-  
-  🔒 SECURITY REMINDER:
-  Keep your account credentials secure. If you didn't request this verification, please contact our security team immediately.
-  
-  📞 SUPPORT:
-  Email: ${supportEmail}
-  Website: ${domain}
-  
-  ---
-  NoteSphere | Student notes library
-  Browse and share notes at ${domain}
-  
-  This is an automated security message. Please do not reply.
-  © ${new Date().getFullYear()} NoteSphere. All rights reserved.
-  `;
+  const textContent = `Hello ${user.name || user.username || "there"},\n\nYour NoteSphere verification code is ${otp}. It expires in ${OTP_EXPIRY_MINUTES} minutes. Never share this code. If you did not request it, ignore this email.\n\nNoteSphere`;
 
   try {
     await emailApi.sendTransacEmail({
       sender: getEmailSender(),
       to: [{ email: user.email, name: user.name || user.username }],
-      subject: "🔐 Verify Your Email | NoteSphere Account Activation",
-      htmlContent: htmlContent,
-      textContent: textContent,
+      subject: "Verify your NoteSphere email",
+      htmlContent,
+      textContent,
     });
 
     console.log(`✅ Verification OTP sent to: ${user.email}`);

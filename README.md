@@ -24,7 +24,8 @@ Set these values in the deployment environment (or a local, untracked environmen
 | `GOOGLE_CLOUD_PROJECT_ID` | Google Cloud project ID that owns the reCAPTCHA Enterprise key. `GOOGLE_CLOUD_PROJECT` and `GCLOUD_PROJECT` are also recognized. |
 | `GOOGLE_SERVICE_ACCOUNT_JSON` | Optional server-only service-account JSON for platforms such as Render that do not provide Google Cloud ADC automatically. Alternatively, use `GOOGLE_SERVICE_ACCOUNT_JSON_BASE64` or `GOOGLE_APPLICATION_CREDENTIALS` to point to a mounted secret file. |
 | `GOOGLE_RECAPTCHA_SCORE_THRESHOLD` | Optional Enterprise risk-score threshold from `0` to `1`; defaults to `0.5`. |
-| `EMAIL_FROM` | Verified sender email address used for application email; configure it as `support.notesphere@gmail.com` if that address is verified with your email provider. |
+| `ADMIN_EMAIL` | Verified NoteSphere sender and support address used for application email; set it to `support.notesphere@gmail.com` after verifying it with Brevo. |
+| `EMAIL_FROM` | Legacy fallback sender address; `ADMIN_EMAIL` takes precedence. |
 | `EMAIL_FROM_NAME` | Optional sender display name; defaults to `NoteSphere`. |
 | `TRUST_PROXY` | Optional trusted proxy setting. Render defaults to one trusted proxy hop; set this explicitly only when your deployment topology requires a different value. |
 | `DOMAIN` | Public site origin; defaults to `https://notesphere.online` for application links and authentication callbacks. |

@@ -4,6 +4,7 @@ const { required } = require("joi");
 const { cloudinary } = require("../Cloudconfig");
 const path = require("path");
 const mongoose = require("mongoose");
+const sanitizeHtml = require("sanitize-html");
 const { validateComment } = require("../utils/commentFilter.cjs");
 const blogCategories = require("../utils/blogCategories");
 
@@ -76,6 +77,21 @@ module.exports.showBlog = async (req, res) => {
     req.flash("error", "Blog you requested for does not exist!");
     return res.redirect("/blogs");
   }
+
+  blog.content = sanitizeHtml(blog.content || "", {
+    allowedTags: sanitizeHtml.defaults.allowedTags.concat([
+      "h1", "h2", "h3", "h4", "img", "table", "thead", "tbody", "tr", "th", "td", "div", "span",
+    ]),
+    allowedAttributes: {
+      a: ["href", "name", "target", "rel"],
+      img: ["src", "alt", "title", "width", "height"],
+      "*": ["class"],
+    },
+    allowedSchemes: ["http", "https", "mailto"],
+    transformTags: {
+      a: sanitizeHtml.simpleTransform("a", { rel: "noopener noreferrer" }),
+    },
+  });
 
   // Track views
   if (req.user && !blog.usersSeen.some((u) => u._id.equals(req.user._id))) {

@@ -9,7 +9,7 @@
       <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-md">
         
         <!-- Modal Header -->
-        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
+        <div class="bg-gradient-to-r from-[#022E5A] to-[#0878E8] px-6 py-4">
           <div class="flex items-center justify-between">
             <h3 class="text-lg font-bold text-white" id="modal-title">
               <i class="fas fa-share-alt mr-2"></i> Share This Blog
@@ -26,6 +26,7 @@
             <!-- Facebook -->
             <a href="https://www.facebook.com/sharer/sharer.php?u=<%= encodeURIComponent(requestUrl) %>"
                target="_blank"
+               rel="noopener noreferrer"
                class="flex items-center gap-3 bg-[#3b5998] text-white px-4 py-3 rounded-xl hover:bg-[#2d4373] transition-colors">
               <i class="fab fa-facebook-f text-lg w-6 text-center"></i>
               Share on Facebook
@@ -34,6 +35,7 @@
             <!-- WhatsApp -->
             <a href="https://api.whatsapp.com/send?text=<%= encodeURIComponent(blog.title + ' ' + requestUrl) %>"
                target="_blank"
+               rel="noopener noreferrer"
                class="flex items-center gap-3 bg-[#25D366] text-white px-4 py-3 rounded-xl hover:bg-[#128C7E] transition-colors">
               <i class="fab fa-whatsapp text-lg w-6 text-center"></i>
               Share on WhatsApp
@@ -42,6 +44,7 @@
             <!-- Twitter -->
             <a href="https://twitter.com/intent/tweet?url=<%= encodeURIComponent(requestUrl) %>&text=<%= encodeURIComponent('Check this out: ' + blog.title) %>"
                target="_blank"
+               rel="noopener noreferrer"
                class="flex items-center gap-3 bg-[#1DA1F2] text-white px-4 py-3 rounded-xl hover:bg-[#0c85d0] transition-colors">
               <i class="fab fa-twitter text-lg w-6 text-center"></i>
               Share on Twitter
@@ -50,6 +53,7 @@
             <!-- LinkedIn -->
             <a href="https://www.linkedin.com/shareArticle?mini=true&url=<%= encodeURIComponent(requestUrl) %>"
                target="_blank"
+               rel="noopener noreferrer"
                class="flex items-center gap-3 bg-[#0077B5] text-white px-4 py-3 rounded-xl hover:bg-[#005582] transition-colors">
               <i class="fab fa-linkedin-in text-lg w-6 text-center"></i>
               Share on LinkedIn
@@ -148,15 +152,10 @@
 </div>
 
 <% if(blog){ %>
-  <% if(currUser && !blog.usersSeen.includes(currUser._id) && !currUser._id.equals(blog.author._id)){ %>
-    <% blog.usersSeen.push(currUser._id); %>
-    <% blog.save().catch(err => console.error('Error saving blog views:', err)); %>
-  <% } %>
-
-<div class="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+<div class="min-h-screen bg-[#FBFAF7] dark:bg-slate-950">
   <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Blog Header -->
-    <div class="max-w-4xl mx-auto">
+    <div class="mx-auto max-w-6xl">
       <!-- Alert for blocked blog -->
       <% if(blog.blocked){ %>
         <div class="mb-6 bg-gradient-to-r from-red-50 to-red-100 border border-red-200 rounded-2xl p-6 shadow-sm">
@@ -178,38 +177,38 @@
         <!-- Category & Metadata -->
         <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
           <div class="flex items-center gap-3">
-            <span class="px-4 py-1.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-semibold rounded-full shadow-sm">
+            <span class="rounded-full bg-[#0878E8]/10 px-4 py-1.5 text-sm font-semibold text-[#0878E8] dark:bg-blue-400/10 dark:text-blue-300">
               <%= blog.category %>
             </span>
             
             <!-- Author Info -->
-            <div class="flex items-center text-gray-600 text-sm">
-              <div class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white font-medium mr-2">
+            <div class="flex items-center text-slate-600 dark:text-slate-300 text-sm">
+              <div class="mr-2 flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-[#0878E8]/10 font-medium text-[#0878E8]">
                 <% if (blog.author) { %>
-                  <%= (blog.author.name || blog.author.username || 'U').charAt(0).toUpperCase() %>
+                  <% if (blog.author.avatar) { %><img src="<%= blog.author.avatar %>" alt="" class="h-full w-full object-cover"><% } else { %><%= (blog.author.name || blog.author.username || 'U').charAt(0).toUpperCase() %><% } %>
                 <% } else { %>
                   <i class="fas fa-user"></i>
                 <% } %>
               </div>
               <div>
                 <% if (blog.author) { %>
-                  <span class="font-medium text-gray-800">
+                  <span class="font-medium text-[#022E5A] dark:text-white">
                     <%= blog.author.name || blog.author.username || "Unnamed User" %>
                   </span>
                 <% } else { %>
                   <span class="italic text-gray-500">Deleted User</span>
                 <% } %>
-                <div class="text-xs text-gray-500 mt-0.5">
+                <div class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
                   <i class="far fa-clock mr-1"></i>
                   <% if(!blog.updatedAt){ %>
-                    <%= new Date(blog.createdAt).toLocaleDateString('en-IN', {
+                    <%= new Date(blog.createdAt || Date.now()).toLocaleDateString('en-IN', {
                       timeZone: 'Asia/Kolkata', 
                       year: 'numeric', 
                       month: 'short', 
                       day: 'numeric'
                     }) %>
                   <% } else { %>
-                    <%= new Date(blog.updatedAt).toLocaleDateString('en-IN', {
+                    Updated <%= new Date(blog.updatedAt).toLocaleDateString('en-IN', {
                       timeZone: 'Asia/Kolkata', 
                       year: 'numeric', 
                       month: 'short', 
@@ -225,7 +224,7 @@
           <div class="flex items-center gap-2">
             <!-- Share Button -->
             <button onclick="openShareModal()" 
-                    class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 border border-blue-200 rounded-xl hover:from-blue-100 hover:to-blue-200 hover:border-blue-300 transition-all duration-300">
+                    class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-[#022E5A] transition hover:border-[#0878E8] hover:text-[#0878E8] dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
               <i class="fas fa-share-alt"></i>
               <span class="hidden sm:inline">Share</span>
             </button>
@@ -236,22 +235,30 @@
         </div>
 
         <!-- Blog Title -->
-        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-8 leading-tight">
+        <h1 class="mb-4 text-3xl font-bold leading-tight text-[#022E5A] dark:text-white sm:text-4xl lg:text-5xl">
           <%= blog.title %>
         </h1>
+        <% if (blog.shortdescription) { %>
+          <p class="mb-7 max-w-4xl text-base leading-7 text-slate-600 dark:text-slate-300 sm:text-lg"><%= blog.shortdescription %></p>
+        <% } %>
+        <div class="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+          <span><i class="fa-regular fa-clock mr-1 text-[#0878E8]"></i><span id="blog-reading-time">Reading time</span></span>
+          <span><i class="fa-regular fa-eye mr-1 text-[#0878E8]"></i><%= (blog.usersSeen || []).length.toLocaleString("en-IN") %> readers</span>
+          <span><i class="fa-regular fa-comments mr-1 text-[#0878E8]"></i><%= (blog.comments || []).length.toLocaleString("en-IN") %> comments</span>
+        </div>
 
         <!-- Featured Image -->
         <% if(blog.image && blog.image.url){ %>
-          <div class="mb-10 rounded-2xl overflow-hidden shadow-xl border border-gray-200">
+          <div class="mb-8 overflow-hidden rounded-3xl border border-slate-200 shadow-sm dark:border-slate-800">
             <img 
               src="<%= blog.image.url %>" 
               alt="<%= blog.imageTitle || 'Blog Image' %>" 
-              class="w-full h-auto max-h-[500px] object-cover"
+              class="max-h-[520px] w-full object-cover"
               loading="lazy"
               onerror="this.onerror=null; this.src='/images/default-blog.jpg';"
             >
             <% if(blog.imageTitle){ %>
-              <div class="bg-gray-900/60 text-white text-sm p-3 text-center">
+              <div class="bg-[#022E5A] px-4 py-3 text-center text-sm text-white">
                 <%= blog.imageTitle %>
               </div>
             <% } %>
@@ -259,41 +266,69 @@
         <% } %>
 
         <!-- Blog Content -->
-        <article class="prose prose-lg max-w-none mb-12">
-          <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100">
+        <div class="mb-12 grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-start">
+        <article id="blog-article" class="min-w-0">
+          <div id="blog-article-content" class="blog-rich-content rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
             <% 
               const hasHTML = /<\/?[a-z][\s\S]*>/i.test(blog.content);
             %>
             <% if (hasHTML) { %>
-              <div class="text-gray-800 leading-relaxed space-y-4">
+              <div class="leading-relaxed">
                 <%- blog.content %>
               </div>
             <% } else { %>
-              <div class="text-gray-800 leading-relaxed whitespace-pre-line space-y-4">
+              <div class="leading-relaxed whitespace-pre-line">
                 <%- blog.content.replace(/\n/g, '<br>') %>
               </div>
             <% } %>
           </div>
         </article>
+        <aside class="space-y-4 lg:sticky lg:top-24">
+          <details id="blog-toc-panel" open class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <summary class="cursor-pointer list-none text-sm font-bold text-[#022E5A] marker:hidden dark:text-white">
+              <span class="flex items-center justify-between gap-3">
+                <span class="flex items-center gap-2"><i class="fa-solid fa-list-ul text-[#0878E8]"></i> In this article</span>
+                <i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
+              </span>
+            </summary>
+            <nav id="blog-toc" aria-label="Table of contents" class="mt-4 space-y-1 border-t border-slate-100 pt-3 dark:border-slate-800"></nav>
+          </details>
+          <div class="rounded-2xl bg-[#022E5A] p-5 text-white shadow-sm">
+            <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-[#8CC4FF]"><i class="fa-regular fa-envelope"></i></span>
+            <h3 class="mt-4 font-semibold">More from NoteSphere</h3>
+            <p class="mt-1 text-sm leading-6 text-blue-100">Get occasional updates when new notes and articles are added.</p>
+            <a href="#subscribe-form" class="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#022E5A] transition hover:bg-blue-50">
+              Subscribe <i class="fa-solid fa-arrow-right text-xs"></i>
+            </a>
+          </div>
+          <div class="rounded-2xl border border-slate-200/80 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+            <h3 class="font-semibold text-[#022E5A] dark:text-white">Support free learning</h3>
+            <p class="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">A voluntary contribution helps with NoteSphere hosting and upkeep.</p>
+            <button type="button" data-donate-open class="mt-4 inline-flex items-center gap-2 rounded-full bg-[#0878E8] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#0668CC]">
+              <i class="fa-solid fa-heart"></i> Support NoteSphere
+            </button>
+          </div>
+        </aside>
+        </div>
 
-        <div class="mb-8 flex flex-wrap items-center gap-3 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+        <div class="mb-8 flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <% if (currUser) { %>
-            <button type="button" id="blog-like" aria-pressed="<%= likedByMe %>" class="rounded-full border px-4 py-2 text-sm font-semibold">
+            <button type="button" id="blog-like" aria-pressed="<%= likedByMe %>" class="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-[#022E5A] transition hover:border-[#0878E8] hover:text-[#0878E8] aria-pressed:bg-[#0878E8]/10 aria-pressed:text-[#0878E8] dark:border-slate-700 dark:text-slate-100">
               <i class="fa-regular fa-thumbs-up"></i> Like (<span id="blog-like-count"><%= blog.likes.length %></span>)
             </button>
-            <button type="button" id="blog-save" aria-pressed="<%= savedByMe %>" class="rounded-full border px-4 py-2 text-sm font-semibold">
+            <button type="button" id="blog-save" aria-pressed="<%= savedByMe %>" class="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-[#022E5A] transition hover:border-[#0878E8] hover:text-[#0878E8] dark:border-slate-700 dark:text-slate-100">
               <i class="fa-regular fa-bookmark"></i> <span><%= savedByMe ? "Saved" : "Save" %></span>
             </button>
           <% } else { %>
-            <a href="/login" class="rounded-full border px-4 py-2 text-sm font-semibold">Log in to like or save</a>
+            <a href="/login" class="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-[#0878E8] dark:border-slate-700">Log in to like or save</a>
           <% } %>
-          <button type="button" onclick="openShareModal()" class="rounded-full border px-4 py-2 text-sm font-semibold">
+          <button type="button" onclick="openShareModal()" class="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-[#022E5A] hover:border-[#0878E8] hover:text-[#0878E8] dark:border-slate-700 dark:text-slate-100">
             <i class="fa-solid fa-share-nodes"></i> Share
           </button>
         </div>
 
         <!-- Author Actions -->
-        <% if(currUser && currUser._id.equals(blog.author._id)){ %>
+        <% if(currUser && blog.author && currUser._id.equals(blog.author._id)){ %>
           <div class="flex flex-wrap gap-3 mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100">
             <div class="flex-1">
               <h4 class="font-semibold text-gray-800 mb-1">Blog Owner Controls</h4>
@@ -320,13 +355,13 @@
           <!-- Comment Form -->
           <% if(currUser){ %>
             <div class="bg-white rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-100">
-              <h3 class="text-2xl font-bold text-gray-900 mb-6">Leave a Comment</h3>
+              <h3 class="mb-6 text-2xl font-bold text-[#022E5A] dark:text-white">Leave a Comment</h3>
               <form action="/blogs/<%= blog._id %>/comments" method="POST" class="space-y-4">
                 <div>
                   <textarea 
                     name="text" 
                     rows="4" 
-                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 transition-colors focus:border-[#0878E8] focus:outline-none focus:ring-2 focus:ring-[#0878E8]/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                     placeholder="Share your thoughts, insights, or feedback..."
                     required
                   ></textarea>
@@ -357,15 +392,15 @@
           <% } %>
 
           <!-- Comments List -->
-          <div class="bg-white rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-100">
+          <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
             <div class="flex items-center justify-between mb-8">
-              <h3 class="text-2xl font-bold text-gray-900">
-                <i class="far fa-comments text-blue-600 mr-2"></i>
+              <h3 class="text-2xl font-bold text-[#022E5A] dark:text-white">
+                <i class="far fa-comments mr-2 text-[#0878E8]"></i>
                 Comments (<%= blog.comments.length %>)
               </h3>
               <% if (blog.comments.length > 0) { %>
-                <span class="text-sm text-gray-500">
-                  Sorted by: <span class="font-medium text-gray-700">Newest</span>
+                <span class="text-sm text-slate-500 dark:text-slate-400">
+                  Sorted by: <span class="font-medium text-slate-700 dark:text-slate-200">Newest</span>
                 </span>
               <% } %>
             </div>
@@ -383,10 +418,10 @@
             <% } else { %>
               <div class="space-y-6">
                 <% comments.forEach(comment => { %>
-                  <div class="group p-6 bg-gray-50 rounded-2xl hover:bg-white border border-gray-100 hover:border-blue-200 transition-all duration-300">
+                  <div class="group rounded-2xl border border-slate-200 bg-slate-50 p-5 transition-colors hover:border-[#0878E8]/40 hover:bg-white dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-900 sm:p-6">
                     <div class="flex items-start justify-between mb-4">
                       <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white font-medium">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-[#0878E8]/10 font-medium text-[#0878E8] dark:bg-blue-400/10 dark:text-blue-300">
                           <% if (comment.user) { %>
                             <%= (comment.user.name || comment.user.username || 'U').charAt(0).toUpperCase() %>
                           <% } else { %>
@@ -394,14 +429,14 @@
                           <% } %>
                         </div>
                         <div>
-                          <h5 class="font-semibold text-gray-800">
+                          <h5 class="font-semibold text-[#022E5A] dark:text-white">
                             <% if (comment.user) { %>
                               <%= comment.user.name || comment.user.username || "Unnamed User" %>
                             <% } else { %>
-                              <span class="italic text-gray-500">Deleted User</span>
+                              <span class="italic text-slate-500">Deleted User</span>
                             <% } %>
                           </h5>
-                          <div class="flex items-center text-sm text-gray-500">
+                          <div class="flex items-center text-sm text-slate-500 dark:text-slate-400">
                             <i class="far fa-clock mr-1"></i>
                             <%= new Date(comment.createdAt).toLocaleString('en-IN', { 
                               timeZone: 'Asia/Kolkata',
@@ -416,16 +451,16 @@
                         <form action="/blogs/<%= blog._id %>/comments/<%= comment._id %>?_method=DELETE" 
                               method="POST"
                               onsubmit="return confirm('Are you sure you want to delete this comment?');">
-                          <button type="submit" 
-                                  class="text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          <button type="submit" aria-label="Delete comment"
+                                  class="rounded-lg px-2 py-1 text-red-500 transition hover:bg-rose-50 hover:text-red-700 dark:hover:bg-rose-400/10">
                             <i class="fas fa-trash-alt"></i>
                           </button>
                         </form>
                       <% } %>
                     </div>
                     
-                    <div class="text-gray-700 leading-relaxed whitespace-pre-line">
-                      <%- comment.text.replace(/\n/g, '<br>') %>
+                    <div class="whitespace-pre-line leading-relaxed text-slate-700 dark:text-slate-300">
+                      <%= comment.text %>
                     </div>
                   </div>
                 <% }) %>
@@ -563,7 +598,7 @@ function closeDeleteModal() {
 
 // Copy to Clipboard
 function copyToClipboard() {
-  const url = document.getElementById('shareUrl').value;
+  const url = document.getElementById('shareUrl')?.value || window.location.href;
   const copyBtn = document.getElementById('copyBtn');
   
   navigator.clipboard.writeText(url).then(() => {
@@ -581,7 +616,12 @@ function copyToClipboard() {
     }, 2000);
   }).catch(err => {
     console.error('Failed to copy: ', err);
-    alert('Failed to copy link to clipboard');
+    const input = document.getElementById('shareUrl');
+    if (input) {
+      input.focus();
+      input.select();
+      document.execCommand('copy');
+    }
   });
 }
 
@@ -606,6 +646,63 @@ document.addEventListener('click', (e) => {
     closeDeleteModal();
   }
 });
+
+// Generate navigation for headings authored in the blog content.
+(function buildBlogNavigation() {
+  const content = document.getElementById("blog-article-content");
+  const navigation = document.getElementById("blog-toc");
+  const panel = document.getElementById("blog-toc-panel");
+  if (!content || !navigation || !panel) return;
+
+  const headings = Array.from(content.querySelectorAll("h2, h3, h4"))
+    .filter((heading) => heading.textContent.trim());
+  if (!headings.length) {
+    panel.hidden = true;
+    panel.classList.add("hidden");
+  } else {
+    const usedIds = new Set();
+    headings.forEach((heading, index) => {
+      const base = (heading.id || heading.textContent)
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "") || `section-${index + 1}`;
+      let id = base;
+      let suffix = 2;
+      while (usedIds.has(id) || (document.getElementById(id) && document.getElementById(id) !== heading)) {
+        id = `${base}-${suffix++}`;
+      }
+      heading.id = id;
+      heading.style.scrollMarginTop = "6rem";
+      usedIds.add(id);
+
+      const link = document.createElement("a");
+      link.href = `#${id}`;
+      link.textContent = heading.textContent.trim();
+      link.className = `blog-toc-link block rounded-lg px-3 py-2 text-sm leading-5 text-slate-600 transition hover:bg-blue-50 hover:text-[#0878E8] dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-blue-300 ${heading.tagName.toLowerCase() === "h2" ? "font-semibold" : "ml-3 text-[13px]"}`;
+      navigation.appendChild(link);
+    });
+
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          navigation.querySelectorAll("a").forEach((link) => link.removeAttribute("aria-current"));
+          const activeLink = navigation.querySelector(`a[href="#${entry.target.id}"]`);
+          if (activeLink) activeLink.setAttribute("aria-current", "location");
+        });
+      }, { rootMargin: "-15% 0px -75% 0px" });
+      headings.forEach((heading) => observer.observe(heading));
+    }
+  }
+
+  const text = content.innerText || content.textContent || "";
+  const words = text.trim().split(/\s+/).filter(Boolean).length;
+  const readingTime = document.getElementById("blog-reading-time");
+  if (readingTime) readingTime.textContent = `${Math.max(1, Math.ceil(words / 220))} min read`;
+})();
 
 // Prevent multiple form submissions
 document.querySelectorAll('form').forEach(form => {
@@ -707,6 +804,53 @@ document.querySelectorAll('form').forEach(form => {
   border-radius: 0.5rem;
   margin: 1.5em 0;
 }
+
+.blog-rich-content {
+  color: #334155;
+  overflow-wrap: anywhere;
+}
+
+.dark .blog-rich-content {
+  color: #cbd5e1;
+}
+
+.blog-rich-content h1,
+.blog-rich-content h2,
+.blog-rich-content h3,
+.blog-rich-content h4 {
+  color: #022e5a;
+  font-weight: 700;
+  line-height: 1.3;
+  scroll-margin-top: 6rem;
+}
+
+.dark .blog-rich-content h1,
+.dark .blog-rich-content h2,
+.dark .blog-rich-content h3,
+.dark .blog-rich-content h4 {
+  color: #f8fafc;
+}
+
+.blog-rich-content h1 { font-size: 1.75rem; margin: 1.8em 0 0.7em; }
+.blog-rich-content h2 { font-size: 1.5rem; margin: 1.7em 0 0.65em; }
+.blog-rich-content h3 { font-size: 1.25rem; margin: 1.5em 0 0.6em; }
+.blog-rich-content h4 { font-size: 1.1rem; margin: 1.4em 0 0.5em; }
+.blog-rich-content > :first-child { margin-top: 0; }
+.blog-rich-content p,
+.blog-rich-content li { line-height: 1.8; }
+.blog-rich-content a { color: #0878e8; text-decoration: underline; text-underline-offset: 3px; }
+.blog-rich-content img { max-width: 100%; height: auto; border-radius: 0.75rem; }
+.blog-rich-content pre { max-width: 100%; overflow-x: auto; border-radius: 0.75rem; background: #0f172a; padding: 1rem; color: #f8fafc; }
+.blog-rich-content table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+.blog-rich-content th,
+.blog-rich-content td { border: 1px solid #cbd5e1; padding: 0.5rem 0.75rem; }
+.dark .blog-rich-content th,
+.dark .blog-rich-content td { border-color: #475569; }
+
+#blog-toc-panel summary::-webkit-details-marker { display: none; }
+#blog-toc-panel:not([open]) summary > span > i:last-child { transform: rotate(-90deg); }
+.blog-toc-link[aria-current="location"] { background: #eff6ff; color: #0878e8; }
+.dark .blog-toc-link[aria-current="location"] { background: #1e293b; color: #93c5fd; }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {

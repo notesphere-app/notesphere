@@ -1,7 +1,7 @@
 module.exports.getEmailSender = () => {
-  const email = process.env.ADMIN_EMAIL;
+  const email = process.env.ADMIN_EMAIL || process.env.EMAIL_FROM;
   if (!email) {
-    throw new Error("EMAIL_FROM must be set to a verified sender address.");
+    throw new Error("ADMIN_EMAIL must be set to a verified sender address.");
   }
   return {
     email,
@@ -10,4 +10,4 @@ module.exports.getEmailSender = () => {
 };
 
 module.exports.getSupportEmail = () =>
-  "support.notesphere@gmail.com";
+  process.env.ADMIN_EMAIL || process.env.EMAIL_FROM || "support.notesphere@gmail.com";

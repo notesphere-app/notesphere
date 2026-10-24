@@ -4,6 +4,7 @@ const Contact = require("../models/contact");
 const Subscriber = require("../models/subscriber");
 const { getDeviceDetails, hashIp } = require("../utils/requestMetadata");
 const { getEmailSender } = require("../utils/emailSender");
+const { renderEmail } = require("../utils/emailTemplate");
 
 const OTP_EXPIRY_MS = 10 * 60 * 1000;
 const OTP_RESEND_DELAY_MS = 60 * 1000;
@@ -146,10 +147,18 @@ module.exports.subscribe = async (req, res) => {
   await subscriber.save();
 
   try {
+    const htmlContent = renderEmail({
+      title: "Verify your newsletter subscription",
+      greeting: "there",
+      paragraphs: ["Enter this code to confirm that you want to receive NoteSphere updates."],
+      code: otp,
+      notice: "This code expires in 10 minutes. If you did not request this, ignore this email.",
+    });
     await emailApi.sendTransacEmail({
       sender: getEmailSender(),
       to: [{ email }],
       subject: "Verify your NoteSphere newsletter subscription",
+      htmlContent,
       textContent: `Your NoteSphere newsletter verification code is ${otp}. It expires in 10 minutes. If you did not request this, ignore this email.`,
     });
   } catch (error) {
