@@ -1,5 +1,5 @@
 <% if (recaptchaSiteKey) { %>
-  <script src="https://www.google.com/recaptcha/api.js?render=<%= encodeURIComponent(recaptchaSiteKey) %>" async defer></script>
+  <script src="https://www.google.com/recaptcha/enterprise.js?render=<%= encodeURIComponent(recaptchaSiteKey) %>" async defer></script>
 <% } %>
 <script>
   (function () {
@@ -9,9 +9,10 @@
       return new Promise(function (resolve, reject) {
         var attempts = 0;
         function execute() {
-          if (window.grecaptcha && window.grecaptcha.execute) {
-            window.grecaptcha.ready(function () {
-              window.grecaptcha.execute(siteKey, { action: action })
+          var enterprise = window.grecaptcha && window.grecaptcha.enterprise;
+          if (enterprise && enterprise.execute && enterprise.ready) {
+            enterprise.ready(function () {
+              enterprise.execute(siteKey, { action: action.toUpperCase().replace(/[^A-Z0-9]+/g, "_") })
                 .then(resolve)
                 .catch(reject);
             });

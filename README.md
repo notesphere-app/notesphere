@@ -21,8 +21,9 @@ Set these values in the deployment environment (or a local, untracked environmen
 | --- | --- |
 | `GEMINI_API_KEY` | Server-side Gemini API key for the chatbot. |
 | `GEMINI_MODEL` | Optional Gemini model override; defaults to `gemini-2.5-flash-lite`. |
-| `GOOGLE_RECAPTCHA_SITE_KEY` | Public reCAPTCHA v3 site key rendered by protected forms. |
-| `GOOGLE_RECAPTCHA_SECRET_KEY` | Server-side reCAPTCHA v3 verification key. Production requests fail closed if CAPTCHA is not configured. |
+| `GOOGLE_RECAPTCHA_SITE_KEY` | Public reCAPTCHA Enterprise site key rendered by protected forms. |
+| `GOOGLE_CLOUD_PROJECT_ID` | Google Cloud project ID that owns the reCAPTCHA Enterprise key. `GOOGLE_CLOUD_PROJECT` and `GCLOUD_PROJECT` are also recognized. |
+| `GOOGLE_RECAPTCHA_SCORE_THRESHOLD` | Optional Enterprise risk-score threshold from `0` to `1`; defaults to `0.5`. |
 | `EMAIL_FROM` | Verified sender email address used for application email; configure it as `support.notesphere@gmail.com` if that address is verified with your email provider. |
 | `EMAIL_FROM_NAME` | Optional sender display name; defaults to `NoteSphere`. |
 | `TRUST_PROXY` | Optional trusted proxy hop count when deployed behind a reverse proxy. |
@@ -30,7 +31,13 @@ Set these values in the deployment environment (or a local, untracked environmen
 | `RAZORPAY_KEY_ID` | Razorpay key ID used to open Checkout and create payment orders. |
 | `RAZORPAY_KEY_SECRET` | Server-only Razorpay secret used to authenticate order creation and verify payment signatures. |
 
-Never expose Gemini, reCAPTCHA secret, email-provider, or application signing keys in client-side code or commit them to the repository.
+Never expose Gemini, Google Cloud credentials, email-provider, or application signing keys in client-side code or commit them to the repository.
 Support contact displayed by the app: `support.notesphere@gmail.com`.
+
+### reCAPTCHA Enterprise setup
+
+Protected forms use the Enterprise browser API and create server-side assessments through Application Default Credentials (ADC). Set `GOOGLE_RECAPTCHA_SITE_KEY` and `GOOGLE_CLOUD_PROJECT_ID` in the deployment environment, enable the reCAPTCHA Enterprise API in that Cloud project, and grant the runtime identity permission to create assessments (for example, `roles/recaptchaenterprise.agent`). On Google Cloud, use the service account attached to the runtime. For local development, authenticate ADC with `gcloud auth application-default login`. Do not use the legacy `GOOGLE_RECAPTCHA_SECRET_KEY` or place service-account credentials in client-side code.
+
+The action sent by each protected form is normalized to uppercase with underscores (for example, `password-reset` becomes `PASSWORD_RESET`) and checked against the action returned in the Enterprise assessment.
 
 Razorpay contributions are voluntary support for project hosting and upkeep; they are not represented as charitable or tax-deductible donations. The browser receives only the Razorpay key ID. Payment orders are created on the server, and successful checkout signatures are verified server-side.

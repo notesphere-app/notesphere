@@ -1,4 +1,7 @@
 const { rateLimit } = require("express-rate-limit");
+const { RecaptchaEnterpriseServiceClient } = require("@google-cloud/recaptcha-enterprise");
+
+let recaptchaClient;
 
 function createRateLimiter(windowMs, limit, message) {
   return rateLimit({
@@ -23,13 +26,15 @@ module.exports.rateLimits = {
 };
 
 module.exports.verifyRecaptcha = (action) => async (req, res, next) => {
-  const secret = process.env.GOOGLE_RECAPTCHA_SECRET_KEY;
   const siteKey = process.env.GOOGLE_RECAPTCHA_SITE_KEY;
-  if (!secret || !siteKey) {
-    if (process.env.NODE_ENV !== "production") return next();
+  const projectId =
+    process.env.GOOGLE_CLOUD_PROJECT_ID ||
+    process.env.GOOGLE_CLOUD_PROJECT ||
+    process.env.GCLOUD_PROJECT;
+  if (!siteKey || !projectId) {
     return res.status(503).json({
       success: false,
-      message: "Google reCAPTCHA is not configured. Please contact the site administrator.",
+      message: "Google reCAPTCHA Enterprise is not configured. Please contact the site administrator.",
     });
   }
 
@@ -39,22 +44,46 @@ module.exports.verifyRecaptcha = (action) => async (req, res, next) => {
   }
 
   try {
-    const verification = await fetch("https://www.google.com/recaptcha/api/siteverify", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ secret, response: token, remoteip: req.ip }),
-      signal: AbortSignal.timeout(5000),
-    });
-    if (!verification.ok) {
-      return res.status(503).json({ success: false, message: "CAPTCHA verification is temporarily unavailable." });
+    if (!recaptchaClient) {
+      recaptchaClient = new RecaptchaEnterpriseServiceClient();
     }
-    const result = await verification.json();
-    if (!result.success || result.action !== action || Number(result.score) < 0.5) {
+    const expectedAction = action.toUpperCase().replace(/[^A-Z0-9]+/g, "_");
+    const [assessment] = await recaptchaClient.createAssessment({
+      parent: recaptchaClient.projectPath(projectId),
+      assessment: {
+        event: { token, siteKey },
+      },
+    });
+    const tokenProperties = assessment.tokenProperties;
+    if (!tokenProperties?.valid) {
+      console.warn("reCAPTCHA Enterprise rejected a token:", tokenProperties?.invalidReason || "unknown reason");
       return res.status(403).json({ success: false, message: "CAPTCHA verification failed. Please try again." });
     }
+    if (tokenProperties.action !== expectedAction) {
+      console.warn("reCAPTCHA Enterprise action mismatch:", tokenProperties.action || "missing action");
+      return res.status(403).json({ success: false, message: "CAPTCHA verification failed. Please try again." });
+    }
+
+    const thresholdSetting = process.env.GOOGLE_RECAPTCHA_SCORE_THRESHOLD;
+    const configuredThreshold =
+      typeof thresholdSetting === "string" && thresholdSetting.trim()
+        ? Number(thresholdSetting)
+        : NaN;
+    const scoreThreshold =
+      Number.isFinite(configuredThreshold) && configuredThreshold >= 0 && configuredThreshold <= 1
+        ? configuredThreshold
+        : 0.5;
+    const score = Number(assessment.riskAnalysis?.score);
+    if (!Number.isFinite(score) || score < scoreThreshold) {
+      return res.status(403).json({ success: false, message: "CAPTCHA verification failed. Please try again." });
+    }
+
     return next();
   } catch (error) {
-    console.error("Google reCAPTCHA verification failed:", error.message);
+    console.error("Google reCAPTCHA Enterprise assessment failed:", {
+      message: error.message,
+      code: error.code,
+    });
     return res.status(503).json({ success: false, message: "CAPTCHA verification is temporarily unavailable." });
   }
 };

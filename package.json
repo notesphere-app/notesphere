@@ -12,6 +12,7 @@
   "description": "",
   "dependencies": {
     "@getbrevo/brevo": "^3.0.1",
+    "@google-cloud/recaptcha-enterprise": "^7.3.0",
     "axios": "^1.13.2",
     "bad-words": "^3.0.4",
     "bcrypt": "^6.0.0",
