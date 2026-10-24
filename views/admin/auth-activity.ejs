@@ -1,0 +1,49 @@
+<% layout("layouts/boilerplate") %>
+
+<main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+  <header class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <p class="text-sm font-semibold uppercase tracking-wider text-blue-700">Administration</p>
+      <h1 class="mt-1 text-3xl font-bold text-slate-900 dark:text-white">Authentication activity</h1>
+      <p class="mt-2 max-w-3xl text-sm text-slate-600 dark:text-slate-300">Recent login attempts and password reset activity. Passwords and reset tokens are never recorded. IP addresses are stored only as keyed hashes.</p>
+    </div>
+    <nav class="flex flex-wrap gap-4 text-sm font-semibold text-blue-700">
+      <a href="/admin/dashboard">Dashboard</a><a href="/admin/users">Users</a><a href="/admin/contributions">Contributions</a>
+    </nav>
+  </header>
+
+  <div class="mt-7 grid gap-3 md:hidden">
+    <% activities.forEach(function (activity) { %>
+      <article class="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+        <div class="flex items-start justify-between gap-3">
+          <div><p class="font-semibold"><%= activity.event === "login" ? "Login" : "Password reset" %> · <%= activity.email || "No email supplied" %></p>
+            <% if (activity.user) { %><a class="text-sm text-blue-700 underline" href="/admin/users/<%= activity.user._id %>"><%= activity.user.name || activity.user.email %> — account</a><% } %>
+          </div>
+          <span class="rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold dark:bg-slate-800"><%= activity.outcome %></span>
+        </div>
+        <p class="mt-3 text-sm text-slate-600 dark:text-slate-300"><%= activity.details || "—" %></p>
+        <p class="mt-2 text-xs text-slate-500"><%= activity.device %> · <%= activity.browser %> · <%= activity.path || "—" %></p>
+        <time class="mt-1 block text-xs text-slate-500"><%= new Date(activity.createdAt).toLocaleString() %></time>
+      </article>
+    <% }) %>
+    <% if (!activities.length) { %><p class="rounded-xl border border-dashed p-8 text-center text-slate-500">No authentication activity recorded.</p><% } %>
+  </div>
+
+  <div class="mt-7 hidden overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700 md:block">
+    <table class="w-full min-w-[950px] text-left text-sm">
+      <thead class="bg-slate-50 text-xs uppercase text-slate-500 dark:bg-slate-800"><tr><th class="p-4">When</th><th class="p-4">Activity</th><th class="p-4">Email / account</th><th class="p-4">Result</th><th class="p-4">Details</th><th class="p-4">Device / browser</th><th class="p-4">Page</th></tr></thead>
+      <tbody>
+        <% activities.forEach(function (activity) { %>
+          <tr class="border-t border-slate-100 align-top dark:border-slate-800">
+            <td class="whitespace-nowrap p-4"><%= new Date(activity.createdAt).toLocaleString() %></td>
+            <td class="p-4"><%= activity.event === "login" ? "Login" : "Password reset" %></td>
+            <td class="max-w-56 break-all p-4"><%= activity.email || "No email supplied" %><% if (activity.user) { %><a class="mt-1 block text-blue-700 underline" href="/admin/users/<%= activity.user._id %>"><%= activity.user.name || "View account" %></a><% } %></td>
+            <td class="p-4"><%= activity.outcome %></td><td class="p-4"><%= activity.details || "—" %></td>
+            <td class="p-4"><%= activity.device %> · <%= activity.browser %></td><td class="p-4"><%= activity.path || "—" %></td>
+          </tr>
+        <% }) %>
+        <% if (!activities.length) { %><tr><td colspan="7" class="p-8 text-center text-slate-500">No authentication activity recorded.</td></tr><% } %>
+      </tbody>
+    </table>
+  </div>
+</main>

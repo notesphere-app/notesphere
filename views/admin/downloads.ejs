@@ -1,0 +1,27 @@
+<% layout("layouts/boilerplate") %>
+
+<main class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div><p class="text-sm font-semibold uppercase tracking-wider text-blue-700">Administration</p><h1 class="mt-1 text-3xl font-bold">Download history</h1></div>
+    <nav class="flex gap-3 text-sm font-semibold text-blue-700"><a href="/admin/dashboard">Dashboard</a><a href="/admin/courses">Courses</a><a href="/admin/notes">Notes</a><a href="/admin/users">Users</a></nav>
+  </div>
+  <p class="mt-2 text-sm text-slate-500">Showing the latest <%= downloads.length %> records, including campus and coarse device metadata. Guest downloads are not linked to an account.</p>
+  <div class="mt-8 overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+    <table class="w-full min-w-[850px] text-left text-sm">
+      <thead class="bg-slate-50 text-xs uppercase text-slate-500 dark:bg-slate-800"><tr><th class="p-4">Note</th><th class="p-4">Course</th><th class="p-4">Campus</th><th class="p-4">Downloader</th><th class="p-4">Device / browser</th><th class="p-4">Time</th></tr></thead>
+      <tbody>
+        <% downloads.forEach(function (download) { %>
+          <tr class="border-t border-slate-100 dark:border-slate-800">
+            <td class="p-4"><%= download.note?.title || "Removed note" %></td>
+            <td class="p-4"><%= download.course?.name || download.note?.course || "—" %></td>
+            <td class="p-4"><%= [download.university, download.college].filter(Boolean).join(" · ") || "Not provided" %></td>
+            <td class="p-4"><%= download.isGuest ? "Guest" : (download.user?.name || download.user?.email || "Account") %></td>
+            <td class="p-4"><%= download.device?.category || "unknown" %> · <%= download.device?.browser || "unknown" %></td>
+            <td class="p-4"><%= new Date(download.downloadedAt).toLocaleString() %></td>
+          </tr>
+        <% }) %>
+        <% if (!downloads.length) { %><tr><td colspan="6" class="p-8 text-center text-slate-500">No downloads yet.</td></tr><% } %>
+      </tbody>
+    </table>
+  </div>
+</main>

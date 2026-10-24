@@ -60,6 +60,8 @@ router.get(
 );
 
 router.post("/:id/comments", isLoggedIn, wrapAsync(blogsController.addComment));
+router.post("/:id/like", isLoggedIn, wrapAsync(blogsController.toggleLike));
+router.post("/:id/save", isLoggedIn, wrapAsync(blogsController.toggleSave));
 
 router.delete(
   "/:id/comments/:comment",

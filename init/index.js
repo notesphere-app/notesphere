@@ -6,7 +6,7 @@ const Certificate = require("../models/certification.js");
 const Subscriber = require("../models/subscriber.js");
 const { subscribe } = require("../controllers/others.js");
 
-const MONGO_URL = "mongodb://127.0.0.1:27017/rootshield";
+const MONGO_URL = process.env.MONGO_URL || "mongodb://127.0.0.1:27017/notesphere";
 
 main()
   .then(() => {
@@ -22,11 +22,7 @@ async function main() {
 
 const initDB = async () => {
   try {
-    // const user = await User.findOneAndUpdate({email: "saurabhmishra230139@gmail.com"}, {role:"admin"},{ new: true });
     // console.log(user);
-    // const users = await User.findOneAndDelete({
-    //   email: "thecubicals123@gmail.com",
-    // });
     // console.log("Admin user removed", users);
     // const subscribers = await Subscriber.find();
     // console.log(subscribers);

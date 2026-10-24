@@ -24,9 +24,11 @@ const userSchema = new Schema(
       lowercase: true,
       trim: true,
     },
+    university: { type: String, trim: true, maxlength: 160, default: "" },
+    college: { type: String, trim: true, maxlength: 160, default: "" },
     role: {
       type: String,
-      enum: ["admin", "user", "teacher"],
+      enum: ["admin", "user"],
       default: "user",
     },
     isActive: {
@@ -75,6 +77,17 @@ const userSchema = new Schema(
 
     resetPasswordToken: String,
     resetPasswordExpires: Date,
+
+    loginHistory: [
+      {
+        loggedInAt: { type: Date, default: Date.now },
+        method: { type: String, enum: ["local", "google"], default: "local" },
+        ipHash: { type: String, default: "" },
+        device: { type: String, default: "unknown" },
+      },
+    ],
+    savedNotes: [{ type: Schema.Types.ObjectId, ref: "Note" }],
+    savedBlogs: [{ type: Schema.Types.ObjectId, ref: "Blog" }],
   },
   {
     timestamps: true,

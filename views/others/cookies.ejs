@@ -1,0 +1,34 @@
+<% layout("/layouts/boilerplate") -%>
+
+<main class="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+  <header class="rounded-3xl bg-[#022E5A] p-8 text-white sm:p-12">
+    <p class="text-sm font-semibold uppercase tracking-widest text-blue-200">NoteSphere · Your browser</p>
+    <h1 class="mt-3 text-3xl font-bold sm:text-4xl">Cookie Policy</h1>
+    <p class="mt-4 max-w-2xl leading-7 text-blue-100">Here is how NoteSphere uses cookies and browser storage to keep accounts working and remember your privacy choices.</p>
+    <p class="mt-5 text-sm text-blue-200">Effective October 24, 2026</p>
+  </header>
+
+  <div class="mt-8 space-y-8 text-sm leading-7 text-slate-700 dark:text-slate-300">
+    <section>
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white">Essential session cookies</h2>
+      <p class="mt-2">The site uses an HTTP-only session cookie for sign-in, account security, and session continuity. These cookies are necessary for requested features and cannot be switched off through the optional advertising choice.</p>
+    </section>
+    <section>
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white">Preferences in browser storage</h2>
+      <p class="mt-2">NoteSphere stores your theme and cookie-consent choice in local storage so those preferences remain available in this browser. Clearing site data removes these values; the consent prompt may then appear again.</p>
+    </section>
+    <section>
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white">Optional advertising</h2>
+      <p class="mt-2">If advertising is enabled on the site, its scripts are loaded only after you accept the optional advertising choice. Advertising providers may use their own cookies or similar technologies under their policies. Choosing “Essentials only” prevents those optional scripts from being loaded by this site.</p>
+    </section>
+    <section>
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white">Security and payment services</h2>
+      <p class="mt-2">Google reCAPTCHA may process technical/browser information when you use protected forms to help prevent abuse. If you choose to contribute, Razorpay’s checkout is opened to securely process the payment; Razorpay may use cookies or similar technologies under its own policy.</p>
+    </section>
+    <section class="rounded-2xl border border-slate-200 p-5 dark:border-slate-700">
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white">Change your choice</h2>
+      <p class="mt-2">Use the “Cookie choices” control in the website footer to reopen the consent prompt and change your optional advertising choice. You can also clear cookies and local storage through your browser settings.</p>
+      <p class="mt-3">Questions? Email <a class="font-semibold text-blue-700 underline dark:text-blue-300" href="mailto:<%= supportEmail %>"><%= supportEmail %></a>.</p>
+    </section>
+  </div>
+</main>

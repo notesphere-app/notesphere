@@ -5,6 +5,7 @@ const { cloudinary } = require("../Cloudconfig");
 const path = require("path");
 const mongoose = require("mongoose");
 const { validateComment } = require("../utils/commentFilter.cjs");
+const blogCategories = require("../utils/blogCategories");
 
 const fonts = {
   Jakarta: {
@@ -49,7 +50,7 @@ module.exports.index = async (req, res) => {
 
 module.exports.renderNewForm = (req, res) => {
   const cat = undefined;
-  res.render("blogs/new.ejs", { cat });
+  res.render("blogs/new.ejs", { cat, blogCategories });
 };
 
 module.exports.showBlog = async (req, res) => {
@@ -99,10 +100,10 @@ module.exports.showBlog = async (req, res) => {
     .limit(10);
 
   const dynamicMeta = {
-    title: blog.title + " | RootShield Blog",
+    title: blog.title + " | NoteSphere Blog",
     description: blog.shortdescription,
     keywords: blog.keywords,
-    image: blog.image.url,
+    image: blog.image?.url || "/images/logo.png",
   };
 
   res.render("blogs/show.ejs", {
@@ -112,11 +113,49 @@ module.exports.showBlog = async (req, res) => {
     currentPage: 1,
     totalPages: 1,
     relatedBlogs, // ✅ all related blogs directly
+    likedByMe: Boolean(req.user && blog.likes.some((userId) => userId.equals(req.user._id))),
+    savedByMe: Boolean(req.user?.savedBlogs?.some((blogId) => blogId.equals(blog._id))),
   });
+};
+
+module.exports.toggleLike = async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(404).json({ success: false, message: "Blog not found." });
+  }
+  const blog = await Blog.findById(req.params.id).select("likes");
+  if (!blog) return res.status(404).json({ success: false, message: "Blog not found." });
+  const alreadyLiked = blog.likes.some((id) => id.equals(req.user._id));
+  const updated = await Blog.findByIdAndUpdate(
+    blog._id,
+    alreadyLiked
+      ? { $pull: { likes: req.user._id } }
+      : { $addToSet: { likes: req.user._id } },
+    { new: true },
+  );
+  res.json({ success: true, liked: !alreadyLiked, count: updated.likes.length });
+};
+
+module.exports.toggleSave = async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(404).json({ success: false, message: "Blog not found." });
+  }
+  const blog = await Blog.findById(req.params.id).select("_id");
+  if (!blog) return res.status(404).json({ success: false, message: "Blog not found." });
+  const isSaved = (req.user.savedBlogs || []).some((id) => id.equals(blog._id));
+  await req.user.updateOne(
+    isSaved
+      ? { $pull: { savedBlogs: blog._id } }
+      : { $addToSet: { savedBlogs: blog._id } },
+  );
+  res.json({ success: true, saved: !isSaved });
 };
 
 module.exports.createBlog = async (req, res, next) => {
   try {
+    if (!blogCategories.includes(req.body.category)) {
+      req.flash("error", "Choose a valid NoteSphere blog category.");
+      return res.redirect("/blogs/new");
+    }
     const newblog = new Blog(req.body);
 
     function generateIdFromTitle(title) {
@@ -172,7 +211,7 @@ module.exports.renderEditForm = async (req, res) => {
     );
   }
 
-  res.render("blogs/edit.ejs", { blog, cat, originalImageUrl });
+  res.render("blogs/edit.ejs", { blog, cat, originalImageUrl, blogCategories });
 };
 
 module.exports.renderViewrsPage = async (req, res) => {
@@ -207,6 +246,10 @@ module.exports.updateBlog = async (req, res) => {
   const { id } = req.params;
 
   try {
+    if (!blogCategories.includes(req.body.category)) {
+      req.flash("error", "Choose a valid NoteSphere blog category.");
+      return res.redirect(`/blogs/${id}/edit`);
+    }
     const blog = await Blog.findById(id);
     if (!blog) {
       req.flash("error", "Blog not found.");

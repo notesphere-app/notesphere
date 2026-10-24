@@ -20,7 +20,7 @@
         Writing blogs helps others learn — and helps you grow too.
       </p>
 
-      <a href="/thecubicals/blogs/new" class="btn btn-primary px-4 py-2 rounded-pill">
+      <a href="/blogs/new" class="btn btn-primary px-4 py-2 rounded-pill">
         Start Writing Your First Blog
       </a>
 
@@ -44,7 +44,7 @@
             <!-- Blog Image -->
             <div class="col-12 col-md-4">
               <img 
-                src="<%= blog.image && blog.image.url ? blog.image.url : '/images/thecubicals.png' %>"
+                src="<%= blog.image && blog.image.url ? blog.image.url : '/images/logo.png' %>"
                 alt="<%= blog.title %>"
                 class="img-fluid w-100 h-100 object-fit-cover"
                 style="max-height: 220px; object-fit: cover;"
@@ -65,10 +65,10 @@
 
               <!-- Buttons -->
               <div class="d-flex flex-wrap gap-2">
-                <a href="/thecubicals/blogs/<%= blog.id %>" class="btn btn-sm btn-outline-info">
+                <a href="/blogs/<%= blog.id %>" class="btn btn-sm btn-outline-info">
                   <i class="bi bi-eye me-1"></i>View
                 </a>
-                <a href="/thecubicals/blogs/<%= blog._id %>/edit" class="btn btn-sm btn-outline-secondary">
+                <a href="/blogs/<%= blog._id %>/edit" class="btn btn-sm btn-outline-secondary">
                   <i class="bi bi-pencil-square me-1"></i>Edit
                 </a>
 
@@ -78,7 +78,7 @@
                   </button>
 
                   <% if (blog.usersSeen.length > 0) { %>
-                    <a href="/thecubicals/blogs/<%= blog._id %>/views" class="btn btn-sm btn-outline-success">
+                    <a href="/blogs/<%= blog._id %>/views" class="btn btn-sm btn-outline-success">
                       <i class="bi bi-person-lines-fill me-1"></i>View Viewers
                     </a>
                   <% } else { %>
@@ -116,7 +116,7 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-              <form action="/thecubicals/blogs/<%= blog._id %>?_method=DELETE" method="POST" class="d-inline">
+              <form action="/blogs/<%= blog._id %>?_method=DELETE" method="POST" class="d-inline">
                 <button type="submit" class="btn btn-danger btn-sm prevent-multi-submit">Yes, Delete</button>
               </form>
             </div>

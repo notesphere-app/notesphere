@@ -1,6 +1,6 @@
 {
-  "name": "RootShield App",
-  "short_name": "RootShield",
+  "name": "NoteSphere",
+  "short_name": "NoteSphere",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1ecbe1",

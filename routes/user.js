@@ -1,24 +1,22 @@
 const express = require("express");
 const router = express.Router();
-const User = require("../models/user.js");
 const wrapAsync = require("../utils/wrapAsync");
-const passport = require("passport");
 const {
   saveRedirectUrl,
-  isVerified,
   isLoggedIn,
   isAdmin,
 } = require("../middleware.js");
 const multer = require("multer");
 const upload = multer();
 const userController = require("../controllers/users.js");
+const { rateLimits, verifyRecaptcha } = require("../utils/security");
 
 // signup GET
 //Signup POST
 router
   .route("/signup")
   .get(userController.renderSignupForm)
-  .post(wrapAsync(userController.signup));
+  .post(rateLimits.signup, verifyRecaptcha("signup"), wrapAsync(userController.signup));
 
 //Login GET
 //Login POST
@@ -26,20 +24,20 @@ router
   .route("/login")
   .get(userController.renderLoginForm)
   .post(
-    isVerified,
+    rateLimits.login,
+    userController.startLoginActivity,
+    verifyRecaptcha("login"),
     saveRedirectUrl,
-    passport.authenticate("local", {
-      failureRedirect: "/login",
-      failureFlash: true,
-    }),
+    userController.authenticateLocal,
+    isLoggedIn,
     userController.login,
   );
 
 router.get("/logout", userController.logout);
 
-router.post("/verify/:id/resend", userController.resendOtp);
+router.post("/verify/:id/resend", rateLimits.otp, verifyRecaptcha("verify"), userController.resendOtp);
 router.get("/verify-email", userController.renderVerifyEmailForm);
-router.post("/verify/:id", userController.verifyEmail);
+router.post("/verify/:id", rateLimits.otp, verifyRecaptcha("verify"), userController.verifyEmail);
 
 router.get("/profile", isLoggedIn, userController.profile);
 router.post(

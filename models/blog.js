@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const blogCategories = require("../utils/blogCategories");
 
 const blogsSchema = new Schema({
   title: String,
@@ -15,7 +16,7 @@ const blogsSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "User",
   },
-  category: String,
+  category: { type: String, enum: blogCategories, required: true },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -43,7 +44,7 @@ const blogsSchema = new Schema({
   },
   comments: [
     {
-      text: String,
+      text: { type: String, required: true, maxlength: 1000 },
       createdAt: { type: Date, default: Date.now },
       user: {
         type: mongoose.Schema.Types.ObjectId,
@@ -57,10 +58,13 @@ const blogsSchema = new Schema({
       ref: "User",
     },
   ],
+  likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
   adminVerified: {
     type: Boolean,
     default: false,
   },
 });
+
+blogsSchema.index({ blocked: 1, createdAt: -1 });
 
 module.exports = mongoose.model("Blog", blogsSchema);

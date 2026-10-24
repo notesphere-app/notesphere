@@ -1,20 +1,13 @@
 <% layout("/layouts/boilerplate") -%>
 <%
-/* ============================================================
-   DUMMY DATA — swap with controller data later:
-   res.render('pages/notes', { notes, courses, semesters, subjects, totalCount })
-============================================================ */
-
-const courses = [
-  { id: "all",   label: "All courses",  icon: "fa-layer-group" },
-  { id: "btech", label: "B.Tech",       icon: "fa-laptop-code" },
-  { id: "ba",    label: "B.A.",         icon: "fa-book-open" },
-  { id: "bsc",   label: "B.Sc.",        icon: "fa-flask" },
-  { id: "bcom",  label: "B.Com.",       icon: "fa-chart-line" },
-  { id: "bba",   label: "BBA",          icon: "fa-briefcase" },
-];
-
-const semesters = ["All", "1", "2", "3", "4", "5", "6", "7", "8"];
+const courseFilters = [{ id: "all", label: "All courses", icon: "fa-layer-group" }].concat(
+  (catalogCourses || []).map((course) => ({
+    id: String(course._id),
+    label: course.name,
+    icon: "fa-graduation-cap",
+  })),
+);
+const semesters = ["All", ...Array.from({ length: 12 }, (_, index) => String(index + 1))];
 
 const fileTypes = [
   { id: "all", label: "All files" },
@@ -31,7 +24,7 @@ const sortOptions = [
   { id: "pages",      label: "Longest" },
 ];
 
-const notes = [
+const sampleNotes = [
   {
     id: "eng-maths-1",
     title: "Engineering Mathematics I — Complete Unit 1 to 5",
@@ -287,12 +280,14 @@ const notes = [
   },
 ];
 
-const stats = [
-  { label: "Notes uploaded",     value: 24600, suffix: "+" },
-  { label: "Downloads served",   value: 189000, suffix: "+" },
-  { label: "Active contributors", value: 3150,  suffix: "+" },
-  { label: "Courses covered",    value: 42,    suffix: "+" },
+const notes = storedNotes || [];
+const fallbackStats = [
+  { label: "Notes uploaded", value: 0, suffix: "" },
+  { label: "Downloads served", value: 0, suffix: "" },
+  { label: "Active contributors", value: 0, suffix: "" },
+  { label: "Courses covered", value: 0, suffix: "" },
 ];
+const renderStats = stats || fallbackStats;
 %>
 
 <!-- =========================================
@@ -330,7 +325,7 @@ const stats = [
                    focus:border-[#0878E8] focus:outline-none focus:ring-2 focus:ring-[#0878E8]/25
                    dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:placeholder-slate-500"
           />
-          <a href="/upload"
+          <a href="<%= currUser ? '/notes/new' : '/login' %>"
              class="absolute right-1.5 top-1/2 hidden -translate-y-1/2 items-center gap-2 rounded-full bg-[#0878E8] px-5 py-2.5 text-sm font-semibold text-white
                     shadow-sm transition-all hover:bg-[#0668CC] hover:-translate-y-0.5 sm:inline-flex">
             <i class="fa-solid fa-cloud-arrow-up"></i> Upload notes
@@ -339,15 +334,9 @@ const stats = [
       </form>
 
       <div class="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-slate-500 dark:text-slate-400" data-reveal data-reveal-delay="300">
-        <span class="flex items-center gap-1.5">
-          <i class="fa-solid fa-file-pdf text-[#0878E8]"></i> 24,600+ notes
-        </span>
-        <span class="flex items-center gap-1.5">
-          <i class="fa-solid fa-download text-[#0878E8]"></i> 189k+ downloads
-        </span>
-        <span class="flex items-center gap-1.5">
-          <i class="fa-solid fa-users text-[#0878E8]"></i> 3,150+ contributors
-        </span>
+        <% renderStats.slice(0, 3).forEach(function (stat) { %>
+          <span class="flex items-center gap-1.5"><i class="fa-solid fa-chart-simple text-[#0878E8]"></i> <%= stat.value.toLocaleString() %> <%= stat.label.toLowerCase() %></span>
+        <% }) %>
       </div>
     </div>
   </div>
@@ -368,7 +357,7 @@ const stats = [
           <div class="rounded-2xl bg-[#FBFAF7] p-5 ring-1 ring-slate-200/70 dark:bg-slate-950 dark:ring-slate-800">
             <h3 class="text-[11px] font-semibold uppercase tracking-widest text-slate-400">Course</h3>
             <ul class="mt-3 space-y-1.5">
-              <% courses.forEach(function (c) { %>
+              <% courseFilters.forEach(function (c) { %>
                 <li>
                   <button type="button"
                           class="notes-filter-btn"
@@ -415,6 +404,32 @@ const stats = [
               <% }) %>
             </ul>
           </div>
+
+          <form action="/notes" method="GET" class="space-y-3 rounded-2xl bg-[#FBFAF7] p-5 ring-1 ring-slate-200/70 dark:bg-slate-950 dark:ring-slate-800">
+            <h3 class="text-[11px] font-semibold uppercase tracking-widest text-slate-400">Search by campus</h3>
+            <label class="block text-xs font-semibold">Course
+              <select name="course" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-sm dark:border-slate-700 dark:bg-slate-900">
+                <option value="">All courses</option>
+                <% (catalogCourses || []).forEach(function (course) { %><option value="<%= course._id %>" <%= String(filters.course || '') === String(course._id) ? "selected" : "" %>><%= course.name %></option><% }) %>
+              </select>
+            </label>
+            <label class="block text-xs font-semibold">Specialization
+              <input name="specialization" value="<%= filters.specialization || '' %>" maxlength="100" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-sm dark:border-slate-700 dark:bg-slate-900">
+            </label>
+            <label class="block text-xs font-semibold">University
+              <input name="university" value="<%= filters.university || '' %>" maxlength="160" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-sm dark:border-slate-700 dark:bg-slate-900">
+            </label>
+            <label class="block text-xs font-semibold">College
+              <input name="college" value="<%= filters.college || '' %>" maxlength="160" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-sm dark:border-slate-700 dark:bg-slate-900">
+            </label>
+            <label class="block text-xs font-semibold">Semester
+              <select name="semester" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-sm dark:border-slate-700 dark:bg-slate-900">
+                <option value="">Any semester</option>
+                <% semesters.slice(1).forEach(function (semester) { %><option value="<%= semester %>" <%= String(filters.semester || '') === semester ? "selected" : "" %>>Semester <%= semester %></option><% }) %>
+              </select>
+            </label>
+            <button class="w-full rounded-full bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white">Apply filters</button>
+          </form>
 
           <button type="button" id="notes-clear-all"
                   class="w-full rounded-full border border-slate-300 px-4 py-2.5 text-sm font-semibold text-[#022E5A]
@@ -467,11 +482,14 @@ const stats = [
               class="note-card group flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200/70
                      transition-all hover:-translate-y-1 hover:shadow-lg dark:bg-slate-900 dark:ring-slate-800"
               data-note-id="<%= note.id %>"
-              data-course="<%= note.course %>"
+              data-course="<%= note.courseId || note.course %>"
               data-semester="<%= note.semester %>"
               data-type="<%= note.type %>"
               data-title="<%= note.title.toLowerCase() %>"
               data-subject="<%= note.subject.toLowerCase() %>"
+              data-specialization="<%= (note.specialization || '').toLowerCase() %>"
+              data-university="<%= (note.university || '').toLowerCase() %>"
+              data-college="<%= (note.college || '').toLowerCase() %>"
               data-course-label="<%= note.courseLabel.toLowerCase() %>"
               data-downloads="<%= note.downloads %>"
               data-rating="<%= note.rating %>"
@@ -522,15 +540,19 @@ const stats = [
 
                 <!-- Meta row -->
                 <div class="mt-3 flex items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400">
-                  <span class="flex items-center gap-1">
-                    <i class="fa-regular fa-file-lines"></i> <%= note.pages %> pages
-                  </span>
+                  <% if (note.pages) { %>
+                    <span class="flex items-center gap-1">
+                      <i class="fa-regular fa-file-lines"></i> <%= note.pages %> pages
+                    </span>
+                  <% } %>
                   <span class="flex items-center gap-1">
                     <i class="fa-regular fa-hard-drive"></i> <%= note.size %>
                   </span>
-                  <span class="flex items-center gap-1 text-amber-500">
-                    <i class="fa-solid fa-star"></i> <%= note.rating %>
-                  </span>
+                  <% if (note.rating !== "—") { %>
+                    <span class="flex items-center gap-1 text-amber-500">
+                      <i class="fa-solid fa-star"></i> <%= note.rating %>
+                    </span>
+                  <% } %>
                 </div>
 
                 <!-- ============ ACTION BAR ============ -->
@@ -542,8 +564,8 @@ const stats = [
                             class="note-upvote-btn group/btn flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-semibold text-slate-500
                                    transition-colors hover:bg-[#0878E8]/10 hover:text-[#0878E8]"
                             aria-label="Upvote this note"
-                            aria-pressed="false">
-                      <i class="fa-regular fa-thumbs-up text-sm"></i>
+                            aria-pressed="<%= note.upvotedByMe ? 'true' : 'false' %>">
+                      <i class="<%= note.upvotedByMe ? 'fa-solid' : 'fa-regular' %> fa-thumbs-up text-sm"></i>
                       <span class="note-upvote-count"><%= note.upvotes %></span>
                     </button>
 
@@ -552,16 +574,16 @@ const stats = [
                             class="note-save-btn flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-semibold text-slate-500
                                    transition-colors hover:bg-amber-500/10 hover:text-amber-600"
                             aria-label="Save this note"
-                            aria-pressed="false">
-                      <i class="fa-regular fa-bookmark text-sm"></i>
-                      <span class="note-save-label">Save</span>
+                            aria-pressed="<%= note.savedByMe ? 'true' : 'false' %>">
+                      <i class="<%= note.savedByMe ? 'fa-solid' : 'fa-regular' %> fa-bookmark text-sm"></i>
+                      <span class="note-save-label"><%= note.savedByMe ? 'Saved' : 'Save' %></span>
                     </button>
                   </div>
 
                   <a href="/notes/<%= note.id %>/download"
                      class="note-download-btn inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#0878E8] px-3.5 py-1.5 text-xs font-semibold text-white
                             transition-colors hover:bg-[#0668CC]">
-                    <i class="fa-solid fa-download"></i> Download
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Open link
                   </a>
                 </div>
 
@@ -578,7 +600,7 @@ const stats = [
         </div>
 
         <!-- Empty state -->
-        <div id="notes-empty" class="hidden py-16 text-center">
+        <div id="notes-empty" class="<%= notes.length ? 'hidden' : 'py-16' %> text-center">
           <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500">
             <i class="fa-solid fa-magnifying-glass text-xl"></i>
           </div>
@@ -601,7 +623,7 @@ const stats = [
 ========================================= -->
 <section class="border-y border-slate-200 bg-[#FBFAF7] dark:border-slate-800 dark:bg-slate-950">
   <div class="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 py-10 sm:gap-8 sm:px-6 sm:py-12 md:grid-cols-4 lg:px-8">
-    <% stats.forEach(function (s, i) { %>
+    <% renderStats.forEach(function (s, i) { %>
       <div class="text-center" data-reveal data-reveal-delay="<%= i * 80 %>">
         <p class="text-2xl font-bold tabular-nums text-[#022E5A] dark:text-white sm:text-4xl">
           <span class="stat-count" data-target="<%= s.value %>" data-suffix="<%= s.suffix %>">0</span>
@@ -622,14 +644,14 @@ const stats = [
     </div>
     <h2 class="mt-5 text-2xl text-[#022E5A] dark:text-white sm:text-3xl">Have notes others could use?</h2>
     <p class="mt-3 text-sm text-slate-500 dark:text-slate-400 sm:text-base">
-      Upload your notebook scans or PDFs once. They'll help thousands of students prepare better for their exams.
+      Share a link to your notes. Add a title and course so students can find it.
     </p>
     <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
-      <button type="button" data-open-modal="signup"
+      <a href="<%= currUser ? '/notes/new' : '/login' %>"
         class="inline-flex items-center gap-2 rounded-full bg-[#0878E8] px-7 py-3 text-sm font-semibold text-white
                shadow-sm transition-all hover:bg-[#0668CC] hover:shadow-md hover:-translate-y-0.5">
-        <i class="fa-solid fa-cloud-arrow-up"></i> Upload notes
-      </button>
+        <i class="fa-solid fa-link"></i> Share a note link
+      </a>
       <a href="/about"
         class="rounded-full border border-slate-300 px-7 py-3 text-sm font-semibold text-[#022E5A]
                transition-colors hover:bg-slate-900/5 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-white/10">
@@ -947,17 +969,8 @@ const stats = [
     if (emptyClear) emptyClear.addEventListener('click', clearAll);
 
     /* ============================================================
-       UPVOTE (thumbs-up) + SAVE (bookmark) — persisted in localStorage
-       ------------------------------------------------------------
-       Each note card has data-note-id. We keep two sets:
-         ns-upvotes → array of note ids the user upvoted
-         ns-saves   → array of note ids the user saved
-       On page load, we restore the visual state + counters.
-
-       When the real backend exists, replace the persist() call
-       with a fetch() to /api/notes/:id/upvote and /api/notes/:id/save,
-       and swap localStorage reads for server-provided `upvotedByMe`
-       and `savedByMe` flags passed through res.render().
+       Persist actions for saved database notes; keep demo-only cards
+       local until they are replaced by submitted notes.
     ============================================================ */
     var STORAGE_UPVOTES = 'ns-upvotes';
     var STORAGE_SAVES   = 'ns-saves';
@@ -980,11 +993,11 @@ const stats = [
       var card = btn.closest('.note-card');
       if (!card) return;
       var id = card.dataset.noteId;
+      var persisted = /^[a-f\d]{24}$/i.test(id);
       var iconEl = btn.querySelector('i');
       var countEl = btn.querySelector('.note-upvote-count');
 
-      // Restore state if previously upvoted
-      if (upvotedIds.has(id)) {
+      if (!persisted && upvotedIds.has(id)) {
         btn.setAttribute('aria-pressed', 'true');
         iconEl.classList.remove('fa-regular');
         iconEl.classList.add('fa-solid');
@@ -996,6 +1009,27 @@ const stats = [
 
         var isUpvoted = btn.getAttribute('aria-pressed') === 'true';
         var currentCount = Number(countEl.textContent) || 0;
+        if (persisted) {
+          btn.disabled = true;
+          fetch('/notes/' + id + '/like', {
+            method: 'POST',
+            headers: { 'Accept': 'application/json' },
+            credentials: 'same-origin'
+          }).then(function (response) {
+            if (!response.ok) throw new Error('Please log in to like a note.');
+            return response.json();
+          }).then(function (result) {
+            btn.setAttribute('aria-pressed', String(result.liked));
+            iconEl.classList.toggle('fa-solid', result.liked);
+            iconEl.classList.toggle('fa-regular', !result.liked);
+            countEl.textContent = String(result.count);
+          }).catch(function (error) {
+            window.alert(error.message || 'Could not update your like. Please try again.');
+          }).finally(function () {
+            btn.disabled = false;
+          });
+          return;
+        }
 
         if (isUpvoted) {
           // Undo upvote
@@ -1019,12 +1053,6 @@ const stats = [
 
         writeSet(STORAGE_UPVOTES, upvotedIds);
 
-        /* TODO: replace with a real API call
-        fetch('/api/notes/' + id + '/upvote', {
-          method: isUpvoted ? 'DELETE' : 'POST',
-          headers: { 'Accept': 'application/json' }
-        });
-        */
       });
     });
 
@@ -1033,6 +1061,7 @@ const stats = [
       var card = btn.closest('.note-card');
       if (!card) return;
       var id = card.dataset.noteId;
+      var persisted = /^[a-f\d]{24}$/i.test(id);
       var iconEl = btn.querySelector('i');
       var labelEl = btn.querySelector('.note-save-label');
 
@@ -1050,13 +1079,31 @@ const stats = [
       }
 
       // Restore state if previously saved
-      paint(savedIds.has(id));
+      paint(persisted ? btn.getAttribute('aria-pressed') === 'true' : savedIds.has(id));
 
       btn.addEventListener('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
 
         var isSaved = btn.getAttribute('aria-pressed') === 'true';
+        if (persisted) {
+          btn.disabled = true;
+          fetch('/notes/' + id + '/save', {
+            method: 'POST',
+            headers: { 'Accept': 'application/json' },
+            credentials: 'same-origin'
+          }).then(function (response) {
+            if (!response.ok) throw new Error('Please log in to save a note.');
+            return response.json();
+          }).then(function (result) {
+            paint(result.saved);
+          }).catch(function (error) {
+            window.alert(error.message || 'Could not update your saved notes. Please try again.');
+          }).finally(function () {
+            btn.disabled = false;
+          });
+          return;
+        }
         if (isSaved) {
           savedIds.delete(id);
           paint(false);
@@ -1070,12 +1117,6 @@ const stats = [
 
         writeSet(STORAGE_SAVES, savedIds);
 
-        /* TODO: replace with a real API call
-        fetch('/api/notes/' + id + '/save', {
-          method: isSaved ? 'DELETE' : 'POST',
-          headers: { 'Accept': 'application/json' }
-        });
-        */
       });
     });
 

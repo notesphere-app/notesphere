@@ -28,7 +28,7 @@
   <meta name="title" content="<%= meta.title %>" />
   <meta name="description" content="<%= meta.description %>" />
   <meta name="keywords" content="<%= meta.keywords %>" />
-  <meta name="author" content="Saurabh Mishra" />
+  <meta name="author" content="NoteSphere" />
   <meta name="robots" content="index, follow" />
 
   <!-- Open Graph / Facebook / LinkedIn / WhatsApp -->
@@ -117,10 +117,6 @@
     }
   </script> -->
 
-  <!-- Google Adsense script -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7690683875434042"
-       crossorigin="anonymous"></script>
-
 </head>
 
 <body class="font-sans bg-[#FBFAF7] dark:bg-slate-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
@@ -140,8 +136,75 @@
   <!-- Footer -->
   <%- include("../includes/footer.ejs") %>
 
+  <%- include("../includes/recaptcha.ejs") %>
+
   <!-- NoteSphere Assistant (chat widget) -->
   <%- include("../includes/chatbot.ejs") %>
+
+  <aside id="cookie-consent" class="fixed inset-x-4 bottom-4 z-[100] mx-auto hidden max-w-3xl rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-slate-700 dark:bg-slate-900" role="dialog" aria-label="Cookie choices">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h2 class="font-semibold text-slate-900 dark:text-white">Your privacy choices</h2>
+        <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">
+          NoteSphere uses essential session cookies for sign-in and security. Optional Google advertising may use cookies; accept only if you want it enabled.
+          <a href="/privacy" class="underline">Privacy policy</a>
+        </p>
+      </div>
+      <div class="flex shrink-0 gap-2">
+        <button type="button" data-cookie-choice="false" class="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold dark:border-slate-600">Essentials only</button>
+        <button type="button" data-cookie-choice="true" class="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white">Accept</button>
+      </div>
+    </div>
+  </aside>
+
+  <script>
+    (function () {
+      var panel = document.getElementById("cookie-consent");
+      if (!panel) return;
+      document.querySelectorAll("[data-open-cookie-consent]").forEach(function (button) {
+        button.addEventListener("click", function () {
+          try { localStorage.removeItem("notesphere-cookie-consent"); } catch (error) {}
+          panel.classList.remove("hidden");
+        });
+      });
+      function enableAds() {
+        if (document.querySelector('script[data-notesphere-ads="true"]')) return;
+        var script = document.createElement("script");
+        script.async = true;
+        script.dataset.notesphereAds = "true";
+        script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7690683875434042";
+        script.crossOrigin = "anonymous";
+        document.head.appendChild(script);
+      }
+      try {
+        var savedChoice = localStorage.getItem("notesphere-cookie-consent");
+        if (savedChoice === null) panel.classList.remove("hidden");
+        else if (savedChoice === "true") enableAds();
+      } catch (error) {
+        panel.classList.remove("hidden");
+      }
+      panel.querySelectorAll("[data-cookie-choice]").forEach(function (button) {
+        button.addEventListener("click", function () {
+          var accepted = button.dataset.cookieChoice === "true";
+          fetch("/cookie-consent", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Accept": "application/json" },
+            body: JSON.stringify({ accepted: accepted })
+          }).then(function (response) {
+            if (!response.ok) throw new Error("Could not save your preference.");
+            try { localStorage.setItem("notesphere-cookie-consent", String(accepted)); } catch (error) {}
+            if (accepted) enableAds();
+            panel.classList.add("hidden");
+            if (!accepted && document.querySelector('script[data-notesphere-ads="true"]')) {
+              window.location.reload();
+            }
+          }).catch(function () {
+            panel.querySelector("p").textContent = "We could not save your choice. Please try again.";
+          });
+        });
+      });
+    })();
+  </script>
 
   <!-- App Script -->
   <script src="/js/script.js"></script>

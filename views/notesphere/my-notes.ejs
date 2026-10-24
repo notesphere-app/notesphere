@@ -1,0 +1,58 @@
+<% layout("/layouts/boilerplate") -%>
+
+<main class="mx-auto min-h-screen max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+  <header class="flex flex-col gap-5 rounded-3xl bg-gradient-to-br from-[#022E5A] to-[#0878E8] p-6 text-white sm:flex-row sm:items-end sm:justify-between sm:p-9">
+    <div>
+      <p class="text-sm font-semibold uppercase tracking-widest text-blue-100">Your library contributions</p>
+      <h1 class="mt-2 text-3xl font-bold sm:text-4xl">My notes</h1>
+      <p class="mt-3 max-w-2xl text-sm leading-6 text-blue-100">Keep track of the notes you share. Community submissions are reviewed by an admin before becoming public; admin submissions publish immediately.</p>
+    </div>
+    <a href="/notes/new" class="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#022E5A] hover:bg-blue-50">
+      <i class="fa-solid fa-plus"></i> Share a note
+    </a>
+  </header>
+
+  <section class="mt-8">
+    <% if (notes.length) { %>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <% notes.forEach(function (note) {
+          const status = note.isPublished ? "approved" : (note.moderationStatus || "pending");
+          const statusStyle = status === "approved"
+            ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
+            : status === "rejected"
+              ? "bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300"
+              : "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300";
+        %>
+          <article class="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <h2 class="break-words text-lg font-bold text-slate-900 dark:text-white"><%= note.title %></h2>
+                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400"><%= note.course %> · <%= note.subject %> · Semester <%= note.semester || "—" %></p>
+              </div>
+              <span class="shrink-0 rounded-full px-3 py-1 text-xs font-semibold <%= statusStyle %>"><%= status === "approved" ? "Published" : status === "rejected" ? "Not approved" : "In review" %></span>
+            </div>
+            <% if (note.description) { %><p class="mt-4 line-clamp-3 text-sm leading-6 text-slate-600 dark:text-slate-300"><%= note.description %></p><% } %>
+            <% if (status === "pending") { %>
+              <p class="mt-4 rounded-xl bg-amber-50 p-3 text-xs leading-5 text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">Your note is visible here to you and to admins, but will not appear in the public library until approved.</p>
+            <% } else if (status === "rejected") { %>
+              <p class="mt-4 rounded-xl bg-rose-50 p-3 text-xs leading-5 text-rose-900 dark:bg-rose-950/40 dark:text-rose-200">This note was not approved for public listing. Contact support if you need clarification.</p>
+            <% } %>
+            <div class="mt-auto flex flex-wrap items-center justify-between gap-3 pt-5">
+              <span class="text-xs text-slate-500 dark:text-slate-400">Submitted <%= new Date(note.createdAt).toLocaleDateString() %></span>
+              <a href="/notes/<%= note._id %>" class="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50 dark:border-slate-700 dark:text-blue-300 dark:hover:bg-slate-800">
+                <%= note.isPublished ? "View note" : "View status" %> <i class="fa-solid fa-arrow-right text-xs"></i>
+              </a>
+            </div>
+          </article>
+        <% }); %>
+      </div>
+    <% } else { %>
+      <div class="rounded-2xl border border-dashed border-slate-300 bg-white px-5 py-14 text-center dark:border-slate-700 dark:bg-slate-900">
+        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-300"><i class="fa-solid fa-book-open text-xl"></i></div>
+        <h2 class="mt-4 text-lg font-bold text-slate-900 dark:text-white">No notes shared yet</h2>
+        <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Share your first study resource and help another student.</p>
+        <a href="/notes/new" class="mt-5 inline-flex items-center gap-2 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">Share a note</a>
+      </div>
+    <% } %>
+  </section>
+</main>

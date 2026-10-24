@@ -1,4 +1,5 @@
 const { saveRedirectUrl } = require("../middleware.js");
+const passport = require("passport");
 const User = require("../models/user.js");
 const bcrypt = require("bcrypt");
 const brevo = require("@getbrevo/brevo");
@@ -6,11 +7,18 @@ const PDFDocument = require("pdfkit");
 const fs = require("fs");
 const path = require("path");
 const { createCanvas } = require("canvas");
+const recordLogin = require("../utils/loginHistory");
+const Download = require("../models/download");
+const Note = require("../models/note");
+const { getEmailSender, getSupportEmail } = require("../utils/emailSender");
+const { welComeEmail: welcomeEmail } = require("../utils/sendWelcomeEmail");
+const { recordAuthActivity, completeAuthActivity, getEmail } = require("../utils/authActivity");
 
 // Load environment variables (only in development)
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
+const supportEmail = getSupportEmail();
 
 // Configure Brevo API
 const apiInstance = new brevo.TransactionalEmailsApi();
@@ -39,16 +47,16 @@ async function sendVerificationOTP(user) {
   user.otpExpires = Date.now() + OTP_EXPIRY_MS;
   await user.save();
 
-  const domain = process.env.DOMAIN || "https://notesphere.online";
+  const domain = (process.env.DOMAIN || "https://notesphere.online").replace(/\/$/, "");
 
-  // HTML Email Template with RootShield Theme
+  // HTML Email Template with NoteSphere Theme
   const htmlContent = `
   <!DOCTYPE html>
   <html>
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verify Your Email | RootShield</title>
+    <title>Verify Your Email | NoteSphere</title>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
       
@@ -201,7 +209,7 @@ async function sendVerificationOTP(user) {
       <!-- Header -->
       <div class="header">
         <div class="logo">
-          <span class="logo-gradient">RootShield</span>
+          <span class="logo-gradient">NoteSphere</span>
         </div>
         <div class="subtitle">Email Verification Required</div>
       </div>
@@ -209,11 +217,11 @@ async function sendVerificationOTP(user) {
       <!-- Content -->
       <div class="content">
         <div class="greeting">
-          Hello ${user.name || user.username || "Future Security Professional"},
+          Hello ${user.name || user.username || "NoteSphere user"},
         </div>
         
         <div class="message">
-          <p>Thank you for choosing <strong>RootShield</strong> – India's leading cybersecurity and web development education platform.</p>
+          <p>Thanks for joining NoteSphere, a community for finding and sharing student notes.</p>
           <p>To complete your registration and activate your account, please use the One-Time Password (OTP) below:</p>
         </div>
         
@@ -228,20 +236,20 @@ async function sendVerificationOTP(user) {
         
         <div class="security-error">
           🔒 <strong>Security Notice</strong><br>
-          Never share this OTP with anyone. RootShield representatives will never ask for your OTP or password. Keep your account credentials secure.
+          Never share this OTP with anyone. NoteSphere representatives will never ask for your OTP or password. Keep your account credentials secure.
         </div>
         
         <div class="support-info">
           <p><strong>Need assistance?</strong></p>
           <p>If you didn't request this verification or need help, please contact our support team immediately:</p>
-          <p>📧 <a href="mailto:support.notesphere@gmail.com" class="contact-link">support.notesphere@gmail.com</a></p>
+          <p>📧 <a href="mailto:${supportEmail}" class="contact-link">${supportEmail}</a></p>
         </div>
       </div>
       
       <!-- Footer -->
       <div class="footer">
         <p>
-          <strong>RootShield Security Team</strong><br>
+          <strong>NoteSphere Security Team</strong><br>
           Udyam Registered Education Platform • Delhi, India
         </p>
         <div style="margin-top: 15px; font-size: 12px; color: #9ca3af;">
@@ -250,7 +258,7 @@ async function sendVerificationOTP(user) {
             Protecting your learning journey is our priority.
           </p>
           <p style="margin-top: 15px;">
-            © ${new Date().getFullYear()} RootShield. All rights reserved.
+            © ${new Date().getFullYear()} NoteSphere. All rights reserved.
           </p>
         </div>
       </div>
@@ -261,12 +269,12 @@ async function sendVerificationOTP(user) {
 
   // Plain text version
   const textContent = `
-  ROOTSHIELD EMAIL VERIFICATION
+  NOTESPHERE EMAIL VERIFICATION
   ==============================
   
-  Hello ${user.name || user.username || "Future Security Professional"},
+  Hello ${user.name || user.username || "NoteSphere user"},
   
-  Thank you for choosing RootShield - India's leading cybersecurity and web development education platform.
+  Thanks for joining NoteSphere, a community for finding and sharing student notes.
   
   EMAIL VERIFICATION REQUIRED:
   
@@ -275,29 +283,28 @@ async function sendVerificationOTP(user) {
   ⚠️ IMPORTANT NOTES:
   • This OTP expires in ${OTP_EXPIRY_MINUTES} minutes
   • Never share this code with anyone
-  • RootShield staff will NEVER ask for your OTP
+  • NoteSphere staff will NEVER ask for your OTP
   
   🔒 SECURITY REMINDER:
   Keep your account credentials secure. If you didn't request this verification, please contact our security team immediately.
   
   📞 SUPPORT:
-  Email: support.notesphere@gmail.com
+  Email: ${supportEmail}
   Website: ${domain}
   
   ---
-  RootShield | Udyam Registered Education Platform
-  Cybersecurity & Web Development Education
-  Delhi, India
+  NoteSphere | Student notes library
+  Browse and share notes at ${domain}
   
   This is an automated security message. Please do not reply.
-  © ${new Date().getFullYear()} RootShield. All rights reserved.
+  © ${new Date().getFullYear()} NoteSphere. All rights reserved.
   `;
 
   try {
     await emailApi.sendTransacEmail({
-      sender: { email: "support.notesphere@gmail.com", name: "RootShield Verification" },
+      sender: getEmailSender(),
       to: [{ email: user.email, name: user.name || user.username }],
-      subject: "🔐 Verify Your Email | RootShield Account Activation",
+      subject: "🔐 Verify Your Email | NoteSphere Account Activation",
       htmlContent: htmlContent,
       textContent: textContent,
     });
@@ -316,262 +323,7 @@ async function sendVerificationOTP(user) {
 
 // Professional Welcome Email Template
 async function sendWelcomeEmail(user) {
-  const domain = process.env.DOMAIN || "https://notesphere.online";
-
-  const htmlContent = `
-  <!DOCTYPE html>
-  <html>
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to RootShield | Your Cybersecurity Journey Begins</title>
-    <style>
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-      
-      body {
-        font-family: 'Inter', Arial, sans-serif;
-        line-height: 1.6;
-        color: #374151;
-        margin: 0;
-        padding: 0;
-        background-color: #f9fafb;
-      }
-      
-      .email-container {
-        max-width: 600px;
-        margin: 0 auto;
-        background-color: #ffffff;
-        border-radius: 20px;
-        overflow: hidden;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-        border: 1px solid #e5e7eb;
-      }
-      
-      .header {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        padding: 50px 20px;
-        text-align: center;
-        color: white;
-      }
-      
-      .logo {
-        font-size: 42px;
-        font-weight: 800;
-        margin-bottom: 10px;
-        letter-spacing: -1px;
-      }
-      
-      .logo-gradient {
-        background: linear-gradient(90deg, #34d399 0%, #10b981 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-      }
-      
-      .success-icon {
-        font-size: 48px;
-        margin-bottom: 20px;
-      }
-      
-      .content {
-        padding: 40px;
-      }
-      
-      .greeting {
-        font-size: 24px;
-        font-weight: 700;
-        color: #111827;
-        margin-bottom: 25px;
-      }
-      
-      .message {
-        color: #4b5563;
-        margin-bottom: 35px;
-        font-size: 16px;
-        line-height: 1.8;
-      }
-      
-      .cta-button {
-        display: inline-block;
-        background: linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%);
-        color: white;
-        padding: 18px 45px;
-        text-decoration: none;
-        border-radius: 14px;
-        font-weight: 600;
-        font-size: 17px;
-        text-align: center;
-        margin: 30px 0;
-        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.25);
-        transition: all 0.3s ease;
-      }
-      
-      .features-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
-        margin: 40px 0;
-      }
-      
-      .feature-card {
-        background: #f8fafc;
-        border-radius: 12px;
-        padding: 25px;
-        border: 1px solid #e2e8f0;
-      }
-      
-      .feature-icon {
-        font-size: 32px;
-        margin-bottom: 15px;
-        color: #3b82f6;
-      }
-      
-      .feature-title {
-        font-weight: 600;
-        color: #1e40af;
-        margin-bottom: 10px;
-      }
-      
-      .security-card {
-        background-color: #f0f9ff;
-        border-radius: 12px;
-        padding: 24px;
-        margin: 30px 0;
-        border: 1px solid #bae6fd;
-      }
-      
-      .footer {
-        background-color: #f9fafb;
-        padding: 30px 40px;
-        text-align: center;
-        border-top: 1px solid #e5e7eb;
-        color: #6b7280;
-        font-size: 13px;
-      }
-      
-      .contact-link {
-        color: #2563eb;
-        text-decoration: none;
-        font-weight: 500;
-      }
-      
-      @media (max-width: 600px) {
-        .content, .footer {
-          padding: 30px 20px;
-        }
-        
-        .header {
-          padding: 40px 20px;
-        }
-        
-        .features-grid {
-          grid-template-columns: 1fr;
-        }
-        
-        .cta-button {
-          display: block;
-          width: 100%;
-          box-sizing: border-box;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="email-container">
-      <div class="header">
-        <div class="success-icon">🎉</div>
-        <div class="logo">
-          <span class="logo-gradient">RootShield</span>
-        </div>
-        <div style="font-size: 16px; opacity: 0.9; letter-spacing: 1.5px;">Account Successfully Verified</div>
-      </div>
-      
-      <div class="content">
-        <div class="greeting">
-          Welcome to RootShield, ${user.name || user.username || "Security Professional"}!
-        </div>
-        
-        <div class="message">
-          <p>Congratulations! Your RootShield account has been successfully verified and activated.</p>
-          <p>You are now part of India's premier cybersecurity and web development education community. Get ready to enhance your skills with industry-recognized Courcess and certifications.</p>
-        </div>
-        
-        <div style="text-align: center;">
-          <a href="${domain}/dashboard" class="cta-button">
-            🚀 Access Your Dashboard
-          </a>
-        </div>
-        
-        <div class="features-grid">
-          <div class="feature-card">
-            <div class="feature-icon">🔐</div>
-            <div class="feature-title">Cybersecurity Mastery</div>
-            <div>Learn ethical hacking, network security, and penetration testing from industry experts.</div>
-          </div>
-          
-          <div class="feature-card">
-            <div class="feature-icon">💻</div>
-            <div class="feature-title">Web Development</div>
-            <div>Master full-stack development with modern frameworks and best practices.</div>
-          </div>
-        </div>
-        
-        <div class="security-card">
-          <strong>🔒 Account Security Tips:</strong>
-          <ul style="margin-top: 10px; padding-left: 20px;">
-            <li>Use a strong, unique password</li>
-            <li>Enable two-factor authentication when available</li>
-            <li>Never share your login credentials</li>
-            <li>Regularly review account activity</li>
-          </ul>
-        </div>
-        
-        <div style="text-align: center; margin-top: 40px;">
-          <p style="color: #4b5563; font-size: 15px;">
-            Need assistance? Our support team is here to help.
-          </p>
-          <p style="margin-top: 10px;">
-            📧 <a href="mailto:support.notesphere@gmail.com" class="contact-link">support.notesphere@gmail.com</a> | 
-            🌐 <a href="${domain}" class="contact-link">Visit RootShield</a>
-          </p>
-        </div>
-      </div>
-      
-      <div class="footer">
-        <p>
-          <strong>RootShield Education Platform</strong><br>
-          Udyam Registered • Delhi, India
-        </p>
-        <div style="margin-top: 15px; font-size: 12px; color: #9ca3af;">
-          <p>
-            This is an automated welcome email. Please do not reply directly.<br>
-            Protecting your educational journey is our commitment.
-          </p>
-          <p style="margin-top: 15px;">
-            © ${new Date().getFullYear()} RootShield. All rights reserved.
-          </p>
-        </div>
-      </div>
-    </div>
-  </body>
-  </html>
-  `;
-
-  try {
-    await apiInstance.sendTransacEmail({
-      sender: { email: "support.notesphere@gmail.com", name: "RootShield Welcome Team" },
-      to: [{ email: user.email, name: user.name || user.username }],
-      subject: "🎉 Welcome to RootShield! Your Account is Now Active",
-      htmlContent: htmlContent,
-    });
-
-    console.log(`✅ Welcome email sent to: ${user.email}`);
-  } catch (emailErr) {
-    console.error(
-      `❌ Failed to send welcome email to ${user.email}:`,
-      emailErr,
-    );
-  }
+  await welcomeEmail({ name: user.name, email: user.email });
 }
 
 // CONTROLLER FUNCTIONS
@@ -620,8 +372,93 @@ module.exports.renderLoginForm = (req, res) => {
   }
 };
 
+module.exports.startLoginActivity = async (req, res, next) => {
+  try {
+    const email = getEmail(req.body?.email);
+    const knownUser = email ? await User.findOne({ email }).select("_id email") : null;
+    const activity = await recordAuthActivity(req, {
+      event: "login",
+      outcome: "pending",
+      user: knownUser,
+      email,
+    });
+    req.authActivityId = activity._id;
+    req.loginAuditUser = knownUser;
+    req.loginAuditEmail = email;
+    res.once("finish", () => {
+      if (!req.authActivityCompleted) {
+        req.authActivityCompleted = true;
+        completeAuthActivity(req, {
+          outcome: "challenge_rejected",
+          user: req.loginAuditUser,
+          email: req.loginAuditEmail,
+          details: "Login stopped before credential verification",
+        }).catch((error) => console.error("Login activity finalization failed:", error.message));
+      }
+    });
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports.authenticateLocal = (req, res, next) => {
+  passport.authenticate("local", async (error, user, info) => {
+    const finishAudit = async (outcome, targetUser, details) => {
+      if (req.authActivityCompleted) return;
+      req.authActivityCompleted = true;
+      await completeAuthActivity(req, {
+        outcome,
+        user: targetUser,
+        email: req.loginAuditEmail,
+        details,
+      });
+    };
+    try {
+      if (error) {
+        await finishAudit("failed", req.loginAuditUser, "Authentication service error");
+        return next(error);
+      }
+      if (!user) {
+        await finishAudit("failed", req.loginAuditUser, "Invalid credentials");
+        req.flash("error", info?.message || "Invalid email or password.");
+        return res.redirect("/login");
+      }
+      if (!user.isVerified) {
+        await finishAudit("unverified", user, "Email verification required");
+        req.flash("error", "Please verify your email first.");
+        return res.redirect(`/verify-email?email=${encodeURIComponent(user.email || "")}`);
+      }
+      if (user.isBlocked || !user.isActive) {
+        await finishAudit("blocked", user, "Account unavailable");
+        req.flash("error", "This account is currently unavailable.");
+        return res.redirect("/login");
+      }
+      req.logIn(user, async (loginError) => {
+        if (loginError) {
+          try {
+            await finishAudit("failed", user, "Session creation failed");
+            return next(loginError);
+          } catch (auditError) {
+            return next(auditError);
+          }
+        }
+        try {
+          await finishAudit("success", user, "Local login");
+          next();
+        } catch (auditError) {
+          next(auditError);
+        }
+      });
+    } catch (auditError) {
+      next(auditError);
+    }
+  })(req, res, next);
+};
+
 module.exports.login = async (req, res) => {
-  req.flash("success", "Welcome back to Root-Shield!");
+  await recordLogin(req.user, req, req.user.authMethod || "local");
+  req.flash("success", "Welcome back to NoteSphere!");
   const redirectUrl = res.locals.redirectUrl || "/";
   res.redirect(redirectUrl);
 };
@@ -642,7 +479,7 @@ module.exports.renderVerifyEmailForm = async (req, res) => {
   res.render("emailer/otp.ejs", { user });
 };
 
-module.exports.verifyEmail = async (req, res) => {
+module.exports.verifyEmail = async (req, res, next) => {
   try {
     const { otp } = req.body;
     const { id } = req.params;
@@ -652,7 +489,9 @@ module.exports.verifyEmail = async (req, res) => {
       return res.redirect(`/verify-email?email=${req.body.email || ""}`);
     }
 
-    const user = await User.findById(id);
+    const user = await User.findById(id)
+      .populate("savedNotes", "title course subject")
+      .populate("savedBlogs", "title id");
 
     if (!user) {
       req.flash(
@@ -698,7 +537,7 @@ module.exports.verifyEmail = async (req, res) => {
     await sendWelcomeEmail(user);
 
     // Auto-login the user
-    req.login(user, (err) => {
+    req.login(user, async (err) => {
       if (err) {
         console.error("❌ Auto-login error after verification:", err);
         req.flash(
@@ -707,9 +546,14 @@ module.exports.verifyEmail = async (req, res) => {
         );
         return res.redirect("/login");
       }
+      try {
+        await recordLogin(user, req, user.authMethod || "local");
+      } catch (loginHistoryError) {
+        return next(loginHistoryError);
+      }
       req.flash(
         "success",
-        "Email verified successfully! Welcome to RootShield.",
+        "Email verified successfully! Welcome to NoteSphere.",
       );
       res.redirect("/");
     });
@@ -765,22 +609,27 @@ module.exports.profile = async (req, res) => {
   try {
     const id = req.user._id; // Assuming req.user is set by auth middleware
 
-    // Find user
-    const user = await User.findById(id);
-    // Dummy recent activity
-    const recentActivity = [
-      {
-        _id: "1",
-        action: "enrollment",
-        description: "Enrolled in 'Ethical Hacking Fundamentals' course",
-        createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-      },
-    ];
+    const [user, downloads, noteCount, publishedNoteCount] = await Promise.all([
+      User.findById(id).populate("savedNotes", "title course subject").populate("savedBlogs", "title"),
+      Download.find({ user: id }).populate("note", "title").sort({ downloadedAt: -1 }).limit(10).lean(),
+      Note.countDocuments({ author: id }),
+      Note.countDocuments({ author: id, isPublished: true }),
+    ]);
+    if (!user) {
+      req.flash("error", "Your profile could not be found.");
+      return res.redirect("/");
+    }
+    const recentActivity = downloads.map((download) => ({
+      action: "download",
+      description: `Downloaded ${download.note?.title || "a note"}`,
+      createdAt: download.downloadedAt,
+    }));
 
-    // Render the template with ALL required variables
     res.render("users/profile.ejs", {
       user,
       recentActivity,
+      noteCount,
+      publishedNoteCount,
       moment: require("moment"),
     });
   } catch (err) {
@@ -797,13 +646,18 @@ module.exports.updateProfile = async (req, res) => {
     const userId = req.user._id;
 
     // Safely read body
-    const { name, mobile, email } = req.body || {};
+    const { name, mobile, email, university, college } = req.body || {};
+    const cleanUniversity = typeof university === "string" ? university.trim() : "";
+    const cleanCollege = typeof college === "string" ? college.trim() : "";
 
-    if (!name && !mobile && !email) {
+    if (!name && !mobile && !email && !university && !college) {
       return res.status(400).json({
         success: false,
         message: "No data provided",
       });
+    }
+    if (cleanUniversity.length > 160 || cleanCollege.length > 160) {
+      return res.status(400).json({ success: false, message: "University and college names must be 160 characters or fewer." });
     }
 
     // ✅ Email duplicate check
@@ -843,9 +697,11 @@ module.exports.updateProfile = async (req, res) => {
         name,
         mobile,
         email: email?.toLowerCase(),
+        university: cleanUniversity,
+        college: cleanCollege,
         updatedAt: new Date(),
       },
-      { new: true },
+      { new: true, runValidators: true },
     );
 
     // ✅ Log activity
@@ -867,8 +723,7 @@ module.exports.updateProfile = async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      message: err.message,
-      stack: err.stack, // remove later in production
+      message: "Unable to update your profile right now.",
     });
   }
 };
@@ -918,4 +773,3 @@ module.exports.changePassword = async (req, res) => {
     res.redirect("/profile#security");
   }
 };
-

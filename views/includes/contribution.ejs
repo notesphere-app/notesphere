@@ -1,0 +1,185 @@
+<div id="contribution-modal" class="fixed inset-0 z-[130] hidden items-center justify-center bg-slate-950/60 p-4" role="dialog" aria-modal="true" aria-labelledby="contribution-title">
+  <div class="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl dark:bg-slate-900 sm:p-8">
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-widest text-blue-600">Keep learning accessible</p>
+        <h2 id="contribution-title" class="mt-2 text-2xl font-bold text-slate-900 dark:text-white">Support NoteSphere</h2>
+      </div>
+      <button type="button" id="contribution-close" aria-label="Close contribution dialog" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <p class="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-300">
+      NoteSphere is an independent project maintained by students, not a formal organization or registered charity. The library is free to use. If you find it useful, an optional contribution helps with hosting and keeping the resource available to students.
+    </p>
+    <p class="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
+      Contributions are voluntary and are not a purchase or tax-deductible donation. Payments are securely processed by Razorpay; NoteSphere does not collect or store your card or UPI credentials.
+    </p>
+    <% if (currUser) { %>
+      <p class="mt-3 text-sm text-slate-600 dark:text-slate-300">This contribution will be associated with <strong><%= currUser.name || currUser.email %></strong> and your account email.</p>
+    <% } else { %>
+      <p class="mt-3 text-sm text-slate-600 dark:text-slate-300">Name and email are optional for guests. If provided, they will be saved with the payment record for the administrators.</p>
+    <% } %>
+    <form id="contribution-form" class="mt-6">
+      <fieldset>
+        <legend class="mb-3 text-sm font-semibold text-slate-800 dark:text-slate-200">Choose an amount (INR)</legend>
+        <div class="grid grid-cols-3 gap-2">
+          <button type="button" data-contribution-amount="51" class="contribution-preset rounded-xl border border-slate-200 px-3 py-3 text-sm font-semibold hover:border-blue-500 hover:text-blue-600 dark:border-slate-700">₹51</button>
+          <button type="button" data-contribution-amount="101" class="contribution-preset rounded-xl border border-slate-200 px-3 py-3 text-sm font-semibold hover:border-blue-500 hover:text-blue-600 dark:border-slate-700">₹101</button>
+          <button type="button" data-contribution-amount="501" class="contribution-preset rounded-xl border border-slate-200 px-3 py-3 text-sm font-semibold hover:border-blue-500 hover:text-blue-600 dark:border-slate-700">₹501</button>
+        </div>
+      </fieldset>
+      <label for="contribution-amount" class="mt-4 block text-sm font-semibold text-slate-800 dark:text-slate-200">Or enter another amount</label>
+      <div class="mt-2 flex items-center gap-2 rounded-xl border border-slate-300 px-3 dark:border-slate-700">
+        <span class="text-slate-500">₹</span>
+        <input id="contribution-amount" name="amount" type="number" min="10" max="1000000" step="1" required inputmode="numeric" placeholder="10 to 10,00,000" class="w-full border-0 bg-transparent py-3 text-slate-900 focus:outline-none dark:text-white">
+      </div>
+      <% if (!currUser) { %>
+        <div class="mt-4 grid gap-3 sm:grid-cols-2">
+          <label for="contribution-name" class="text-sm font-semibold text-slate-800 dark:text-slate-200">Name <span class="font-normal text-slate-500">(optional)</span>
+            <input id="contribution-name" name="name" type="text" maxlength="100" autocomplete="name" class="mt-1 w-full rounded-xl border border-slate-300 bg-transparent px-3 py-2.5 font-normal dark:border-slate-700">
+          </label>
+          <label for="contribution-email" class="text-sm font-semibold text-slate-800 dark:text-slate-200">Email <span class="font-normal text-slate-500">(optional)</span>
+            <input id="contribution-email" name="email" type="email" maxlength="254" autocomplete="email" class="mt-1 w-full rounded-xl border border-slate-300 bg-transparent px-3 py-2.5 font-normal dark:border-slate-700">
+          </label>
+        </div>
+      <% } %>
+      <p id="contribution-message" class="mt-3 hidden text-sm" role="status" aria-live="polite"></p>
+      <button id="contribution-submit" type="submit" class="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60">
+        <i class="fa-solid fa-heart"></i> Continue securely with Razorpay
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var modal = document.getElementById("contribution-modal");
+    var form = document.getElementById("contribution-form");
+    var amountInput = document.getElementById("contribution-amount");
+    var nameInput = document.getElementById("contribution-name");
+    var emailInput = document.getElementById("contribution-email");
+    var message = document.getElementById("contribution-message");
+    var submitButton = document.getElementById("contribution-submit");
+    var closeButton = document.getElementById("contribution-close");
+    if (!modal || !form || !amountInput || !message || !submitButton || !closeButton) return;
+
+    function showMessage(text, isError) {
+      message.textContent = text;
+      message.classList.remove("hidden", "text-rose-600", "text-emerald-600");
+      message.classList.add(isError ? "text-rose-600" : "text-emerald-600");
+    }
+    function openModal() {
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+      document.body.style.overflow = "hidden";
+      amountInput.focus();
+    }
+    function closeModal() {
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+      document.body.style.overflow = "";
+    }
+
+    document.addEventListener("click", function (event) {
+      if (event.target.closest("[data-donate-open]")) openModal();
+    });
+    closeButton.addEventListener("click", closeModal);
+    modal.addEventListener("click", function (event) {
+      if (event.target === modal) closeModal();
+    });
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && !modal.classList.contains("hidden")) closeModal();
+    });
+    document.querySelectorAll("[data-contribution-amount]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        amountInput.value = button.dataset.contributionAmount;
+        amountInput.focus();
+      });
+    });
+
+    function loadRazorpay() {
+      if (window.Razorpay) return Promise.resolve();
+      return new Promise(function (resolve, reject) {
+        var script = document.createElement("script");
+        script.src = "https://checkout.razorpay.com/v1/checkout.js";
+        script.onload = resolve;
+        script.onerror = function () { reject(new Error("Secure checkout could not be loaded. Please try again.")); };
+        document.head.appendChild(script);
+      });
+    }
+
+    form.addEventListener("submit", async function (event) {
+      event.preventDefault();
+      var amount = Number(amountInput.value);
+      if (!Number.isInteger(amount) || amount < 10 || amount > 1000000) {
+        showMessage("Enter a whole-rupee amount between ₹10 and ₹10,00,000.", true);
+        amountInput.focus();
+        return;
+      }
+
+      submitButton.disabled = true;
+      showMessage("Preparing secure checkout…", false);
+      try {
+        var response = await fetch("/api/contributions/order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({
+            amount: amount,
+            name: nameInput?.value || "",
+            email: emailInput?.value || "",
+            sourcePage: window.location.pathname,
+          }),
+        });
+        var order = await response.json();
+        if (!response.ok || !order.success) throw new Error(order.message || "Could not start checkout.");
+        await loadRazorpay();
+
+        var checkout = new window.Razorpay({
+          key: order.keyId,
+          amount: order.amount,
+          currency: order.currency,
+          name: order.name,
+          description: order.description,
+          order_id: order.orderId,
+          prefill: order.prefill || {},
+          theme: { color: "#0878E8" },
+          modal: {
+            ondismiss: function () {
+              submitButton.disabled = false;
+              showMessage("Checkout was closed. No contribution was confirmed.", true);
+            },
+          },
+          handler: async function (payment) {
+            showMessage("Confirming your payment…", false);
+            try {
+              var verificationResponse = await fetch("/api/contributions/verify", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", Accept: "application/json" },
+                body: JSON.stringify(payment),
+              });
+              var verification = await verificationResponse.json();
+              if (!verificationResponse.ok || !verification.success) {
+                throw new Error(verification.message || "We could not confirm the payment.");
+              }
+              form.reset();
+              showMessage(verification.message, false);
+            } catch (error) {
+              showMessage(error.message || "Payment confirmation is pending. Please contact support with your payment ID.", true);
+            } finally {
+              submitButton.disabled = false;
+            }
+          },
+        });
+        checkout.on("payment.failed", function () {
+          submitButton.disabled = false;
+          showMessage("The payment did not complete. No contribution was recorded.", true);
+        });
+        checkout.open();
+      } catch (error) {
+        submitButton.disabled = false;
+        showMessage(error.message || "Online contributions are temporarily unavailable.", true);
+      }
+    });
+  })();
+</script>

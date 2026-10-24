@@ -24,7 +24,7 @@
         <div class="px-6 py-6">
           <div class="space-y-3">
             <!-- Facebook -->
-            <a href="https://www.facebook.com/sharer/sharer.php?u=https:/.online/blogs/<%= blog.id %>" 
+            <a href="https://www.facebook.com/sharer/sharer.php?u=<%= encodeURIComponent(requestUrl) %>"
                target="_blank"
                class="flex items-center gap-3 bg-[#3b5998] text-white px-4 py-3 rounded-xl hover:bg-[#2d4373] transition-colors">
               <i class="fab fa-facebook-f text-lg w-6 text-center"></i>
@@ -32,7 +32,7 @@
             </a>
 
             <!-- WhatsApp -->
-            <a href="https://api.whatsapp.com/send?text=https:/.online/blogs/<%= blog.id %>" 
+            <a href="https://api.whatsapp.com/send?text=<%= encodeURIComponent(blog.title + ' ' + requestUrl) %>"
                target="_blank"
                class="flex items-center gap-3 bg-[#25D366] text-white px-4 py-3 rounded-xl hover:bg-[#128C7E] transition-colors">
               <i class="fab fa-whatsapp text-lg w-6 text-center"></i>
@@ -40,7 +40,7 @@
             </a>
 
             <!-- Twitter -->
-            <a href="https://twitter.com/intent/tweet?url=https:/.online/blogs/<%= blog.id %>&text=Check%20this%20out!" 
+            <a href="https://twitter.com/intent/tweet?url=<%= encodeURIComponent(requestUrl) %>&text=<%= encodeURIComponent('Check this out: ' + blog.title) %>"
                target="_blank"
                class="flex items-center gap-3 bg-[#1DA1F2] text-white px-4 py-3 rounded-xl hover:bg-[#0c85d0] transition-colors">
               <i class="fab fa-twitter text-lg w-6 text-center"></i>
@@ -48,7 +48,7 @@
             </a>
 
             <!-- LinkedIn -->
-            <a href="https://www.linkedin.com/shareArticle?mini=true&url=https:/.online/blogs/<%= blog.id %>" 
+            <a href="https://www.linkedin.com/shareArticle?mini=true&url=<%= encodeURIComponent(requestUrl) %>"
                target="_blank"
                class="flex items-center gap-3 bg-[#0077B5] text-white px-4 py-3 rounded-xl hover:bg-[#005582] transition-colors">
               <i class="fab fa-linkedin-in text-lg w-6 text-center"></i>
@@ -70,7 +70,7 @@
             <div class="flex items-center gap-2">
               <input type="text" 
                      id="shareUrl" 
-                     value="https://rootshield.in/blogs/<%= blog.id %>" 
+                     value="<%= requestUrl %>"
                      readonly
                      class="flex-1 text-sm text-gray-700 bg-transparent border-none focus:outline-none">
               <button onclick="copyToClipboard()" class="text-gray-500 hover:text-blue-600">
@@ -275,6 +275,22 @@
             <% } %>
           </div>
         </article>
+
+        <div class="mb-8 flex flex-wrap items-center gap-3 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <% if (currUser) { %>
+            <button type="button" id="blog-like" aria-pressed="<%= likedByMe %>" class="rounded-full border px-4 py-2 text-sm font-semibold">
+              <i class="fa-regular fa-thumbs-up"></i> Like (<span id="blog-like-count"><%= blog.likes.length %></span>)
+            </button>
+            <button type="button" id="blog-save" aria-pressed="<%= savedByMe %>" class="rounded-full border px-4 py-2 text-sm font-semibold">
+              <i class="fa-regular fa-bookmark"></i> <span><%= savedByMe ? "Saved" : "Save" %></span>
+            </button>
+          <% } else { %>
+            <a href="/login" class="rounded-full border px-4 py-2 text-sm font-semibold">Log in to like or save</a>
+          <% } %>
+          <button type="button" onclick="openShareModal()" class="rounded-full border px-4 py-2 text-sm font-semibold">
+            <i class="fa-solid fa-share-nodes"></i> Share
+          </button>
+        </div>
 
         <!-- Author Actions -->
         <% if(currUser && currUser._id.equals(blog.author._id)){ %>
@@ -745,3 +761,32 @@ document.querySelectorAll('form').forEach(form => {
   }
 }
 </style>
+
+<script>
+  (function () {
+    var blogId = "<%= blog._id %>";
+    function send(action) {
+      return fetch("/blogs/" + blogId + "/" + action, {
+        method: "POST",
+        headers: { Accept: "application/json" }
+      }).then(function (response) {
+        if (!response.ok) throw new Error("Please sign in and try again.");
+        return response.json();
+      });
+    }
+    var like = document.getElementById("blog-like");
+    var save = document.getElementById("blog-save");
+    if (like) like.addEventListener("click", function () {
+      send("like").then(function (result) {
+        like.setAttribute("aria-pressed", result.liked);
+        document.getElementById("blog-like-count").textContent = result.count;
+      }).catch(function (error) { window.alert(error.message); });
+    });
+    if (save) save.addEventListener("click", function () {
+      send("save").then(function (result) {
+        save.setAttribute("aria-pressed", result.saved);
+        save.querySelector("span").textContent = result.saved ? "Saved" : "Save";
+      }).catch(function (error) { window.alert(error.message); });
+    });
+  })();
+</script>

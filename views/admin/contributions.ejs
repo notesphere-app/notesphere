@@ -1,0 +1,62 @@
+<% layout("layouts/boilerplate") %>
+
+<main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+  <header class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <p class="text-sm font-semibold uppercase tracking-wider text-blue-700">Administration</p>
+      <h1 class="mt-1 text-3xl font-bold text-slate-900 dark:text-white">Contributions</h1>
+      <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">Payment amount, contributor, source page, and completion time.</p>
+    </div>
+    <nav class="flex flex-wrap gap-4 text-sm font-semibold text-blue-700">
+      <a href="/admin/dashboard">Dashboard</a>
+      <a href="/admin/users">Users</a>
+      <a href="/admin/auth-activity">Auth activity</a>
+    </nav>
+  </header>
+
+  <div class="mt-7 grid gap-4 md:hidden">
+    <% contributions.forEach(function (item) { %>
+      <article class="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <p class="text-2xl font-bold text-slate-900 dark:text-white">₹<%= (item.amount / 100).toLocaleString("en-IN") %></p>
+            <p class="mt-1 text-sm font-semibold"><%= item.contributorName || item.user?.name || (item.user ? "Registered user" : "Guest") %></p>
+            <p class="break-all text-sm text-slate-500"><%= item.contributorEmail || item.user?.email || "Email not provided" %></p>
+          </div>
+          <span class="rounded-full px-3 py-1 text-xs font-semibold <%= item.status === 'paid' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' %>"><%= item.status === "paid" ? "Paid" : "Not completed" %></span>
+        </div>
+        <dl class="mt-4 space-y-2 border-t pt-3 text-sm">
+          <div class="flex justify-between gap-3"><dt class="text-slate-500">Account type</dt><dd><%= item.user ? "Registered user" : "Guest" %></dd></div>
+          <div class="flex justify-between gap-3"><dt class="text-slate-500">Source page</dt><dd class="break-all text-right"><%= item.sourcePage || "Not recorded" %></dd></div>
+          <div class="flex justify-between gap-3"><dt class="text-slate-500">Payment method</dt><dd><%= item.paymentMethod || "Not supplied" %></dd></div>
+          <div class="flex justify-between gap-3"><dt class="text-slate-500">Completed</dt><dd class="text-right"><%= item.paidAt || (item.status === "paid" ? item.updatedAt : null) ? new Date(item.paidAt || item.updatedAt).toLocaleString() : "—" %></dd></div>
+          <div class="flex justify-between gap-3"><dt class="text-slate-500">Payment ID</dt><dd class="break-all text-right"><%= item.razorpayPaymentId || "—" %></dd></div>
+        </dl>
+      </article>
+    <% }) %>
+    <% if (!contributions.length) { %><p class="rounded-xl border border-dashed p-8 text-center text-slate-500">No contributions recorded.</p><% } %>
+  </div>
+
+  <div class="mt-7 hidden overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700 md:block">
+    <table class="w-full min-w-[1050px] text-left text-sm">
+      <thead class="bg-slate-50 text-xs uppercase text-slate-500 dark:bg-slate-800"><tr>
+        <th class="p-4">Amount</th><th class="p-4">Contributor</th><th class="p-4">Account</th><th class="p-4">Source page</th><th class="p-4">Method</th><th class="p-4">Status</th><th class="p-4">Completed</th><th class="p-4">Payment ID</th>
+      </tr></thead>
+      <tbody>
+        <% contributions.forEach(function (item) { %>
+          <tr class="border-t border-slate-100 align-top dark:border-slate-800">
+            <td class="p-4 font-bold">₹<%= (item.amount / 100).toLocaleString("en-IN") %></td>
+            <td class="p-4"><strong><%= item.contributorName || item.user?.name || (item.user ? "Registered user" : "Guest") %></strong><span class="block break-all text-xs text-slate-500"><%= item.contributorEmail || item.user?.email || "Email not provided" %></span></td>
+            <td class="p-4"><%= item.user ? "Registered user" : "Guest" %></td>
+            <td class="max-w-48 break-all p-4"><%= item.sourcePage || "Not recorded" %></td>
+            <td class="p-4"><%= item.paymentMethod || "—" %></td>
+            <td class="p-4"><%= item.status === "paid" ? "Paid" : "Not completed" %></td>
+            <td class="p-4"><%= item.paidAt || (item.status === "paid" ? item.updatedAt : null) ? new Date(item.paidAt || item.updatedAt).toLocaleString() : "—" %></td>
+            <td class="max-w-40 break-all p-4 text-xs"><%= item.razorpayPaymentId || "—" %></td>
+          </tr>
+        <% }) %>
+        <% if (!contributions.length) { %><tr><td colspan="8" class="p-8 text-center text-slate-500">No contributions recorded.</td></tr><% } %>
+      </tbody>
+    </table>
+  </div>
+</main>

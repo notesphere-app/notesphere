@@ -3,7 +3,20 @@ const User = require("./models/user");
 const { blogsSchema } = require("./schema.js");
 
 module.exports.isLoggedIn = (req, res, next) => {
+  if (req.isAuthenticated() && (req.user.isBlocked || !req.user.isActive)) {
+    return req.logout((error) => {
+      if (error) return next(error);
+      req.flash("error", "This account is currently unavailable.");
+      return res.redirect("/login");
+    });
+  }
   if (!req.isAuthenticated()) {
+    if (req.get("accept")?.includes("application/json")) {
+      return res.status(401).json({
+        success: false,
+        message: "Please log in to use this feature.",
+      });
+    }
     req.session.redirectUrl = req.originalUrl;
     req.flash("error", "you are not logedin!");
     return res.redirect("/login");
@@ -29,11 +42,10 @@ module.exports.isOwner = async (req, res, next) => {
 };
 
 module.exports.isAdmin = (req, res, next) => {
-  if (req.user.role !== "admin") {
+  if (!req.user || req.user.role !== "admin" || req.user.isBlocked || !req.user.isActive) {
     req.flash("warning", "You do not have permission to access this page.");
     return res.redirect("/");
   }
-  console.log("Admin access granted");
   next();
 };
 

@@ -2,12 +2,18 @@ const express = require("express");
 const router = express.Router();
 const { isLoggedIn, isAdmin } = require("../middleware");
 const adminController = require("../controllers/admin.js");
+const courseAdminController = require("../controllers/courseAdmin.js");
 const multer = require("multer");
 
 const { cloudinary, storage } = require("../Cloudconfig.js");
 const upload = multer({ storage });
 
 router.get("/dashboard", isLoggedIn, isAdmin, adminController.adminDashboard);
+router.get("/downloads", isLoggedIn, isAdmin, adminController.downloads);
+router.get("/contributions", isLoggedIn, isAdmin, adminController.contributions);
+router.get("/auth-activity", isLoggedIn, isAdmin, adminController.authActivity);
+router.get("/users", isLoggedIn, isAdmin, adminController.listUsers);
+router.patch("/users/:id", isLoggedIn, isAdmin, adminController.updateUser);
 router.get("/users/:id", isLoggedIn, isAdmin, adminController.userDetails);
 // router.route("/login").get(userController.renderLoginForm);
 router.get("/", isLoggedIn, isAdmin, adminController.index);
@@ -67,5 +73,14 @@ router.delete(
   isAdmin,
   adminController.deleteSubscriber,
 );
+
+router.get("/courses", isLoggedIn, isAdmin, courseAdminController.listCourses);
+router.post("/courses", isLoggedIn, isAdmin, courseAdminController.saveCourse);
+router.patch("/courses/:id", isLoggedIn, isAdmin, courseAdminController.saveCourse);
+router.patch("/courses/:id/toggle", isLoggedIn, isAdmin, courseAdminController.toggleCourse);
+router.get("/notes", isLoggedIn, isAdmin, courseAdminController.listNotes);
+router.patch("/notes/:id", isLoggedIn, isAdmin, courseAdminController.updateNote);
+router.patch("/notes/:id/moderate", isLoggedIn, isAdmin, courseAdminController.moderateNote);
+router.delete("/notes/:id", isLoggedIn, isAdmin, courseAdminController.deleteNote);
 
 module.exports = router;

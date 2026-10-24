@@ -1,0 +1,47 @@
+<% if (recaptchaSiteKey) { %>
+  <script src="https://www.google.com/recaptcha/api.js?render=<%= encodeURIComponent(recaptchaSiteKey) %>" async defer></script>
+<% } %>
+<script>
+  (function () {
+    var siteKey = <%- JSON.stringify(recaptchaSiteKey || "") %>;
+    window.nsGetRecaptchaToken = function (action) {
+      if (!siteKey) return Promise.resolve("");
+      return new Promise(function (resolve, reject) {
+        var attempts = 0;
+        function execute() {
+          if (window.grecaptcha && window.grecaptcha.execute) {
+            window.grecaptcha.ready(function () {
+              window.grecaptcha.execute(siteKey, { action: action })
+                .then(resolve)
+                .catch(reject);
+            });
+          } else if (attempts++ < 50) {
+            window.setTimeout(execute, 100);
+          } else {
+            reject(new Error("CAPTCHA could not load. Check your connection and try again."));
+          }
+        }
+        execute();
+      });
+    };
+
+    document.addEventListener("submit", function (event) {
+      var form = event.target;
+      var action = form && form.dataset ? form.dataset.recaptchaAction : "";
+      if (!siteKey || !action || form.dataset.recaptchaSubmitting === "true") return;
+      event.preventDefault();
+      form.dataset.recaptchaSubmitting = "true";
+      window.nsGetRecaptchaToken(action).then(function (token) {
+        var input = form.querySelector('input[name="g-recaptcha-response"]') || document.createElement("input");
+        input.type = "hidden";
+        input.name = "g-recaptcha-response";
+        input.value = token;
+        if (!input.parentNode) form.appendChild(input);
+        form.submit();
+      }).catch(function (error) {
+        form.dataset.recaptchaSubmitting = "false";
+        window.alert(error.message);
+      });
+    });
+  })();
+</script>

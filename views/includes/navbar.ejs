@@ -112,7 +112,7 @@
         </a>
       <% } else { %>
         <!-- Upload -->
-        <a href="/upload"
+        <a href="/notes/new"
            class="ml-2 inline-flex items-center gap-2 rounded-full bg-[#0878E8] px-4 py-2 text-sm font-semibold text-white
                   shadow-sm transition-all hover:bg-[#0668CC] hover:shadow-md">
           <i class="fa-solid fa-cloud-arrow-up"></i>
@@ -132,7 +132,7 @@
 
           <div id="nav-user-dropdown"
                class="invisible absolute right-0 top-full z-50 mt-2 w-72 origin-top-right scale-95 rounded-2xl border border-slate-200
-                      bg-white p-2 opacity-0 shadow-xl transition-all duration-200 ease-out
+                      max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain bg-white p-2 opacity-0 shadow-xl transition-all duration-200 ease-out
                       dark:border-slate-800 dark:bg-slate-900">
             <div class="flex items-center gap-3 rounded-xl bg-[#FBFAF7] px-3 py-3 dark:bg-slate-950">
               <%- avatarHTML(currentUser, 'h-11 w-11') %>
@@ -150,11 +150,22 @@
 
             <a href="/profile" class="nav-menu-item"><i class="fa-regular fa-user w-4 text-center"></i> My profile</a>
             <a href="/notes/mine" class="nav-menu-item"><i class="fa-solid fa-file-lines w-4 text-center"></i> My notes</a>
-            <a href="/saved/notes" class="nav-menu-item"><i class="fa-regular fa-bookmark w-4 text-center"></i> Saved notes</a>
-            <a href="/saved/blogs" class="nav-menu-item"><i class="fa-regular fa-bookmark w-4 text-center"></i> Saved blogs</a>
-            <a href="/settings" class="nav-menu-item"><i class="fa-solid fa-gear w-4 text-center"></i> Settings</a>
+            <a href="/profile#saved-notes" class="nav-menu-item"><i class="fa-regular fa-bookmark w-4 text-center"></i> Saved notes</a>
+            <a href="/profile#saved-blogs" class="nav-menu-item"><i class="fa-regular fa-bookmark w-4 text-center"></i> Saved blogs</a>
+            <a href="/profile#profile-settings" class="nav-menu-item"><i class="fa-solid fa-gear w-4 text-center"></i> Settings</a>
 
             <div class="my-2 h-px bg-slate-100 dark:bg-slate-800"></div>
+            <% if (currentUser.role === "admin") { %>
+              <p class="px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Administration</p>
+              <a href="/admin/dashboard" class="nav-menu-item"><i class="fa-solid fa-gauge-high w-4 text-center"></i> Admin dashboard</a>
+              <a href="/admin/courses" class="nav-menu-item"><i class="fa-solid fa-graduation-cap w-4 text-center"></i> Manage courses</a>
+              <a href="/admin/notes" class="nav-menu-item"><i class="fa-solid fa-file-lines w-4 text-center"></i> Manage notes</a>
+              <a href="/admin/downloads" class="nav-menu-item"><i class="fa-solid fa-download w-4 text-center"></i> Downloads</a>
+              <a href="/admin/users" class="nav-menu-item"><i class="fa-solid fa-users w-4 text-center"></i> Users</a>
+              <a href="/admin/contacts" class="nav-menu-item"><i class="fa-solid fa-inbox w-4 text-center"></i> Contacts</a>
+              <a href="/admin/subscribers" class="nav-menu-item"><i class="fa-solid fa-envelope w-4 text-center"></i> Subscribers</a>
+              <div class="my-2 h-px bg-slate-100 dark:bg-slate-800"></div>
+            <% } %>
 
             <button type="button" data-logout-trigger
               class="nav-menu-item nav-menu-item--danger w-full text-left">
@@ -203,34 +214,6 @@
     </div>
   </div>
 
-  <!-- DESKTOP SEARCH DROPDOWN -->
-  <div id="nav-search-panel"
-       class="invisible absolute inset-x-0 top-full z-40 hidden -translate-y-2 border-b border-slate-200
-              bg-[#FBFAF7] opacity-0 shadow-lg transition-all duration-200 ease-out
-              dark:border-slate-800 dark:bg-slate-950 md:block">
-    <div class="mx-auto max-w-3xl px-4 py-4 sm:px-6 lg:px-8">
-      <form action="/search" method="GET" role="search" id="nav-search-form"
-            class="flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2.5 shadow-sm
-                   focus-within:border-[#0878E8] focus-within:ring-2 focus-within:ring-[#0878E8]/25
-                   dark:border-slate-700 dark:bg-slate-900">
-        <i class="fa-solid fa-magnifying-glass text-sm text-slate-400"></i>
-        <input id="nav-search-input" type="search" name="q"
-          placeholder="Search notes, blogs, subjects…" autocomplete="off"
-          class="min-w-0 flex-1 border-0 bg-transparent text-sm text-slate-900 placeholder-slate-400
-                 focus:outline-none dark:text-white dark:placeholder-slate-500" />
-        <button type="button" id="nav-search-close" aria-label="Close search"
-          class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-slate-400
-                 transition-colors hover:bg-slate-100 hover:text-slate-700
-                 dark:hover:bg-slate-800 dark:hover:text-slate-200">
-          <i class="fa-solid fa-xmark text-sm"></i>
-        </button>
-      </form>
-      <div id="nav-search-results"
-           class="mt-3 hidden max-h-80 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-sm
-                  dark:border-slate-800 dark:bg-slate-900"></div>
-    </div>
-  </div>
-
   <!-- MOBILE SEARCH DROPDOWN -->
   <div id="mobile-search-panel"
        class="invisible absolute inset-x-0 top-full z-40 hidden -translate-y-2 border-b border-slate-200
@@ -254,6 +237,41 @@
     </div>
   </div>
 </nav>
+
+<div id="nav-search-panel"
+     class="nav-search-panel-card invisible fixed left-1/2 top-16 z-[80] hidden w-[min(48rem,calc(100vw-2rem))]
+            -translate-x-1/2 rounded-2xl border border-slate-200 bg-white p-3 opacity-0 shadow-xl
+            transition-all duration-200 ease-out dark:border-slate-800 dark:bg-slate-900">
+  <form action="/search" method="GET" role="search" id="nav-search-form"
+        class="flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 shadow-sm
+               focus-within:border-[#0878E8] focus-within:ring-2 focus-within:ring-[#0878E8]/25
+               dark:border-slate-700 dark:bg-slate-950">
+    <i class="fa-solid fa-magnifying-glass text-sm text-slate-400"></i>
+    <input id="nav-search-input" type="search" name="q"
+      placeholder="Search notes, blogs, subjects…" autocomplete="off"
+      class="min-w-0 flex-1 border-0 bg-transparent text-sm text-slate-900 placeholder-slate-400
+             focus:outline-none dark:text-white dark:placeholder-slate-500" />
+    <button type="button" id="nav-search-close" aria-label="Close search"
+      class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-slate-400
+             transition-colors hover:bg-slate-100 hover:text-slate-700
+             dark:hover:bg-slate-800 dark:hover:text-slate-200">
+      <i class="fa-solid fa-xmark text-sm"></i>
+    </button>
+  </form>
+</div>
+
+<section id="nav-search-results"
+         class="nav-search-results-card hidden overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-900"
+         aria-label="Search results">
+  <div class="flex items-center justify-between border-b border-slate-100 px-4 py-3 dark:border-slate-800">
+    <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">Search results</p>
+    <button type="button" id="nav-search-results-close" aria-label="Close search results"
+            class="flex h-8 w-8 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </div>
+  <div id="nav-search-result-items" class="max-h-[min(70vh,32rem)] overflow-y-auto p-2" aria-live="polite"></div>
+</section>
 
 <!-- =========================================
      Mobile Drawer
@@ -297,7 +315,7 @@
             </p>
           </div>
         </div>
-        <a href="/upload"
+        <a href="/notes/new"
            class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#0878E8] px-4 py-3 text-sm font-semibold text-white
                   shadow-sm transition-all hover:bg-[#0668CC]">
           <i class="fa-solid fa-cloud-arrow-up"></i> Upload notes
@@ -330,10 +348,23 @@
         <ul class="mt-2 space-y-1">
           <li><a href="/profile" class="mobile-nav-link"><i class="fa-regular fa-user w-5 text-center"></i> My profile</a></li>
           <li><a href="/notes/mine" class="mobile-nav-link"><i class="fa-solid fa-file-lines w-5 text-center"></i> My notes</a></li>
-          <li><a href="/saved/notes" class="mobile-nav-link"><i class="fa-regular fa-bookmark w-5 text-center"></i> Saved notes</a></li>
-          <li><a href="/saved/blogs" class="mobile-nav-link"><i class="fa-regular fa-bookmark w-5 text-center"></i> Saved blogs</a></li>
-          <li><a href="/settings" class="mobile-nav-link"><i class="fa-solid fa-gear w-5 text-center"></i> Settings</a></li>
+          <li><a href="/profile#saved-notes" class="mobile-nav-link"><i class="fa-regular fa-bookmark w-5 text-center"></i> Saved notes</a></li>
+          <li><a href="/profile#saved-blogs" class="mobile-nav-link"><i class="fa-regular fa-bookmark w-5 text-center"></i> Saved blogs</a></li>
+          <li><a href="/profile#profile-settings" class="mobile-nav-link"><i class="fa-solid fa-gear w-5 text-center"></i> Settings</a></li>
         </ul>
+        <% if (currentUser.role === "admin") { %>
+          <div class="my-4 h-px bg-slate-200 dark:bg-slate-800"></div>
+          <p class="px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Administration</p>
+          <ul class="mt-2 space-y-1">
+            <li><a href="/admin/dashboard" class="mobile-nav-link"><i class="fa-solid fa-gauge-high w-5 text-center"></i> Admin dashboard</a></li>
+            <li><a href="/admin/courses" class="mobile-nav-link"><i class="fa-solid fa-graduation-cap w-5 text-center"></i> Manage courses</a></li>
+            <li><a href="/admin/notes" class="mobile-nav-link"><i class="fa-solid fa-file-lines w-5 text-center"></i> Manage notes</a></li>
+            <li><a href="/admin/downloads" class="mobile-nav-link"><i class="fa-solid fa-download w-5 text-center"></i> Downloads</a></li>
+            <li><a href="/admin/users" class="mobile-nav-link"><i class="fa-solid fa-users w-5 text-center"></i> Users</a></li>
+            <li><a href="/admin/contacts" class="mobile-nav-link"><i class="fa-solid fa-inbox w-5 text-center"></i> Contacts</a></li>
+            <li><a href="/admin/subscribers" class="mobile-nav-link"><i class="fa-solid fa-envelope w-5 text-center"></i> Subscribers</a></li>
+          </ul>
+        <% } %>
       <% } %>
 
       <div class="h-4"></div>
@@ -411,6 +442,33 @@
 ========================================= -->
 <style>
   .font-script { font-family: 'Lora', serif; font-style: italic; font-weight: 600; }
+  #nav-user-dropdown { max-height: calc(100vh - 5rem); overflow-y: auto; overscroll-behavior: contain; }
+  .nav-search-panel-card {
+    position: fixed;
+    z-index: 80;
+    top: 4rem;
+    left: 50%;
+    width: min(48rem, calc(100vw - 2rem));
+    transform: translateX(-50%);
+  }
+  .nav-search-results-card {
+    position: fixed;
+    z-index: 80;
+    top: 9.5rem;
+    left: 50%;
+    width: min(48rem, calc(100vw - 2rem));
+    max-height: min(40vh, 24rem);
+    transform: translateX(-50%);
+  }
+  #nav-search-result-items { max-height: calc(50vh - 8rem); overflow-y: auto; }
+  .nav-search-panel-card { max-height: calc(100vh - 2rem); overflow-y: auto; }
+  .nav-search-results-card { max-height: calc(50vh - 4rem); }
+  @supports (height: 100dvh) {
+    #nav-user-dropdown { max-height: calc(100dvh - 5rem); }
+    .nav-search-panel-card { max-height: calc(100dvh - 2rem); }
+    .nav-search-results-card { max-height: calc(50dvh - 4rem); }
+    #nav-search-result-items { max-height: calc(50dvh - 8rem); }
+  }
 
   .nav-link {
     position: relative;
@@ -600,9 +658,19 @@
     const searchClose = document.getElementById("nav-search-close");
     const searchForm = document.getElementById("nav-search-form");
     const searchResults = document.getElementById("nav-search-results");
+    const searchResultItems = document.getElementById("nav-search-result-items");
+    const searchResultsClose = document.getElementById("nav-search-results-close");
     let searchOpen = false;
     let searchAbort = null;
     let searchDebounce = null;
+
+    function positionSearchPanels() {
+      const nav = document.getElementById("ns-navbar");
+      if (!nav) return;
+      const navBottom = Math.max(0, nav.getBoundingClientRect().bottom);
+      searchPanel.style.top = navBottom + "px";
+      searchResults.style.top = (navBottom + searchPanel.offsetHeight + 8) + "px";
+    }
 
     function openSearch() {
       if (searchOpen) return;
@@ -610,6 +678,7 @@
       closeMobileSearch();
       searchPanel.classList.remove("hidden", "invisible", "opacity-0", "-translate-y-2");
       searchPanel.classList.add("opacity-100", "translate-y-0");
+      positionSearchPanels();
       searchToggle?.setAttribute("aria-expanded", "true");
       setTimeout(function () { searchInput?.focus(); }, 80);
     }
@@ -619,7 +688,8 @@
       searchPanel.classList.add("invisible", "opacity-0", "-translate-y-2");
       searchPanel.classList.remove("opacity-100", "translate-y-0");
       searchToggle?.setAttribute("aria-expanded", "false");
-      if (searchResults) { searchResults.classList.add("hidden"); searchResults.innerHTML = ""; }
+      if (searchResults) searchResults.classList.add("hidden");
+      if (searchResultItems) searchResultItems.innerHTML = "";
       if (searchInput) searchInput.value = "";
       searchAbort?.abort();
       setTimeout(function () {
@@ -631,6 +701,9 @@
       searchOpen ? closeSearch() : openSearch();
     });
     searchClose?.addEventListener("click", function (e) { e.stopPropagation(); closeSearch(); });
+    searchResultsClose?.addEventListener("click", function () {
+      searchResults?.classList.add("hidden");
+    });
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape" && searchOpen) closeSearch();
     });
@@ -638,7 +711,8 @@
     function renderResultsInto(container, items) {
       if (!items || !items.length) {
         container.innerHTML = '<p class="px-3 py-6 text-center text-sm text-slate-400">No results found.</p>';
-        container.classList.remove("hidden");
+        searchResults?.classList.remove("hidden");
+        positionSearchPanels();
         return;
       }
       container.innerHTML = items.map(function (item) {
@@ -650,7 +724,7 @@
           '</span>' +
         '</a>';
       }).join("");
-      container.classList.remove("hidden");
+      searchResults?.classList.remove("hidden");
     }
 
     function runSearch(q, resultsEl) {
@@ -671,7 +745,10 @@
       const q = searchInput.value.trim();
       clearTimeout(searchDebounce);
       if (!q) { searchResults?.classList.add("hidden"); return; }
-      searchDebounce = setTimeout(function () { runSearch(q, searchResults); }, 200);
+      searchDebounce = setTimeout(function () { runSearch(q, searchResultItems); }, 200);
+    });
+    window.addEventListener("resize", function () {
+      if (searchOpen) positionSearchPanels();
     });
     searchForm?.addEventListener("submit", function (e) {
       if (!searchInput?.value.trim()) e.preventDefault();

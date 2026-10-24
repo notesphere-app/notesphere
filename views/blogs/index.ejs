@@ -8,13 +8,16 @@
 const categories = [
   { id: "all",        label: "All",            icon: "fa-layer-group" },
   { id: "study-tips", label: "Study tips",     icon: "fa-lightbulb" },
-  { id: "notes",      label: "Note-taking",    icon: "fa-pen-nib" },
-  { id: "exams",      label: "Exams",          icon: "fa-graduation-cap" },
-  { id: "college",    label: "College life",   icon: "fa-building-columns" },
-  { id: "product",    label: "Product",        icon: "fa-cube" },
+  { id: "exam-preparation", label: "Exam preparation", icon: "fa-graduation-cap" },
+  { id: "note-taking", label: "Note-taking", icon: "fa-pen-nib" },
+  { id: "course-guides", label: "Course guides", icon: "fa-book-open" },
+  { id: "campus-life", label: "Campus life", icon: "fa-building-columns" },
+  { id: "student-skills", label: "Student skills", icon: "fa-user-graduate" },
+  { id: "notesphere-updates", label: "NoteSphere updates", icon: "fa-circle-info" },
+  { id: "other", label: "Other", icon: "fa-ellipsis" },
 ];
 
-const featuredBlog = {
+const sampleFeaturedBlog = {
   title: "How I scored 9.2 CGPA using only shared notes",
   excerpt: "I stopped handwriting everything and started downloading what seniors had already made. Here's the exact routine I followed for every exam — and what I'd do differently next semester.",
   cover: "https://picsum.photos/seed/ns-blog-featured/1200/700",
@@ -28,12 +31,12 @@ const featuredBlog = {
   comments: 48,
 };
 
-const blogs = [
+const sampleBlogs = [
   {
     title: "Why handwritten notes still beat typed ones for revision",
     excerpt: "Digital is faster, but paper forces your brain to slow down. A short case for mixing the two.",
     cover: "https://picsum.photos/seed/ns-blog-2/800/500",
-    category: "notes",
+    category: "note-taking",
     categoryLabel: "Note-taking",
     author: "Arjun Verma",
     avatar: "https://i.pravatar.cc/64?img=15",
@@ -59,7 +62,7 @@ const blogs = [
     title: "A semester of shared class notes, one year later",
     excerpt: "What held up, what got abandoned, and what we'd set up differently if we started again.",
     cover: "https://picsum.photos/seed/ns-blog-4/800/500",
-    category: "college",
+    category: "campus-life",
     categoryLabel: "College life",
     author: "Ishaan Kulkarni",
     avatar: "https://i.pravatar.cc/64?img=22",
@@ -72,7 +75,7 @@ const blogs = [
     title: "How to check if a PDF is actually worth downloading",
     excerpt: "Page count, handwriting quality, whether it covers the full syllabus — a quick checklist before you commit.",
     cover: "https://picsum.photos/seed/ns-blog-5/800/500",
-    category: "notes",
+    category: "note-taking",
     categoryLabel: "Note-taking",
     author: "Divya Menon",
     avatar: "https://i.pravatar.cc/64?img=36",
@@ -85,8 +88,8 @@ const blogs = [
     title: "The last-week revision plan that actually works",
     excerpt: "Seven days, five subjects, zero panic. Here's how to schedule your last week before exams.",
     cover: "https://picsum.photos/seed/ns-blog-6/800/500",
-    category: "exams",
-    categoryLabel: "Exams",
+    category: "exam-preparation",
+    categoryLabel: "Exam Preparation",
     author: "Rohan Gupta",
     avatar: "https://i.pravatar.cc/64?img=19",
     date: "Sep 3, 2026",
@@ -98,8 +101,8 @@ const blogs = [
     title: "Why I upload my notes (even the messy ones)",
     excerpt: "Publishing rough notes felt exposing at first. It turned out to be the whole point.",
     cover: "https://picsum.photos/seed/ns-blog-7/800/500",
-    category: "college",
-    categoryLabel: "College life",
+    category: "campus-life",
+    categoryLabel: "Campus Life",
     author: "Meera Iyer",
     avatar: "https://i.pravatar.cc/64?img=32",
     date: "Aug 29, 2026",
@@ -111,8 +114,8 @@ const blogs = [
     title: "New: search across a year of notes in one go",
     excerpt: "A quick walkthrough of the new full-text search — including how to combine it with tags.",
     cover: "https://picsum.photos/seed/ns-blog-8/800/500",
-    category: "product",
-    categoryLabel: "Product",
+    category: "notesphere-updates",
+    categoryLabel: "NoteSphere Updates",
     author: "NoteSphere Team",
     avatar: "https://i.pravatar.cc/64?img=68",
     date: "Aug 25, 2026",
@@ -137,8 +140,8 @@ const blogs = [
     title: "How our team replaced status meetings with shared notes",
     excerpt: "One shared doc, updated async, cut our weekly meeting load by half.",
     cover: "https://picsum.photos/seed/ns-blog-10/800/500",
-    category: "product",
-    categoryLabel: "Product",
+    category: "notesphere-updates",
+    categoryLabel: "NoteSphere Updates",
     author: "Kabir Malhotra",
     avatar: "https://i.pravatar.cc/64?img=51",
     date: "Aug 18, 2026",
@@ -150,7 +153,7 @@ const blogs = [
     title: "Writing notes your future self can actually use",
     excerpt: "The difference between a note you understand today and one you'll understand in six months.",
     cover: "https://picsum.photos/seed/ns-blog-11/800/500",
-    category: "notes",
+    category: "note-taking",
     categoryLabel: "Note-taking",
     author: "Farah Sheikh",
     avatar: "https://i.pravatar.cc/64?img=44",
@@ -163,8 +166,8 @@ const blogs = [
     title: "What I learned writing in public for a year",
     excerpt: "Publishing rough notes felt exposing at first. It turned out to be the whole point.",
     cover: "https://picsum.photos/seed/ns-blog-12/800/500",
-    category: "college",
-    categoryLabel: "College life",
+    category: "campus-life",
+    categoryLabel: "Campus Life",
     author: "Yash Thakur",
     avatar: "https://i.pravatar.cc/64?img=8",
     date: "Aug 10, 2026",
@@ -174,7 +177,31 @@ const blogs = [
   },
 ];
 
-const popularBlogs = [
+const blogPosts = (allBlogs || []).map(function (blog) {
+  const title = blog.title || "Untitled article";
+  const categoryLabel = blog.category || "General";
+  const category = categoryLabel.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const body = blog.shortdescription || "";
+  const wordCount = (blog.content || "").trim().split(/\s+/).filter(Boolean).length;
+  return {
+    slug: blog.id || String(blog._id),
+    title,
+    excerpt: body,
+    cover: blog.image?.url || "/images/logo.png",
+    category,
+    categoryLabel,
+    author: blog.author?.name || blog.author?.username || "Notesphere author",
+    avatar: blog.author?.avatar || "/images/logo.png",
+    date: new Date(blog.createdAt).toLocaleDateString(),
+    readTime: `${Math.max(1, Math.ceil(wordCount / 200))} min read`,
+    likes: blog.likes?.length || 0,
+    comments: blog.comments?.length || 0,
+  };
+});
+const blogs = blogPosts.length ? blogPosts : sampleBlogs;
+const featuredBlog = blogPosts[0] || sampleFeaturedBlog;
+
+const popularBlogs = blogPosts.length ? blogPosts.slice(0, 3) : [
   { title: "How I scored 9.2 CGPA using only shared notes", date: "Sep 21, 2026", readTime: "8 min read", cover: "https://picsum.photos/seed/ns-blog-featured/200/200" },
   { title: "The last-week revision plan that actually works", date: "Sep 3, 2026", readTime: "9 min read", cover: "https://picsum.photos/seed/ns-blog-6/200/200" },
   { title: "New: search across a year of notes in one go", date: "Aug 25, 2026", readTime: "3 min read", cover: "https://picsum.photos/seed/ns-blog-8/200/200" },
@@ -236,7 +263,7 @@ const popularTags = [
       <i class="fa-solid fa-star text-amber-500"></i> Featured
     </div>
 
-    <a href="/blogs/<%= featuredBlog.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') %>"
+    <a href="/blogs/<%= featuredBlog.slug || featuredBlog.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') %>"
        class="featured-card group grid overflow-hidden rounded-3xl bg-[#FBFAF7] shadow-sm ring-1 ring-slate-200/70
               transition-all hover:shadow-xl dark:bg-slate-950 dark:ring-slate-800
               md:grid-cols-2"
@@ -317,7 +344,7 @@ const popularTags = [
         data-tags="<%= post.categoryLabel.toLowerCase() %>"
         data-reveal data-reveal-delay="<%= (i % 3) * 80 %>"
       >
-        <a href="/blogs/<%= post.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') %>"
+        <a href="/blogs/<%= post.slug || post.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') %>"
            class="relative block overflow-hidden h-44 sm:h-48">
           <img src="<%= post.cover %>" alt=""
                class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
@@ -328,7 +355,7 @@ const popularTags = [
         </a>
 
         <div class="flex flex-1 flex-col p-5">
-          <a href="/blogs/<%= post.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') %>" class="block">
+          <a href="/blogs/<%= post.slug || post.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') %>" class="block">
             <h3 class="line-clamp-2 text-base font-semibold text-[#022E5A] transition-colors group-hover:text-[#0878E8] dark:text-white">
               <%= post.title %>
             </h3>
@@ -389,7 +416,7 @@ const popularTags = [
 
         <div class="space-y-3">
           <% popularBlogs.forEach(function (p, i) { %>
-            <a href="/blogs/<%= p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') %>"
+            <a href="/blogs/<%= p.slug || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') %>"
                class="popular-item group flex items-center gap-4 rounded-2xl bg-[#FBFAF7] p-3 ring-1 ring-slate-200/70
                       transition-all hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-950 dark:ring-slate-800">
               <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0878E8]/10 text-xs font-bold text-[#0878E8]">
@@ -449,6 +476,13 @@ const popularTags = [
               <i class="fa-solid fa-arrow-right"></i>
             </button>
           </form>
+          <div id="blog-newsletter-verification" class="mt-3 hidden">
+            <label for="blog-newsletter-otp" class="text-xs text-white/90">Enter the 6-digit code sent to your email</label>
+            <div class="mt-1 flex gap-2">
+              <input id="blog-newsletter-otp" inputmode="numeric" maxlength="6" class="min-w-0 flex-1 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm text-white" />
+              <button type="button" id="blog-newsletter-verify" class="rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#022E5A]">Verify</button>
+            </div>
+          </div>
           <p id="blog-newsletter-msg" class="mt-3 hidden text-xs"></p>
         </div>
       </aside>
@@ -729,8 +763,23 @@ const popularTags = [
     (function newsletter() {
       var form = document.getElementById('blog-newsletter');
       var msg  = document.getElementById('blog-newsletter-msg');
-      if (!form || !msg) return;
+      var verification = document.getElementById('blog-newsletter-verification');
+      var verifyButton = document.getElementById('blog-newsletter-verify');
+      var pendingEmail = '';
+      if (!form || !msg || !verification || !verifyButton) return;
 
+      function request(url, body) {
+        return fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(body)
+        }).then(function (response) {
+          return response.json().then(function (result) {
+            if (!response.ok) throw new Error(result.message || 'Request failed.');
+            return result;
+          });
+        });
+      }
       form.addEventListener('submit', function (e) {
         e.preventDefault();
         var email = form.querySelector('input[name="email"]');
@@ -746,25 +795,46 @@ const popularTags = [
         }
 
         var btn = form.querySelector('button[type="submit"]');
-        var original = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
-
-        fetch('/subscribe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify({ email: value })
-        })
-        .catch(function () { return null; })
-        .then(function () {
-          msg.textContent = 'Thanks! Check your inbox to confirm.';
+        request('/subscribe', { email: value }).then(function (result) {
+          if (result.verificationRequired) {
+            pendingEmail = result.email || value;
+            verification.classList.remove('hidden');
+          } else {
+            form.reset();
+            pendingEmail = '';
+            verification.classList.add('hidden');
+          }
+          msg.textContent = result.message;
           msg.classList.add('text-emerald-300');
-          form.reset();
-        })
-        .finally(function () {
+        }).catch(function (error) {
+          msg.textContent = error.message || 'Unable to subscribe. Please try again.';
+          msg.classList.add('text-rose-300');
+        }).finally(function () {
           btn.disabled = false;
-          btn.innerHTML = original;
         });
+      });
+      verifyButton.addEventListener('click', function () {
+        var otp = document.getElementById('blog-newsletter-otp').value.trim();
+        if (!pendingEmail || !/^\d{6}$/.test(otp)) {
+          msg.textContent = 'Enter the 6-digit code sent to your email.';
+          msg.classList.remove('hidden', 'text-emerald-300');
+          msg.classList.add('text-rose-300');
+          return;
+        }
+        verifyButton.disabled = true;
+        request('/subscribe/verify', { email: pendingEmail, otp: otp }).then(function (result) {
+          msg.textContent = result.message;
+          msg.classList.remove('hidden', 'text-rose-300');
+          msg.classList.add('text-emerald-300');
+          verification.classList.add('hidden');
+          form.reset();
+          pendingEmail = '';
+        }).catch(function (error) {
+          msg.textContent = error.message || 'Unable to verify this code.';
+          msg.classList.remove('hidden', 'text-emerald-300');
+          msg.classList.add('text-rose-300');
+        }).finally(function () { verifyButton.disabled = false; });
       });
     })();
 

@@ -1,417 +1,139 @@
 <% layout("layouts/boilerplate") %>
 
-<div class="container mx-auto px-4 py-8 dark:bg-gray-900 transition-colors duration-200">
-  <!-- Page Header -->
-  <div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold text-gray-800 dark:text-white">User Details</h1>
-    <div class="space-x-2">
-      <a href="/admin/users" class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 text-white font-medium rounded-lg transition duration-150">
-        <i class="fas fa-arrow-left mr-2"></i> Back to Users
-      </a>
-      <a href="/admin/users/edit/<%= user._id %>" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-medium rounded-lg transition duration-150">
-        <i class="fas fa-edit mr-2"></i> Edit User
-      </a>
-    </div>
+<main class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+  <a href="/admin/users" class="text-sm font-semibold text-blue-700 hover:underline">← Back to users</a>
+  <header class="mt-4">
+    <p class="text-sm font-semibold uppercase tracking-wider text-blue-700">Administrator view</p>
+    <h1 class="mt-1 text-3xl font-bold text-slate-900 dark:text-white"><%= user.name %></h1>
+    <p class="mt-2 break-all text-slate-600 dark:text-slate-300"><%= user.email || "No email" %> · <%= user.role %> · <%= user.isVerified ? "Verified" : "Unverified" %></p>
+    <nav class="mt-3 flex flex-wrap gap-4 text-sm font-semibold text-blue-700"><a href="/admin/auth-activity">All auth activity</a><a href="/admin/contributions">All contributions</a></nav>
+  </header>
+
+  <div class="mt-8 grid gap-6 md:grid-cols-2">
+    <section class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+      <h2 class="text-lg font-bold">Account details</h2>
+      <dl class="mt-4 space-y-3 text-sm">
+        <div class="flex justify-between gap-4"><dt class="text-slate-500">Mobile</dt><dd><%= user.mobile || "—" %></dd></div>
+        <div class="flex justify-between gap-4"><dt class="text-slate-500">University</dt><dd><%= user.university || "—" %></dd></div>
+        <div class="flex justify-between gap-4"><dt class="text-slate-500">College</dt><dd><%= user.college || "—" %></dd></div>
+        <div class="flex justify-between gap-4"><dt class="text-slate-500">Account status</dt><dd><%= user.isBlocked ? "Blocked" : user.isActive ? "Active" : "Inactive" %></dd></div>
+        <div class="flex justify-between gap-4"><dt class="text-slate-500">Joined</dt><dd><%= user.createdAt ? new Date(user.createdAt).toLocaleString() : "—" %></dd></div>
+      </dl>
+    </section>
+
+    <section class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+      <h2 class="text-lg font-bold">Recent sign-ins</h2>
+      <% if (user.loginHistory?.length) { %>
+        <ul class="mt-4 space-y-3 text-sm">
+          <% user.loginHistory.slice().reverse().forEach(function (entry) { %>
+            <li class="border-b pb-2 last:border-0"><%= entry.method %> · <%= entry.device || "unknown device" %><time class="block text-xs text-slate-500"><%= new Date(entry.loggedInAt).toLocaleString() %></time></li>
+          <% }) %>
+        </ul>
+      <% } else { %><p class="mt-3 text-sm text-slate-500">No sign-in history.</p><% } %>
+    </section>
   </div>
 
-  <!-- User Status Cards -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-    <!-- Status Card -->
-    <div class="bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 rounded-lg shadow-lg dark:shadow-gray-900/30 p-6">
-      <h5 class="text-white text-sm font-medium uppercase tracking-wider mb-2">Status</h5>
-      <div>
-        <% if(user.isActive && !user.isBlocked) { %>
-          <span class="inline-flex px-3 py-1 bg-green-500 dark:bg-green-600 text-white text-sm font-semibold rounded-full">Active</span>
-        <% } else if(user.isBlocked) { %>
-          <span class="inline-flex px-3 py-1 bg-red-500 dark:bg-red-600 text-white text-sm font-semibold rounded-full">Blocked</span>
-        <% } else { %>
-          <span class="inline-flex px-3 py-1 bg-yellow-500 dark:bg-yellow-600 text-white text-sm font-semibold rounded-full">Inactive</span>
-        <% } %>
-      </div>
-    </div>
+  <section class="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+    <h2 class="text-lg font-bold">Authentication activity (<%= authActivities.length %>)</h2>
+    <p class="mt-1 text-xs text-slate-500">Passwords and reset tokens are never stored. IP addresses are represented only by keyed hashes.</p>
+    <ul class="mt-4 divide-y dark:divide-slate-700">
+      <% authActivities.forEach(function (activity) { %>
+        <li class="flex flex-col justify-between gap-2 py-3 text-sm sm:flex-row sm:items-start">
+          <div><strong><%= activity.event === "login" ? "Login attempt" : "Password reset" %></strong> · <%= activity.outcome %><p class="mt-1 text-slate-600 dark:text-slate-300"><%= activity.details || "—" %> · <%= activity.device %> / <%= activity.browser %></p></div>
+          <time class="shrink-0 text-xs text-slate-500"><%= new Date(activity.createdAt).toLocaleString() %></time>
+        </li>
+      <% }) %>
+      <% if (!authActivities.length) { %><li class="py-3 text-sm text-slate-500">No authentication events recorded.</li><% } %>
+    </ul>
+  </section>
 
-    <!-- Role Card -->
-    <div class="bg-gradient-to-br from-cyan-500 to-cyan-600 dark:from-cyan-600 dark:to-cyan-700 rounded-lg shadow-lg dark:shadow-gray-900/30 p-6">
-      <h5 class="text-white text-sm font-medium uppercase tracking-wider mb-2">Role</h5>
-      <span class="inline-flex px-3 py-1 bg-gray-800 dark:bg-gray-900 text-white text-sm font-semibold rounded-full"><%= user.role.toUpperCase() %></span>
-    </div>
+  <section class="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+    <h2 class="text-lg font-bold">Edit account</h2>
+    <p class="mt-1 text-sm text-slate-500">Email and authentication credentials are not editable from this screen.</p>
+    <form action="/admin/users/<%= user._id %>" method="POST" class="mt-4 grid gap-4 sm:grid-cols-2">
+      <input type="hidden" name="_method" value="PATCH">
+      <label class="text-sm font-semibold">Name<input name="name" required maxlength="100" value="<%= user.name %>" class="mt-1 w-full rounded-lg border px-3 py-2 dark:bg-slate-950"></label>
+      <label class="text-sm font-semibold">Mobile<input name="mobile" maxlength="20" value="<%= user.mobile || '' %>" class="mt-1 w-full rounded-lg border px-3 py-2 dark:bg-slate-950"></label>
+      <label class="text-sm font-semibold">University<input name="university" maxlength="160" value="<%= user.university || '' %>" class="mt-1 w-full rounded-lg border px-3 py-2 dark:bg-slate-950"></label>
+      <label class="text-sm font-semibold">College<input name="college" maxlength="160" value="<%= user.college || '' %>" class="mt-1 w-full rounded-lg border px-3 py-2 dark:bg-slate-950"></label>
+      <label class="text-sm font-semibold">Role<select name="role" class="mt-1 w-full rounded-lg border px-3 py-2 dark:bg-slate-950"><option value="user" <%= user.role === "user" ? "selected" : "" %>>User</option><option value="admin" <%= user.role === "admin" ? "selected" : "" %>>Admin</option></select></label>
+      <label class="text-sm font-semibold">Active<select name="isActive" class="mt-1 w-full rounded-lg border px-3 py-2 dark:bg-slate-950"><option value="true" <%= user.isActive ? "selected" : "" %>>Yes</option><option value="false" <%= !user.isActive ? "selected" : "" %>>No</option></select></label>
+      <label class="text-sm font-semibold">Blocked<select name="isBlocked" class="mt-1 w-full rounded-lg border px-3 py-2 dark:bg-slate-950"><option value="true" <%= user.isBlocked ? "selected" : "" %>>Yes</option><option value="false" <%= !user.isBlocked ? "selected" : "" %>>No</option></select></label>
+      <label class="text-sm font-semibold">Email verified<select name="isVerified" class="mt-1 w-full rounded-lg border px-3 py-2 dark:bg-slate-950"><option value="true" <%= user.isVerified ? "selected" : "" %>>Yes</option><option value="false" <%= !user.isVerified ? "selected" : "" %>>No</option></select></label>
+      <button class="rounded-full bg-blue-600 px-5 py-2.5 font-semibold text-white sm:col-span-2 sm:justify-self-start">Save account changes</button>
+    </form>
+  </section>
 
-    <!-- Enrolled Courses Card -->
-    <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 dark:from-emerald-600 dark:to-emerald-700 rounded-lg shadow-lg dark:shadow-gray-900/30 p-6">
-      <h5 class="text-white text-sm font-medium uppercase tracking-wider mb-2">Enrolled Courses</h5>
-      <p class="text-white text-3xl font-bold"><%= enrolledCourses.length %></p>
-    </div>
+  <section class="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+    <h2 class="text-lg font-bold">Notes by this user (<%= notes.length %>)</h2>
+    <ul class="mt-4 divide-y dark:divide-slate-700">
+      <% notes.forEach(function (note) { %><li class="flex flex-wrap justify-between gap-2 py-3 text-sm"><a href="/admin/notes" class="font-semibold text-blue-700 hover:underline"><%= note.title %></a><span><%= note.course %> · <%= note.subject %> · <%= note.isPublished ? "Published" : "Hidden" %></span></li><% }) %>
+      <% if (!notes.length) { %><li class="py-3 text-sm text-slate-500">No submitted notes.</li><% } %>
+    </ul>
+  </section>
 
-    <!-- Certificates Card -->
-    <div class="bg-gradient-to-br from-amber-500 to-amber-600 dark:from-amber-600 dark:to-amber-700 rounded-lg shadow-lg dark:shadow-gray-900/30 p-6">
-      <h5 class="text-white text-sm font-medium uppercase tracking-wider mb-2">Certificates</h5>
-      <p class="text-white text-3xl font-bold"><%= certificates.length %></p>
-    </div>
+  <div class="mt-6 grid gap-6 lg:grid-cols-2">
+    <section class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+      <h2 class="text-lg font-bold">Saved notes (<%= user.savedNotes?.length || 0 %>) and likes (<%= likedNotes.length %>)</h2>
+      <ul class="mt-4 space-y-2 text-sm">
+        <% (user.savedNotes || []).forEach(function (note) { %><li><a class="text-blue-700 hover:underline" href="/notes/<%= note._id %>"><%= note.title %></a> <span class="text-slate-500">· saved</span></li><% }) %>
+        <% likedNotes.forEach(function (note) { %><li><a class="text-blue-700 hover:underline" href="/notes/<%= note._id %>"><%= note.title %></a> <span class="text-slate-500">· liked</span></li><% }) %>
+        <% if (!user.savedNotes?.length && !likedNotes.length) { %><li class="text-slate-500">No saved or liked notes.</li><% } %>
+      </ul>
+    </section>
+    <section class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+      <h2 class="text-lg font-bold">Saved and liked articles (<%= user.savedBlogs?.length || 0 %> saved · <%= likedBlogs.length %> liked)</h2>
+      <ul class="mt-4 space-y-2 text-sm">
+        <% (user.savedBlogs || []).forEach(function (blog) { %><li><a class="text-blue-700 hover:underline" href="/blogs/<%= blog.id || blog._id %>"><%= blog.title %></a> <span class="text-slate-500">· saved</span></li><% }) %>
+        <% likedBlogs.forEach(function (blog) { %><li><a class="text-blue-700 hover:underline" href="/blogs/<%= blog.id || blog._id %>"><%= blog.title %></a> <span class="text-slate-500">· liked</span></li><% }) %>
+        <% if (!user.savedBlogs?.length && !likedBlogs.length) { %><li class="text-slate-500">No saved or liked articles.</li><% } %>
+      </ul>
+    </section>
   </div>
 
-  <!-- Main Content Grid -->
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <!-- Left Column - User Information -->
-    <div class="lg:col-span-1 space-y-6">
-      <!-- User Profile Card -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-900/30 overflow-hidden transition-colors duration-200">
-        <div class="bg-gray-50 dark:bg-gray-700/50 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h6 class="font-semibold text-gray-700 dark:text-gray-200">Profile Information</h6>
-        </div>
-        <div class="p-6">
-          <div class="text-center w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
-            <!-- <img src="<%= user.profileImage || '/images/default-avatar.png' %>" 
-                 class="w-32 h-32 rounded-full mx-auto object-cover border-4 border-gray-200 dark:border-gray-700" 
-                 alt="Profile Picture"> -->
-                 <%= currUser.name ? currUser.name.charAt(0).toUpperCase() : 'A' %>
-          </div>
-          
-          <div class="space-y-3">
-            <div class="flex border-b border-gray-100 dark:border-gray-700 pb-2">
-              <span class="w-1/3 text-gray-600 dark:text-gray-400 font-medium">Name:</span>
-              <span class="w-2/3 text-gray-800 dark:text-gray-200"><%= user.name %></span>
-            </div>
-            <div class="flex border-b border-gray-100 dark:border-gray-700 pb-2">
-              <span class="w-1/3 text-gray-600 dark:text-gray-400 font-medium">Email:</span>
-              <span class="w-2/3 text-gray-800 dark:text-gray-200"><%= user.email || 'Not provided' %></span>
-            </div>
-            <div class="flex border-b border-gray-100 dark:border-gray-700 pb-2">
-              <span class="w-1/3 text-gray-600 dark:text-gray-400 font-medium">Mobile:</span>
-              <span class="w-2/3 text-gray-800 dark:text-gray-200"><%= user.mobile || 'Not provided' %></span>
-            </div>
-            <div class="flex border-b border-gray-100 dark:border-gray-700 pb-2">
-              <span class="w-1/3 text-gray-600 dark:text-gray-400 font-medium">Joined:</span>
-              <span class="w-2/3 text-gray-800 dark:text-gray-200"><%= new Date(user.createdAt).toLocaleDateString() %></span>
-            </div>
-            <div class="flex border-b border-gray-100 dark:border-gray-700 pb-2">
-              <span class="w-1/3 text-gray-600 dark:text-gray-400 font-medium">Last Updated:</span>
-              <span class="w-2/3 text-gray-800 dark:text-gray-200"><%= new Date(user.updatedAt).toLocaleDateString() %></span>
-            </div>
-            <div class="flex border-b border-gray-100 dark:border-gray-700 pb-2">
-              <span class="w-1/3 text-gray-600 dark:text-gray-400 font-medium">Email Verified:</span>
-              <span class="w-2/3">
-                <% if(user.isVerified) { %>
-                  <span class="inline-flex px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 text-xs font-medium rounded-full">Yes</span>
-                <% } else { %>
-                  <span class="inline-flex px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 text-xs font-medium rounded-full">No</span>
-                <% } %>
-              </span>
-            </div>
-            <div class="flex border-b border-gray-100 dark:border-gray-700 pb-2">
-              <span class="w-1/3 text-gray-600 dark:text-gray-400 font-medium">Google Account:</span>
-              <span class="w-2/3">
-                <% if(user.googleId) { %>
-                  <span class="inline-flex px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 text-xs font-medium rounded-full">Connected</span>
-                <% } else { %>
-                  <span class="inline-flex px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 text-xs font-medium rounded-full">Not Connected</span>
-                <% } %>
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Teacher Profile (if user is teacher) -->
-      <% if(teacherProfile) { %>
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-900/30 overflow-hidden transition-colors duration-200">
-        <div class="bg-gray-50 dark:bg-gray-700/50 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h6 class="font-semibold text-gray-700 dark:text-gray-200">Teacher Profile</h6>
-        </div>
-        <div class="p-6">
-          <div class="space-y-3">
-            <div class="flex border-b border-gray-100 dark:border-gray-700 pb-2">
-              <span class="w-2/5 text-gray-600 dark:text-gray-400 font-medium">Profession:</span>
-              <span class="w-3/5 text-gray-800 dark:text-gray-200"><%= teacherProfile.profession || 'Not specified' %></span>
-            </div>
-            <div class="flex border-b border-gray-100 dark:border-gray-700 pb-2">
-              <span class="w-2/5 text-gray-600 dark:text-gray-400 font-medium">Experience:</span>
-              <span class="w-3/5 text-gray-800 dark:text-gray-200"><%= teacherProfile.experiance || 'Not specified' %></span>
-            </div>
-            <div class="flex border-b border-gray-100 dark:border-gray-700 pb-2">
-              <span class="w-2/5 text-gray-600 dark:text-gray-400 font-medium">Previous Organisation:</span>
-              <span class="w-3/5 text-gray-800 dark:text-gray-200"><%= teacherProfile.priviousOrganisation || 'Not specified' %></span>
-            </div>
-            <div class="flex border-b border-gray-100 dark:border-gray-700 pb-2">
-              <span class="w-2/5 text-gray-600 dark:text-gray-400 font-medium">Rating:</span>
-              <span class="w-3/5 text-gray-800 dark:text-gray-200">
-                <% if(teacherProfile.ratting) { %>
-                  <span class="text-yellow-400 dark:text-yellow-500">
-                    <% for(let i = 0; i < Math.floor(teacherProfile.ratting); i++) { %>★<% } %>
-                  </span>
-                  (<%= teacherProfile.ratting %>)
-                <% } else { %>
-                  No ratings yet
-                <% } %>
-              </span>
-            </div>
-            <div class="flex border-b border-gray-100 dark:border-gray-700 pb-2">
-              <span class="w-2/5 text-gray-600 dark:text-gray-400 font-medium">Teacher Status:</span>
-              <span class="w-3/5">
-                <% if(teacherProfile.isActive) { %>
-                  <span class="inline-flex px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 text-xs font-medium rounded-full">Active</span>
-                <% } else { %>
-                  <span class="inline-flex px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400 text-xs font-medium rounded-full">Inactive</span>
-                <% } %>
-              </span>
-            </div>
-            <div class="flex">
-              <span class="w-2/5 text-gray-600 dark:text-gray-400 font-medium">About:</span>
-              <span class="w-3/5 text-gray-800 dark:text-gray-200"><%= teacherProfile.about || 'No description' %></span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <% } %>
-    </div>
-
-    <!-- Right Column - Tabs -->
-    <div class="lg:col-span-2">
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-900/30 overflow-hidden transition-colors duration-200">
-        <!-- Tab Navigation -->
-        <div class="bg-gray-50 dark:bg-gray-700/50 px-6 py-3 border-b border-gray-200 dark:border-gray-700">
-          <div class="flex space-x-1" id="userTabs" role="tablist">
-            <button class="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-800 rounded-t-lg border-b-2 border-blue-600 dark:border-blue-400 active" 
-                    id="enrolled-tab" data-bs-toggle="tab" data-bs-target="#enrolled" type="button" role="tab">
-              <i class="fas fa-graduation-cap mr-2"></i> Enrolled Courses
-            </button>
-            
-            <% if(user.role === 'teacher') { %>
-            <button class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-t-lg" 
-                    id="teaching-tab" data-bs-toggle="tab" data-bs-target="#teaching" type="button" role="tab">
-              <i class="fas fa-chalkboard-teacher mr-2"></i> Teaching Courses
-            </button>
-            <% } %>
-            
-            <button class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-t-lg" 
-                    id="certificates-tab" data-bs-toggle="tab" data-bs-target="#certificates" type="button" role="tab">
-              <i class="fas fa-certificate mr-2"></i> Certificates
-            </button>
-            
-            <button class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-t-lg" 
-                    id="messages-tab" data-bs-toggle="tab" data-bs-target="#messages" type="button" role="tab">
-              <i class="fas fa-envelope mr-2"></i> Contact Messages
-            </button>
-          </div>
-        </div>
-        
-        <!-- Tab Content -->
-        <div class="p-6">
-          <!-- Enrolled Courses Tab -->
-          <div class="block" id="enrolled" role="tabpanel">
-            <h6 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Courses Enrolled (<%= enrolledCourses.length %>)</h6>
-            
-            <% if(enrolledCourses.length > 0) { %>
-              <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead class="bg-gray-50 dark:bg-gray-700">
-                    <tr>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Course Title</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Teacher</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Enrolled Date</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Paid Price</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                    <% enrolledCourses.forEach(course => { %>
-                      <% 
-                        const studentEnrollment = course.students.find(s => 
-                          s.user.toString() === user._id.toString()
-                        );
-                      %>
-                      <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-150">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                          <a href="/courses/<%= course._id %>" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"><%= course.title %></a>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-gray-600 dark:text-gray-300">
-                          <%= course.teacher?.name || 'N/A' %>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-gray-600 dark:text-gray-300">
-                          <%= new Date(studentEnrollment.enrolledAt).toLocaleDateString() %>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-gray-600 dark:text-gray-300">$<%= studentEnrollment.paidPrice %></td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                          <% if(studentEnrollment.isSeen) { %>
-                            <span class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 text-xs font-medium rounded-full">Seen</span>
-                          <% } else { %>
-                            <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 text-xs font-medium rounded-full">Not Seen</span>
-                          <% } %>
-                        </td>
-                      </tr>
-                    <% }) %>
-                  </tbody>
-                </table>
-              </div>
-            <% } else { %>
-              <p class="text-gray-500 dark:text-gray-400 text-center py-8">No courses enrolled yet.</p>
-            <% } %>
-          </div>
-          
-          <!-- Teaching Courses Tab -->
-          <% if(user.role === 'teacher') { %>
-          <div class="hidden" id="teaching" role="tabpanel">
-            <h6 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Courses Teaching (<%= teachingCourses.length %>)</h6>
-            
-            <% if(teachingCourses.length > 0) { %>
-              <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead class="bg-gray-50 dark:bg-gray-700">
-                    <tr>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Course Title</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Type</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Price</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Students</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                    <% teachingCourses.forEach(course => { %>
-                      <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-150">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                          <a href="/courses/<%= course._id %>" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"><%= course.title %></a>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-gray-600 dark:text-gray-300"><%= course.courceType %></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-gray-600 dark:text-gray-300">$<%= course.price %></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-gray-600 dark:text-gray-300"><%= course.students.length %></td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                          <% if(course.isActive) { %>
-                            <span class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 text-xs font-medium rounded-full">Active</span>
-                          <% } else { %>
-                            <span class="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400 text-xs font-medium rounded-full">Inactive</span>
-                          <% } %>
-                        </td>
-                      </tr>
-                    <% }) %>
-                  </tbody>
-                </table>
-              </div>
-            <% } else { %>
-              <p class="text-gray-500 dark:text-gray-400 text-center py-8">Not teaching any courses yet.</p>
-            <% } %>
-          </div>
-          <% } %>
-          
-          <!-- Certificates Tab -->
-          <div class="hidden" id="certificates" role="tabpanel">
-            <h6 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Certificates (<%= certificates.length %>)</h6>
-            
-            <% if(certificates.length > 0) { %>
-              <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead class="bg-gray-50 dark:bg-gray-700">
-                    <tr>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Certificate ID</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Type</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Course</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Issue Date</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Grade</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Downloads</th>
-                    </tr>
-                  </thead>
-                  <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                    <% certificates.forEach(cert => { %>
-                      <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-150">
-                        <td class="px-6 py-4 whitespace-nowrap text-gray-600 dark:text-gray-300"><%= cert.certificateId %></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-gray-600 dark:text-gray-300"><%= cert.certificateType %></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-gray-600 dark:text-gray-300">
-                          <%= cert.course?.title || 'N/A' %>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-gray-600 dark:text-gray-300"><%= new Date(cert.issueDate).toLocaleDateString() %></td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                          <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 text-xs font-medium rounded-full"><%= cert.grade %></span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-gray-600 dark:text-gray-300"><%= cert.downloadCount %></td>
-                      </tr>
-                    <% }) %>
-                  </tbody>
-                </table>
-              </div>
-            <% } else { %>
-              <p class="text-gray-500 dark:text-gray-400 text-center py-8">No certificates issued yet.</p>
-            <% } %>
-          </div>
-          
-          <!-- Contact Messages Tab -->
-          <div class="hidden" id="messages" role="tabpanel">
-            <h6 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Contact Messages (<%= contactMessages.length %>)</h6>
-            
-            <% if(contactMessages.length > 0) { %>
-              <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead class="bg-gray-50 dark:bg-gray-700">
-                    <tr>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Date</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Subject</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Message</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                    <% contactMessages.forEach(msg => { %>
-                      <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-150">
-                        <td class="px-6 py-4 whitespace-nowrap text-gray-600 dark:text-gray-300"><%= new Date(msg.msgDate).toLocaleDateString() %></td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                          <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 text-xs font-medium rounded-full"><%= msg.subject %></span>
-                        </td>
-                        <td class="px-6 py-4 text-gray-600 dark:text-gray-300 max-w-xs truncate"><%= msg.message %></td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                          <% if(msg.isSeen) { %>
-                            <span class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 text-xs font-medium rounded-full">Seen</span>
-                          <% } else { %>
-                            <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 text-xs font-medium rounded-full">Unseen</span>
-                          <% } %>
-                        </td>
-                      </tr>
-                    <% }) %>
-                  </tbody>
-                </table>
-              </div>
-            <% } else { %>
-              <p class="text-gray-500 dark:text-gray-400 text-center py-8">No contact messages from this user.</p>
-            <% } %>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div class="mt-6 grid gap-6 lg:grid-cols-2">
+    <section class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+      <h2 class="text-lg font-bold">Note comments</h2>
+      <ul class="mt-4 space-y-3 text-sm">
+        <% commentedNotes.forEach(function (note) { note.comments.forEach(function (comment) { %><li class="rounded-xl bg-slate-50 p-3 dark:bg-slate-800"><strong><%= note.title %></strong><p class="mt-1 whitespace-pre-line"><%= comment.text %></p><time class="text-xs text-slate-500"><%= new Date(comment.createdAt).toLocaleString() %></time></li><% }) }) %>
+        <% if (!commentedNotes.some(function (note) { return note.comments.length; })) { %><li class="text-slate-500">No note comments.</li><% } %>
+      </ul>
+    </section>
+    <section class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+      <h2 class="text-lg font-bold">Article comments</h2>
+      <ul class="mt-4 space-y-3 text-sm">
+        <% commentedBlogs.forEach(function (blog) { blog.comments.forEach(function (comment) { %><li class="rounded-xl bg-slate-50 p-3 dark:bg-slate-800"><strong><%= blog.title %></strong><p class="mt-1 whitespace-pre-line"><%= comment.text %></p><time class="text-xs text-slate-500"><%= new Date(comment.createdAt).toLocaleString() %></time></li><% }) }) %>
+        <% if (!commentedBlogs.some(function (blog) { return blog.comments.length; })) { %><li class="text-slate-500">No article comments.</li><% } %>
+      </ul>
+    </section>
   </div>
-</div>
 
-<!-- JavaScript for tab functionality (since we're not using Bootstrap JS) -->
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const tabs = document.querySelectorAll('[data-bs-toggle="tab"]');
-    const tabPanes = {
-      'enrolled': document.getElementById('enrolled'),
-      'teaching': document.getElementById('teaching'),
-      'certificates': document.getElementById('certificates'),
-      'messages': document.getElementById('messages')
-    };
+  <section class="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+    <h2 class="text-lg font-bold">Downloads (<%= downloads.length %>)</h2>
+    <ul class="mt-4 divide-y dark:divide-slate-700">
+      <% downloads.forEach(function (download) { %><li class="py-3 text-sm"><%= download.note?.title || "Removed note" %> · <%= [download.university, download.college].filter(Boolean).join(" / ") || "Campus not provided" %><time class="ml-2 text-xs text-slate-500"><%= new Date(download.downloadedAt).toLocaleString() %></time></li><% }) %>
+      <% if (!downloads.length) { %><li class="py-3 text-sm text-slate-500">No downloads recorded.</li><% } %>
+    </ul>
+  </section>
 
-    tabs.forEach(tab => {
-      tab.addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        // Remove active classes from all tabs
-        tabs.forEach(t => {
-          t.classList.remove('text-blue-600', 'dark:text-blue-400', 'bg-white', 'dark:bg-gray-800', 'border-b-2', 'border-blue-600', 'dark:border-blue-400');
-          t.classList.add('text-gray-600', 'dark:text-gray-400');
-        });
-        
-        // Add active classes to clicked tab
-        this.classList.remove('text-gray-600', 'dark:text-gray-400');
-        this.classList.add('text-blue-600', 'dark:text-blue-400', 'bg-white', 'dark:bg-gray-800', 'border-b-2', 'border-blue-600', 'dark:border-blue-400');
-        
-        // Hide all tab panes
-        Object.values(tabPanes).forEach(pane => {
-          if (pane) pane.classList.add('hidden');
-        });
-        
-        // Show selected tab pane
-        const targetId = this.getAttribute('data-bs-target').substring(1);
-        if (tabPanes[targetId]) {
-          tabPanes[targetId].classList.remove('hidden');
-        }
-      });
-    });
-  });
-</script>
+  <section class="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+    <h2 class="text-lg font-bold">Contributions (<%= contributions.length %>)</h2>
+    <ul class="mt-4 divide-y dark:divide-slate-700">
+      <% contributions.forEach(function (item) { %>
+        <li class="flex flex-col justify-between gap-2 py-3 text-sm sm:flex-row sm:items-center">
+          <div><strong>₹<%= (item.amount / 100).toLocaleString("en-IN") %></strong> · <%= item.status %><p class="mt-1 break-all text-xs text-slate-500">From <%= item.sourcePage || "unknown page" %> · <%= item.razorpayPaymentId || "Payment not completed" %></p></div>
+          <time class="text-xs text-slate-500"><%= item.paidAt ? new Date(item.paidAt).toLocaleString() : new Date(item.createdAt).toLocaleString() %></time>
+        </li>
+      <% }) %>
+      <% if (!contributions.length) { %><li class="py-3 text-sm text-slate-500">No contributions recorded for this account.</li><% } %>
+    </ul>
+  </section>
+
+  <section class="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+    <h2 class="text-lg font-bold">Contact submissions (<%= contacts.length %>)</h2>
+    <ul class="mt-4 divide-y dark:divide-slate-700">
+      <% contacts.forEach(function (contact) { %><li class="py-3 text-sm"><strong><%= contact.subject %></strong> · <%= contact.message %><time class="block text-xs text-slate-500"><%= new Date(contact.msgDate).toLocaleString() %></time></li><% }) %>
+      <% if (!contacts.length) { %><li class="py-3 text-sm text-slate-500">No contact submissions.</li><% } %>
+    </ul>
+  </section>
+</main>

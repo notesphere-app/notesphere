@@ -1,4 +1,3 @@
-const { boolean } = require("joi");
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
@@ -16,8 +15,30 @@ const subscriberSchema = new Schema({
   },
   isActive: {
     type: Boolean,
-    default: true,
+    default: false,
+  },
+  isVerified: {
+    type: Boolean,
+    default: false,
+  },
+  verificationCodeHash: {
+    type: String,
+    select: false,
+  },
+  verificationCodeExpires: {
+    type: Date,
+    select: false,
+  },
+  verificationRequestedAt: {
+    type: Date,
+  },
+  verificationAttempts: {
+    type: Number,
+    default: 0,
+    select: false,
   },
 });
+
+subscriberSchema.index({ isActive: 1, subscribedAt: -1 });
 
 module.exports = mongoose.model("Subscriber", subscriberSchema);

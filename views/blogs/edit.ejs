@@ -51,19 +51,9 @@
             required
           >
             <option value="">Select a category</option>
-<option value="Technology" <%= blog.category === 'Technology' ? 'selected' : '' %>>Technology</option>
-<option value="Programming" <%= blog.category === 'Programming' ? 'selected' : '' %>>Programming</option>
-<option value="Web Development" <%= blog.category === 'Web Development' ? 'selected' : '' %>>Web Development</option>
-<option value="Cyber Security" <%= blog.category === 'Cyber Security' ? 'selected' : '' %>>Cyber Security</option>
-<option value="Machine Learning" <%= blog.category === 'Machine Learning' ? 'selected' : '' %>>Machine Learning</option>
-<option value="Artificial Intelligence" <%= blog.category === 'Artificial Intelligence' ? 'selected' : '' %>>Artificial Intelligence</option>
-<option value="Data Science" <%= blog.category === 'Data Science' ? 'selected' : '' %>>Data Science</option>
-<option value="Startups & Entrepreneurship" <%= blog.category === 'Startups & Entrepreneurship' ? 'selected' : '' %>>Startups & Entrepreneurship</option>
-<option value="Digital Marketing" <%= blog.category === 'Digital Marketing' ? 'selected' : '' %>>Digital Marketing</option>
-<option value="Jobs & Careers" <%= blog.category === 'Jobs & Careers' ? 'selected' : '' %>>Jobs & Careers</option>
-<option value="Education & Learning" <%= blog.category === 'Education & Learning' ? 'selected' : '' %>>Education & Learning</option>
-<option value="Others" <%= blog.category === 'Others' ? 'selected' : '' %>>Others</option>
-
+            <% blogCategories.forEach(function (category) { %>
+              <option value="<%= category %>" <%= blog.category === category ? "selected" : "" %>><%= category %></option>
+            <% }); %>
           </select>
           <p class="mt-2 text-sm text-gray-500">
             Choose the most relevant category for your blog

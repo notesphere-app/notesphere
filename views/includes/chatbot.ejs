@@ -19,31 +19,31 @@
   </div>
 
   <!-- Chat panel -->
-  <div id="ns-chat-panel"
-    class="mb-3 hidden h-[28rem] w-[22rem] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-2xl bg-white
+  <section id="ns-chat-panel" aria-label="NoteSphere Assistant chat" aria-hidden="true"
+    class="mb-3 hidden h-[min(80vh,36rem)] w-[24rem] max-w-[calc(100vw-2.5rem)] flex flex-col overflow-hidden rounded-2xl bg-white
            shadow-2xl ring-1 ring-slate-200/70 dark:bg-slate-900 dark:ring-slate-800">
 
-    <div class="flex items-center gap-3 bg-[#022E5A] px-4 py-3 text-white">
+    <header class="flex shrink-0 items-center gap-3 bg-[#022E5A] px-4 py-3 text-white">
       <div class="flex h-9 w-9 items-center justify-center rounded-full bg-white/15">
         <i class="fa-solid fa-feather-pointed"></i>
       </div>
       <div class="min-w-0 flex-1">
         <p class="text-sm font-semibold">NoteSphere Assistant</p>
         <p class="flex items-center gap-1 text-xs text-white/70">
-          <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span> Usually replies in a minute
+          <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span> Course and notes help
         </p>
       </div>
       <button type="button" id="ns-chat-close" aria-label="Close chat" class="rounded-full p-1.5 hover:bg-white/10">
         <i class="fa-solid fa-xmark"></i>
       </button>
-    </div>
+    </header>
 
-    <div id="ns-chat-messages" class="flex-1 space-y-3 overflow-y-auto px-4 py-4 text-sm"></div>
+    <div id="ns-chat-messages" class="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-4 py-4 text-sm" aria-live="polite"></div>
 
-    <div id="ns-chat-quick" class="flex flex-wrap gap-2 border-t border-slate-100 px-4 py-2 dark:border-slate-800"></div>
+    <div id="ns-chat-quick" class="flex max-h-28 shrink-0 flex-wrap gap-2 overflow-y-auto border-t border-slate-100 px-4 py-2 dark:border-slate-800"></div>
 
-    <form id="ns-chat-form" class="flex items-center gap-2 border-t border-slate-200 p-3 dark:border-slate-800">
-      <input id="ns-chat-input" type="text" autocomplete="off" placeholder="Type a message..."
+    <form id="ns-chat-form" class="flex shrink-0 items-center gap-2 border-t border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
+      <input id="ns-chat-input" type="text" autocomplete="off" maxlength="1000" placeholder="Ask about courses or notes..."
         class="flex-1 rounded-full border border-slate-300 bg-transparent px-4 py-2 text-sm text-slate-900
                focus:border-[#0878E8] focus:outline-none focus:ring-2 focus:ring-[#0878E8]/30
                dark:border-slate-700 dark:text-white" />
@@ -53,7 +53,7 @@
         <i class="fa-solid fa-paper-plane text-sm"></i>
       </button>
     </form>
-  </div>
+  </section>
 
   <!-- Launcher -->
   <button type="button" id="ns-chat-launcher" aria-label="Open chat"
@@ -77,6 +77,10 @@
   .ns-chat-ping { animation: nsChatPing 2.2s ease-out infinite; }
 
   #ns-chat-messages { display: flex; flex-direction: column; }
+  #ns-chat-panel { min-height: 0; }
+  #ns-chat-form input { min-width: 0; }
+  #ns-chat-form button { flex-shrink: 0; }
+  #ns-chat-form { padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); }
   #ns-chat-messages .ns-msg {
     max-width: 85%;
     padding: 0.55rem 0.9rem;
@@ -124,6 +128,37 @@
   @keyframes nsTypingBounce {
     0%, 60%, 100% { transform: translateY(0); }
     30% { transform: translateY(-5px); }
+  }
+
+  @media (max-width: 640px) {
+    #ns-chatbot.ns-chatbot-open {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      z-index: 200;
+      align-items: stretch;
+      justify-content: stretch;
+      padding: 0;
+    }
+    #ns-chatbot.ns-chatbot-open #ns-chat-panel {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      max-width: none;
+      max-height: none;
+      min-height: 0;
+      margin: 0;
+      border-radius: 0;
+      padding-top: env(safe-area-inset-top);
+    }
+    #ns-chatbot.ns-chatbot-open #ns-chat-launcher,
+    #ns-chatbot.ns-chatbot-open #ns-chat-teaser { display: none; }
+    #ns-chatbot.ns-chatbot-open #ns-chat-quick { max-height: 8rem; }
+    #ns-chatbot.ns-chatbot-open #ns-chat-form { padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); }
   }
 </style>
 

@@ -1,10 +1,13 @@
 const crypto = require("crypto");
 const User = require("../models/user.js");
+const { getEmailSender, getSupportEmail } = require("../utils/emailSender");
+const { recordAuthActivity, getEmail } = require("../utils/authActivity");
 
 // Load .env in development
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
+const supportEmail = getSupportEmail();
 
 module.exports.restform = async (req, res) => {
   res.render("emailer/emailSent.ejs", {
@@ -15,13 +18,19 @@ module.exports.restform = async (req, res) => {
 
 module.exports.forgotPassword = async (req, res) => {
   try {
-    const { email } = req.body;
-
-    const user = await User.findOne({ email });
+    const email = getEmail(req.body?.email);
+    const user = email ? await User.findOne({ email }) : null;
+    await recordAuthActivity(req, {
+      event: "password_reset",
+      outcome: user ? "requested" : "unknown_account",
+      user,
+      email,
+      details: user ? "Password reset requested" : "No matching account",
+    });
     if (!user) {
       return res.render("emailer/emailSent.ejs", {
         message:
-          "This email address is not registered with RootShield. Please verify your email and try again.",
+          "This email address is not registered with NoteSphere. Please verify your email and try again.",
         alertmsg: true,
       });
     }
@@ -47,14 +56,14 @@ module.exports.forgotPassword = async (req, res) => {
       process.env.BREVO_API_KEY,
     );
 
-    // PROFESSIONAL EMAIL HTML - MATCHING ROOTSHIELD THEME
+    // Use the NoteSphere account-security email layout.
     const htmlContent = `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Reset Your Password | RootShield</title>
+        <title>Reset Your Password | NoteSphere</title>
         <style>
           @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
           
@@ -223,7 +232,7 @@ module.exports.forgotPassword = async (req, res) => {
           <!-- Header -->
           <div class="header">
             <div class="logo">
-              <span class="logo-gradient">RootShield</span>
+              <span class="logo-gradient">NoteSphere</span>
             </div>
             <div class="subtitle">Secure Your Digital Future</div>
           </div>
@@ -231,11 +240,11 @@ module.exports.forgotPassword = async (req, res) => {
           <!-- Content -->
           <div class="content">
             <div class="greeting">
-              Hello ${user.name || user.username || "RootShield User"},
+              Hello ${user.name || user.username || "NoteSphere User"},
             </div>
             
             <div class="message">
-              We received a request to reset your password for your RootShield account. 
+              We received a request to reset your password for your NoteSphere account.
               If you made this request, please use the button below to securely reset your password.
             </div>
             
@@ -272,19 +281,19 @@ module.exports.forgotPassword = async (req, res) => {
           <!-- Footer -->
           <div class="footer">
             <p>
-              <strong>RootShield</strong><br>
-              Cybersecurity & Web Development Education Platform<br>
+              <strong>NoteSphere</strong><br>
+              Student notes, courses, and learning resources<br>
               Udyam Registered • Delhi, India
             </p>
             
             <div class="contact-info">
               <p>
-                📧 <a href="mailto:support.notesphere@gmail.com" class="contact-link">support.notesphere@gmail.com</a> | 
-                🌐 <a href="https://notesphere.online" class="contact-link">notesphere.online</a>
+                📧 <a href="mailto:${supportEmail}" class="contact-link">${supportEmail}</a> |
+                🌐 <a href="${domain}" class="contact-link">${domain.replace(/^https?:\/\//, "")}</a>
               </p>
               <p style="margin-top: 15px; font-size: 12px; color: #9ca3af;">
                 This is an automated message. Please do not reply directly to this email.<br>
-                © ${new Date().getFullYear()} RootShield. All rights reserved.
+                © ${new Date().getFullYear()} NoteSphere. All rights reserved.
               </p>
             </div>
           </div>
@@ -295,12 +304,12 @@ module.exports.forgotPassword = async (req, res) => {
 
     // Plain text version for email clients that don't support HTML
     const textContent = `
-      Reset Your RootShield Password
+      Reset Your NoteSphere Password
       ===============================
 
-      Hello ${user.name || user.username || "RootShield User"},
+      Hello ${user.name || user.username || "NoteSphere User"},
 
-      We received a request to reset your password for your RootShield account.
+      We received a request to reset your password for your NoteSphere account.
 
       To reset your password, please visit the following link:
       ${resetLink}
@@ -310,20 +319,20 @@ module.exports.forgotPassword = async (req, res) => {
       If you didn't request this password reset, please ignore this email.
       Your account security is important to us, and no changes have been made to your account.
 
-      Need help? Contact our support team at support@notesphere.online
+      Need help? Contact our support team at ${supportEmail}
 
       ---
-      RootShield
-      Cybersecurity & Web Development Education Platform
+      NoteSphere
+      Student notes, courses, and learning resources
       Udyam Registered • Delhi, India
-      https://notesphere.online
+      ${domain}
     `;
 
     // SEND EMAIL 
     await apiInstance.sendTransacEmail({
-      sender: { email: "support.notesphere@gmail.com", name: "RootShield Security" },
+      sender: getEmailSender(),
       to: [{ email: user.email, name: user.name || user.username }],
-      subject: "🔒 Reset Your Password | RootShield Account Security",
+      subject: "🔒 Reset Your Password | NoteSphere Account Security",
       htmlContent: htmlContent,
       textContent: textContent,
     });
@@ -334,10 +343,10 @@ module.exports.forgotPassword = async (req, res) => {
     );
     return res.redirect("/login");
   } catch (err) {
-    console.error("Brevo Email Error:", err);
+    console.error("Password reset request failed:", err);
     req.flash(
       "error",
-      "We encountered an issue sending the reset email. Please try again in a few moments or contact support if the problem persists.",
+      "We could not complete the password reset request. Please try again in a few moments.",
     );
     return res.redirect("/login");
   }
@@ -376,6 +385,11 @@ module.exports.postResetPassword = async (req, res) => {
   });
 
   if (!user) {
+    await recordAuthActivity(req, {
+      event: "password_reset",
+      outcome: "invalid_link",
+      details: "Invalid or expired reset link",
+    });
     req.flash(
       "error",
       "This password reset link has expired. For security reasons, please request a new password reset link.",
@@ -384,7 +398,14 @@ module.exports.postResetPassword = async (req, res) => {
   }
 
   // Validate password length
-  if (password.length < 8) {
+  if (typeof password !== "string" || password.length < 8) {
+    await recordAuthActivity(req, {
+      event: "password_reset",
+      outcome: "failed",
+      user,
+      email: user.email,
+      details: "New password did not meet minimum requirements",
+    });
     req.flash(
       "error",
       "Password must be at least 8 characters long for security.",
@@ -395,6 +416,21 @@ module.exports.postResetPassword = async (req, res) => {
   // Passport-local-mongoose method
   user.setPassword(password, async (err, updatedUser) => {
     if (err) {
+      try {
+        await recordAuthActivity(req, {
+          event: "password_reset",
+          outcome: "failed",
+          user,
+          email: user.email,
+          details: "Password update failed",
+        });
+      } catch (activityError) {
+        console.error("Password reset activity could not be recorded:", activityError.message);
+        return res.status(500).render("error.ejs", {
+          message: "Password reset failed and could not be recorded. Please retry or contact support.",
+          statusCode: 500,
+        });
+      }
       req.flash(
         "error",
         "We encountered an issue updating your password. Please try again or contact support if the problem continues.",
@@ -405,6 +441,21 @@ module.exports.postResetPassword = async (req, res) => {
     updatedUser.resetPasswordToken = undefined;
     updatedUser.resetPasswordExpires = undefined;
     await updatedUser.save();
+    try {
+      await recordAuthActivity(req, {
+        event: "password_reset",
+        outcome: "success",
+        user: updatedUser,
+        email: updatedUser.email,
+        details: "Password reset completed",
+      });
+    } catch (activityError) {
+      console.error("Password reset activity could not be recorded:", activityError.message);
+      return res.status(500).render("error.ejs", {
+        message: "Your password changed, but we could not record the security activity. Please contact support.",
+        statusCode: 500,
+      });
+    }
 
     // Send confirmation email
     try {
@@ -421,7 +472,7 @@ module.exports.postResetPassword = async (req, res) => {
         <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Password Updated | RootShield</title>
+          <title>Password Updated | NoteSphere</title>
           <style>
             @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
             
@@ -516,25 +567,25 @@ module.exports.postResetPassword = async (req, res) => {
             <div class="header">
               <div class="success-icon">✅</div>
               <div class="logo">
-                <span class="logo-gradient">RootShield</span>
+                <span class="logo-gradient">NoteSphere</span>
               </div>
               <div style="font-size: 14px; opacity: 0.9; letter-spacing: 1px;">Password Successfully Updated</div>
             </div>
             
             <div class="content">
               <div class="greeting">
-                Hello ${user.name || user.username || "RootShield User"},
+                Hello ${user.name || user.username || "NoteSphere User"},
               </div>
               
               <div class="message">
-                <p>This is a confirmation that your RootShield account password was successfully updated on ${new Date().toLocaleString()}.</p>
+                <p>This is a confirmation that your NoteSphere account password was successfully updated on ${new Date().toLocaleString()}.</p>
                 <p>If you made this change, no further action is required.</p>
               </div>
               
               <div class="security-card">
                 <strong>🔒 Security Tips:</strong>
                 <ul style="margin-top: 10px; padding-left: 20px;">
-                  <li>Use a unique password for RootShield that you don't use elsewhere</li>
+                  <li>Use a unique password for NoteSphere that you don't use elsewhere</li>
                   <li>Consider enabling two-factor authentication when available</li>
                   <li>Never share your password with anyone</li>
                   <li>Regularly update your passwords for optimal security</li>
@@ -543,19 +594,19 @@ module.exports.postResetPassword = async (req, res) => {
               
               <div style="margin-top: 30px;">
                 <p style="color: #4b5563; font-size: 14px;">
-                  If you did not make this change, please contact our security team immediately at <strong>support.notesphere@gmail.com</strong>
+                  If you did not make this change, please contact our security team immediately at <strong>${supportEmail}</strong>
                 </p>
               </div>
             </div>
             
             <div class="footer">
               <p>
-                <strong>RootShield Security Team</strong><br>
+                <strong>NoteSphere Security Team</strong><br>
                 Protecting your digital learning journey
               </p>
               <p style="margin-top: 15px; font-size: 12px; color: #9ca3af;">
                 This is an automated security notification. Please do not reply.<br>
-                © ${new Date().getFullYear()} RootShield. All rights reserved.
+                © ${new Date().getFullYear()} NoteSphere. All rights reserved.
               </p>
             </div>
           </div>
@@ -564,13 +615,10 @@ module.exports.postResetPassword = async (req, res) => {
       `;
 
       await apiInstance.sendTransacEmail({
-        sender: {
-          email: "support.notesphere@gmail.com",
-          name: "RootShield Security",
-        },
+        sender: getEmailSender(),
         to: [{ email: user.email, name: user.name || user.username }],
         subject:
-          "✅ Password Successfully Updated | RootShield Security Notification",
+          "✅ Password Successfully Updated | NoteSphere Security Notification",
         htmlContent: htmlContent,
       });
     } catch (emailErr) {

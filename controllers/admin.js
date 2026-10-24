@@ -2,11 +2,21 @@ const User = require("../models/user");
 const crypto = require("crypto");
 const Contact = require("../models/contact");
 const Subscriber = require("../models/subscriber");
+const Course = require("../models/course");
+const Note = require("../models/note");
+const Download = require("../models/download");
+const Contribution = require("../models/contribution");
+const AuthActivity = require("../models/authActivity");
+const Blog = require("../models/blog");
+const mongoose = require("mongoose");
 
 module.exports.adminDashboard = async (req, res) => {
   try {
     // Get stats
-    const totalUsers = await User.countDocuments();
+    const [totalUsers, totalCourses] = await Promise.all([
+      User.countDocuments(),
+      Course.countDocuments({ isActive: true }),
+    ]);
 
     // Get recent 30 days data for growth calculation
     const thirtyDaysAgo = new Date();
@@ -22,55 +32,42 @@ module.exports.adminDashboard = async (req, res) => {
         : 100;
 
     // Get revenue data
-    const transactions = null; //await Transaction.find({ status: "completed" });
-    const totalRevenue = null; //transactions.reduce(
-    //   (sum, txn) => sum + (txn.amount || 0),
-    //   0,
-    // );
+    const contributionTotal = await Contribution.aggregate([
+      { $match: { status: "paid" } },
+      { $group: { _id: null, total: { $sum: "$amount" }, count: { $sum: 1 } } },
+    ]);
+    const totalRevenue = (contributionTotal[0]?.total || 0) / 100;
 
     // Get pending actions
-    const pendingContacts = await Contact.countDocuments({ status: "pending" });
-    const pendingSubscribers = await Subscriber.countDocuments({
-      status: "pending",
-    });
+    const [pendingContacts, pendingSubscribers, recentDownloads] = await Promise.all([
+      Contact.countDocuments({ isSeen: false }),
+      Subscriber.countDocuments({ isVerified: false }),
+      Download.find().populate("note", "title").populate("user", "name email")
+        .sort({ downloadedAt: -1 }).limit(10).lean(),
+    ]);
     const pendingActions = pendingContacts + pendingSubscribers;
 
     // Get recent users (last 10)
     const recentUsers = await User.find()
       .sort({ createdAt: -1 })
-      
+      .limit(10)
       .select("name email role isVerified isBlocked createdAt");
 
-    // Get recent activities (you might want to create an Activity model)
-    const recentActivities = [
-      {
-        type: "user",
-        title: "New User Registration",
-        description: "John Doe registered as a student",
-        timestamp: new Date(),
-        user: { name: "John Doe", email: "john@example.com" },
-      },
-      {
-        type: "course",
-        title: "Course Created",
-        description: 'New course "React Masterclass" published',
-        timestamp: new Date(Date.now() - 3600000),
-        user: { name: "Jane Smith", email: "jane@example.com" },
-      },
-      {
-        type: "payment",
-        title: "Payment Received",
-        description: "Payment of ₹1999 for course enrollment",
-        timestamp: new Date(Date.now() - 7200000),
-        user: { name: "Bob Wilson", email: "bob@example.com" },
-      },
-    ];
+    const recentActivities = recentDownloads.map((download) => ({
+      type: "system",
+      title: "Note downloaded",
+      description: `${download.note?.title || "A note"} · ${download.university || "University not provided"} · ${download.college || "College not provided"}`,
+      timestamp: download.downloadedAt,
+      user: download.user || null,
+    }));
 
     res.render("admin/dashboard.ejs", {
       stats: {
         totalUsers,
         totalCourses,
+        totalDownloads: await Download.countDocuments(),
         totalRevenue,
+        paidContributionCount: contributionTotal[0]?.count || 0,
         pendingActions,
         userGrowth,
         courseGrowth: 12, // You can calculate this similar to userGrowth
@@ -80,6 +77,7 @@ module.exports.adminDashboard = async (req, res) => {
       },
       recentUsers,
       recentActivities,
+      recentDownloads,
       moment: require("moment"),
       // csrfToken: req.csrfToken(),
     });
@@ -93,40 +91,7 @@ module.exports.adminDashboard = async (req, res) => {
 };
 
 module.exports.index = async (req, res) => {
-  try {
-    const page = Math.max(parseInt(req.query.page) || 1, 1);
-    const limit = 20;
-    const skip = (page - 1) * limit;
-
-    // 🔐 Security: only active admins should reach here
-    // (Assuming middleware already checks role)
-
-    const [salesTeam, totalCount] = await Promise.all([
-      SalesTeam.find()
-        .populate("user", "name email mobile") // minimal safe fields
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .lean(),
-
-      SalesTeam.countDocuments(),
-    ]);
-
-    const totalPages = Math.ceil(totalCount / limit);
-
-    res.render("admin/salesteam/index", {
-      currentUser: req.user,
-      salesTeam,
-      currentPage: page,
-      totalPages,
-      totalCount,
-      limit,
-    });
-  } catch (error) {
-    console.error("SalesTeam Index Error:", error);
-    req.flash("error", "Unable to load sales team data");
-    res.redirect("/admin");
-  }
+  res.redirect("/admin/dashboard");
 };
 
 // Update your controller
@@ -219,6 +184,7 @@ module.exports.subscribers = async (req, res) => {
     // Apply status filter
     if (filter === "active") {
       query.isActive = true;
+      query.isVerified = true;
     } else if (filter === "inactive") {
       query.isActive = false;
     }
@@ -244,6 +210,7 @@ module.exports.subscribers = async (req, res) => {
 module.exports.createSubscriber = async (req, res) => {
   try {
     const { email, isActive = true } = req.body;
+    const shouldActivate = isActive === true || isActive === "true";
 
     // Check if subscriber already exists
     const existingSubscriber = await Subscriber.findOne({
@@ -257,7 +224,8 @@ module.exports.createSubscriber = async (req, res) => {
 
     const subscriber = new Subscriber({
       email: email.toLowerCase(),
-      isActive,
+      isActive: shouldActivate,
+      isVerified: shouldActivate,
       subscribedAt: new Date(),
     });
 
@@ -282,6 +250,11 @@ module.exports.toggleStatus = async (req, res) => {
 
     if (!subscriber) {
       req.flash("error", "Subscriber not found");
+      return res.redirect("/admin/subscribers");
+    }
+
+    if (!subscriber.isActive && !subscriber.isVerified) {
+      req.flash("warning", "This email must be verified before it can be activated.");
       return res.redirect("/admin/subscribers");
     }
 
@@ -327,7 +300,7 @@ module.exports.bulkAction = async (req, res) => {
     switch (action) {
       case "activate":
         await Subscriber.updateMany(
-          { _id: { $in: subscriberIds } },
+          { _id: { $in: subscriberIds }, isVerified: true },
           { $set: { isActive: true } },
         );
         break;
@@ -386,66 +359,159 @@ module.exports.exportSubscribers = async (req, res) => {
   }
 };
 
-// controllers/userController.js or wherever your controller is
+module.exports.listUsers = async (req, res) => {
+  const users = await User.find()
+    .select("name email mobile role isActive isBlocked isVerified university college createdAt")
+    .sort({ createdAt: -1 })
+    .limit(200)
+    .lean();
+  res.render("admin/users.ejs", { users });
+};
+
+module.exports.updateUser = async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    req.flash("error", "User not found.");
+    return res.redirect("/admin/users");
+  }
+  const user = await User.findById(req.params.id);
+  if (!user) {
+    req.flash("error", "User not found.");
+    return res.redirect("/admin/users");
+  }
+  const { name, mobile, university, college, role, isActive, isBlocked, isVerified } = req.body;
+  const cleanName = typeof name === "string" ? name.trim() : "";
+  const cleanMobile = typeof mobile === "string" ? mobile.trim() : "";
+  const cleanUniversity = typeof university === "string" ? university.trim() : "";
+  const cleanCollege = typeof college === "string" ? college.trim() : "";
+  if (
+    !cleanName || cleanName.length > 100 ||
+    (cleanMobile && !/^[0-9+() -]{7,20}$/.test(cleanMobile)) ||
+    cleanUniversity.length > 160 || cleanCollege.length > 160 ||
+    !["user", "admin"].includes(role) ||
+    !["true", "false"].includes(isActive) ||
+    !["true", "false"].includes(isBlocked) ||
+    !["true", "false"].includes(isVerified)
+  ) {
+    req.flash("error", "Check the user details and status values.");
+    return res.redirect(`/admin/users/${user._id}`);
+  }
+  if (
+    String(user._id) === String(req.user._id) &&
+    (role !== "admin" || isActive !== "true" || isBlocked === "true")
+  ) {
+    req.flash("error", "You cannot remove or disable your own administrator access.");
+    return res.redirect(`/admin/users/${user._id}`);
+  }
+  if (user.role === "admin" && role !== "admin") {
+    const activeAdmins = await User.countDocuments({ role: "admin", isActive: true, isBlocked: false });
+    if (activeAdmins <= 1) {
+      req.flash("error", "The last active administrator cannot be demoted.");
+      return res.redirect(`/admin/users/${user._id}`);
+    }
+  }
+  if (cleanMobile && cleanMobile !== user.mobile) {
+    const duplicateMobile = await User.exists({ mobile: cleanMobile, _id: { $ne: user._id } });
+    if (duplicateMobile) {
+      req.flash("error", "That mobile number is already assigned to another account.");
+      return res.redirect(`/admin/users/${user._id}`);
+    }
+  }
+  user.name = cleanName;
+  user.mobile = cleanMobile || undefined;
+  user.university = cleanUniversity;
+  user.college = cleanCollege;
+  user.role = role;
+  user.isActive = isActive === "true";
+  user.isBlocked = isBlocked === "true";
+  user.isVerified = isVerified === "true";
+  await user.save();
+  req.flash("success", "User account updated.");
+  res.redirect(`/admin/users/${user._id}`);
+};
 
 module.exports.userDetails = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    // Get user details
-    const user = await User.findById(id).lean();
-
-    if (!user) {
-      req.flash("error", "User not found");
-      return res.redirect("/admin/users");
-    }
-
-    // Get courses where user is a student (enrolled)
-    const enrolledCourses = await Course.find({
-      "students.user": id,
-    })
-      .populate("teacher", "name email")
-      .lean();
-
-    // Get certificates issued to this user
-    const certificates = await Certificate.find({
-      student: id,
-    })
-      .populate("course", "title")
-      .populate("teacher", "name")
-      .lean();
-
-    // If user is a teacher, get their teacher profile and courses they teach
-    let teacherProfile = null;
-    let teachingCourses = [];
-
-    if (user.role === "teacher") {
-      teacherProfile = await Teacher.findOne({ teacher: id }).lean();
-      teachingCourses = await Course.find({
-        teacher: id,
-      })
-        .populate("students.user", "name email")
-        .lean();
-    }
-
-    // Get contact messages from this user
-    const contactMessages = await Contact.find({
-      user: id,
-    })
-      .sort({ msgDate: -1 })
-      .lean();
-
-    res.render("admin/userDetails.ejs", {
-      user,
-      enrolledCourses,
-      certificates,
-      teacherProfile,
-      teachingCourses,
-      contactMessages,
-    });
-  } catch (err) {
-    console.log(err);
-    req.flash("error", "Failed to load user details");
-    res.redirect("/admin/users");
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    req.flash("error", "User not found.");
+    return res.redirect("/admin/users");
   }
+  const user = await User.findById(req.params.id)
+    .select("-hash -salt -otp -resetPasswordToken -verificationToken")
+    .populate("savedNotes", "title course semester")
+    .populate("savedBlogs", "title")
+    .lean();
+  if (!user) {
+    req.flash("error", "User not found.");
+    return res.redirect("/admin/users");
+  }
+  const [
+    notes,
+    downloads,
+    contacts,
+    authActivities,
+    contributions,
+    likedNotes,
+    commentedNotes,
+    likedBlogs,
+    commentedBlogs,
+  ] = await Promise.all([
+    Note.find({ author: user._id }).sort({ createdAt: -1 }).limit(100).lean(),
+    Download.find({ user: user._id }).populate("note", "title").sort({ downloadedAt: -1 }).limit(100).lean(),
+    Contact.find({ user: user._id }).sort({ msgDate: -1 }).limit(100).lean(),
+    AuthActivity.find({
+      $or: [{ user: user._id }, ...(user.email ? [{ email: user.email }] : [])],
+    }).sort({ createdAt: -1 }).limit(200).lean(),
+    Contribution.find({ user: user._id }).sort({ createdAt: -1 }).limit(100).lean(),
+    Note.find({ likes: user._id }).select("title course subject").sort({ updatedAt: -1 }).limit(100).lean(),
+    Note.find({ "comments.user": user._id }).select("title comments").sort({ updatedAt: -1 }).limit(100).lean(),
+    Blog.find({ likes: user._id }).select("title id").sort({ updatedAt: -1 }).limit(100).lean(),
+    Blog.find({ "comments.user": user._id }).select("title id comments").sort({ updatedAt: -1 }).limit(100).lean(),
+  ]);
+  res.render("admin/userDetails.ejs", {
+    user,
+    notes,
+    downloads,
+    contacts,
+    authActivities,
+    contributions,
+    likedNotes,
+    commentedNotes: commentedNotes.map((note) => ({
+      title: note.title,
+      comments: note.comments.filter((comment) => String(comment.user) === String(user._id)),
+    })),
+    likedBlogs,
+    commentedBlogs: commentedBlogs.map((blog) => ({
+      title: blog.title,
+      id: blog.id,
+      comments: blog.comments.filter((comment) => String(comment.user) === String(user._id)),
+    })),
+  });
+};
+
+module.exports.downloads = async (req, res) => {
+  const downloads = await Download.find()
+    .populate("note", "title course subject")
+    .populate("course", "name")
+    .populate("user", "name email")
+    .sort({ downloadedAt: -1 })
+    .limit(500)
+    .lean();
+  res.render("admin/downloads.ejs", { downloads });
+};
+
+module.exports.contributions = async (req, res) => {
+  const contributions = await Contribution.find()
+    .populate("user", "name email")
+    .sort({ createdAt: -1 })
+    .limit(500)
+    .lean();
+  res.render("admin/contributions.ejs", { contributions });
+};
+
+module.exports.authActivity = async (req, res) => {
+  const activities = await AuthActivity.find()
+    .populate("user", "name email")
+    .sort({ createdAt: -1 })
+    .limit(500)
+    .lean();
+  res.render("admin/auth-activity.ejs", { activities });
 };

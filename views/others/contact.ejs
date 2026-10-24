@@ -5,22 +5,22 @@ const contactMethods = [
     icon: "fa-envelope",
     title: "Email us",
     desc: "For general questions, feedback, or anything else.",
-    value: "hello@notesphere.app",
-    href: "mailto:hello@notesphere.app",
+    value: supportEmail,
+    href: `mailto:${supportEmail}`,
   },
   {
     icon: "fa-circle-question",
     title: "Help center",
     desc: "Quick answers to the most common questions.",
     value: "Visit help center",
-    href: "/help",
+    href: "/about",
   },
   {
     icon: "fa-handshake",
     title: "Partner with us",
     desc: "Colleges and study groups — let's set up a private library.",
-    value: "partners@notesphere.app",
-    href: "mailto:partners@notesphere.app",
+    value: supportEmail,
+    href: `mailto:${supportEmail}`,
   },
 ];
 
@@ -81,6 +81,18 @@ const subjects = [
   </div>
 </section>
 
+<section class="mx-auto max-w-5xl px-4 pt-12 sm:px-6 lg:px-8" aria-label="Support NoteSphere">
+  <div class="flex flex-col gap-4 rounded-2xl border border-blue-200 bg-blue-50 p-6 dark:border-blue-900 dark:bg-blue-950/40 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h2 class="font-semibold text-slate-900 dark:text-white">Help keep NoteSphere free for students</h2>
+      <p class="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">We are an educational project maintained by students, not a formal organization or registered charity. Optional contributions support hosting and upkeep.</p>
+    </div>
+    <button type="button" data-donate-open class="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700">
+      <i class="fa-solid fa-heart"></i> Contribute
+    </button>
+  </div>
+</section>
+
 <!-- =========================================
      Contact form
 ========================================= -->
@@ -94,7 +106,7 @@ const subjects = [
         Fill this in and we'll get back to you at the email you provide.
       </p>
 
-      <form id="contact-form" class="mt-8 space-y-5" novalidate>
+      <form id="contact-form" data-recaptcha-action="contact" class="mt-8 space-y-5" novalidate>
         <!-- Success / error banner -->
         <div id="contact-banner" class="hidden rounded-lg px-4 py-3 text-sm"></div>
 
@@ -184,6 +196,9 @@ const subjects = [
           </button>
           <p class="text-xs text-slate-400">We reply within 1–2 days.</p>
         </div>
+        <p class="text-xs text-slate-500 dark:text-slate-400">
+          To protect this form from abuse, we store whether you are signed in, the page path, a one-way IP hash, and coarse browser/device type with your message. We do not collect GPS or a device fingerprint.
+        </p>
       </form>
     </div>
 
@@ -214,8 +229,8 @@ const subjects = [
               <i class="fa-solid fa-envelope mt-0.5 text-[#0878E8]"></i>
               <div class="min-w-0">
                 <p class="text-xs text-slate-400">General</p>
-                <a href="mailto:hello@notesphere.app" class="break-all font-medium text-[#022E5A] hover:text-[#0878E8] dark:text-white">
-                  hello@notesphere.app
+                <a href="mailto:<%= supportEmail %>" class="break-all font-medium text-[#022E5A] hover:text-[#0878E8] dark:text-white">
+                  <%= supportEmail %>
                 </a>
               </div>
             </li>
@@ -223,8 +238,8 @@ const subjects = [
               <i class="fa-solid fa-bug mt-0.5 text-[#0878E8]"></i>
               <div class="min-w-0">
                 <p class="text-xs text-slate-400">Bug reports</p>
-                <a href="mailto:bugs@notesphere.app" class="break-all font-medium text-[#022E5A] hover:text-[#0878E8] dark:text-white">
-                  bugs@notesphere.app
+                <a href="mailto:<%= supportEmail %>" class="break-all font-medium text-[#022E5A] hover:text-[#0878E8] dark:text-white">
+                  <%= supportEmail %>
                 </a>
               </div>
             </li>
@@ -232,8 +247,8 @@ const subjects = [
               <i class="fa-solid fa-handshake mt-0.5 text-[#0878E8]"></i>
               <div class="min-w-0">
                 <p class="text-xs text-slate-400">Partnerships</p>
-                <a href="mailto:partners@notesphere.app" class="break-all font-medium text-[#022E5A] hover:text-[#0878E8] dark:text-white">
-                  partners@notesphere.app
+                <a href="mailto:<%= supportEmail %>" class="break-all font-medium text-[#022E5A] hover:text-[#0878E8] dark:text-white">
+                  <%= supportEmail %>
                 </a>
               </div>
             </li>
@@ -680,14 +695,22 @@ const subjects = [
         message: form.querySelector('[name="message"]').value.trim(),
       };
 
-      fetch('/contact', {
+      window.nsGetRecaptchaToken('contact').then(function (token) {
+        payload['g-recaptcha-response'] = token;
+        return fetch('/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify(payload),
       })
-      .catch(function () { return null; })
-      .then(function () {
-        showBanner("Thanks! We got your message and will reply within a day or two.", 'ok');
+      })
+      .then(function (response) {
+        return response.json().then(function (result) {
+          if (!response.ok || !result.success) throw new Error(result.message || 'Could not send your message.');
+          return result;
+        });
+      })
+      .then(function (result) {
+        showBanner(result.message, 'ok');
         form.reset();
         // Reset the custom dropdown back to its placeholder state
         var valueEl = document.getElementById('cf-select-value');
@@ -699,6 +722,9 @@ const subjects = [
           o.setAttribute('aria-selected', 'false');
         });
         banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      })
+      .catch(function (error) {
+        showBanner(error.message || 'Could not send your message. Please try again.', 'err');
       })
       .finally(function () {
         btn.disabled = false;

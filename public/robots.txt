@@ -12,4 +12,4 @@ Disallow: /api
 Disallow: /socket.io
 
 # Sitemap location
-Sitemap: https://thecubicals.online/sitemap.xml
+Sitemap: https://notesphere.online/sitemap.xml

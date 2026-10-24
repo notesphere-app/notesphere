@@ -54,18 +54,9 @@
             required
           >
             <option value="">Select a category</option>
-<option value="Technology">Technology</option>
-<option value="Programming">Programming</option>
-<option value="Web Development">Web Development</option>
-<option value="Cyber Security">Cyber Security</option>
-<option value="Machine Learning">Machine Learning</option>
-<option value="Artificial Intelligence">Artificial Intelligence</option>
-<option value="Data Science">Data Science</option>
-<option value="Startups">Startups & Entrepreneurship</option>
-<option value="Digital Marketing">Digital Marketing</option>
-<option value="Jobs & Careers">Jobs & Careers</option>
-<option value="Education">Education & Learning</option>
-<option value="Others">Others</option>
+            <% blogCategories.forEach(function (category) { %>
+              <option value="<%= category %>"><%= category %></option>
+            <% }); %>
           </select>
           <p class="mt-2 text-sm text-gray-500">
             Choose the most relevant category for your blog

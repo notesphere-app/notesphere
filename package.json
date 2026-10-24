@@ -1,5 +1,5 @@
 {
-  "name": "rootshield",
+  "name": "notesphere",
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
@@ -7,7 +7,7 @@
     "dev": "nodemon --watch . --ext js,ejs,json --legacy-watch app.js",
     "tw": "tailwindcss -i ./public/css/tailwind.css -o ./public/css/output.css --watch"
   },
-  "author": "Saurabh Mishra",
+  "author": "NoteSphere",
   "license": "ISC",
   "description": "",
   "dependencies": {
@@ -26,6 +26,7 @@
     "ejs": "^3.1.10",
     "ejs-mate": "^4.0.0",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.7.1",
     "express-session": "^1.18.2",
     "fs": "^0.0.1-security",
     "helmet": "^8.1.0",

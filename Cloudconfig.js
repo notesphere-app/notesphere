@@ -13,7 +13,7 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: "thecubicals",
+    folder: "notesphere",
     allowedFormats: ["png", "jpg", "jpeg", "svg", "webp"],
   },
 });

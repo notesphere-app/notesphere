@@ -4,6 +4,10 @@ if (process.env.NODE_ENV != "production") {
 
 const express = require("express");
 const app = express();
+if (process.env.TRUST_PROXY) {
+  const trustProxy = Number(process.env.TRUST_PROXY);
+  app.set("trust proxy", Number.isInteger(trustProxy) && trustProxy >= 0 ? trustProxy : process.env.TRUST_PROXY);
+}
 const path = require("path");
 const mongoose = require("mongoose");
 const methodOverride = require("method-override");
@@ -20,6 +24,7 @@ const { welComeEmail } = require("./utils/sendWelcomeEmail");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
+const Course = require("./models/course.js");
 
 const homeRouter = require("./routes/home.js");
 const userRouter = require("./routes/user.js");
@@ -30,7 +35,10 @@ const othersRouter = require("./routes/others.js");
 const blogRouter = require("./routes/blog.js");
 const notesRouter = require("./routes/notes.js");
 const sitemapRouter = require("./routes/sitemap.js");
+const chatRouter = require("./routes/chat.js");
 const seoMeta = require("./utils/seoMeta.json");
+const recordLogin = require("./utils/loginHistory");
+const { recordAuthActivity, completeAuthActivity } = require("./utils/authActivity");
 
 const dbUrl = process.env.ATLUSDB_URL;
 
@@ -48,8 +56,8 @@ async function main() {
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "50kb" }));
+app.use(express.urlencoded({ extended: true, limit: "50kb" }));
 app.use(methodOverride("_method"));
 app.engine("ejs", ejsMate);
 app.use(express.static(path.join(__dirname, "/public")));
@@ -75,6 +83,8 @@ const sessionOptions = {
     expire: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
   },
 };
 
@@ -103,7 +113,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: process.env.DOMAIN + "/auth/google/callback",
+      callbackURL: (process.env.DOMAIN || "https://notesphere.online").replace(/\/$/, "") + "/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -180,9 +190,41 @@ app.use((req, res, next) => {
   res.locals.warning = req.flash("warning");
   res.locals.primary = req.flash("primary");
   res.locals.currUser = req.user || null;
+  res.locals.recaptchaSiteKey = process.env.GOOGLE_RECAPTCHA_SITE_KEY || "";
   res.locals.currentPath = req.path;
   res.locals.showsplash = false;
   next();
+});
+
+let footerCoursesCache = [];
+let footerCoursesCacheExpiresAt = 0;
+let footerCoursesRequest;
+
+app.use(async (req, res, next) => {
+  try {
+    if (Date.now() >= footerCoursesCacheExpiresAt) {
+      if (!footerCoursesRequest) {
+        footerCoursesRequest = Course.find({ isActive: true })
+          .select("_id name")
+          .sort({ name: 1 })
+          .limit(5)
+          .lean()
+          .then((courses) => {
+            footerCoursesCache = courses;
+            footerCoursesCacheExpiresAt = Date.now() + 5 * 60 * 1000;
+            return courses;
+          })
+          .finally(() => {
+            footerCoursesRequest = null;
+          });
+      }
+      await footerCoursesRequest;
+    }
+    res.locals.footerCourses = footerCoursesCache;
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.use((req, res, next) => {
@@ -198,25 +240,78 @@ app.use((req, res, next) => {
 });
 
 app.use((req, res, next) => {
-  res.locals.requestUrl =
-    req.protocol + "://" + "notesphere.in" + req.originalUrl;
+  const siteUrl = (process.env.DOMAIN || "https://notesphere.online").replace(/\/$/, "");
+  res.locals.requestUrl = siteUrl + req.originalUrl;
+  res.locals.siteUrl = siteUrl;
+  res.locals.supportEmail = "support.notesphere@gmail.com";
+  res.locals.legalEmail = res.locals.supportEmail;
+  res.locals.privacyEmail = res.locals.supportEmail;
+  res.locals.securityEmail = res.locals.supportEmail;
   next();
 });
 
 app.get(
   "/auth/google",
+  async (req, res, next) => {
+    try {
+      const activity = await recordAuthActivity(req, {
+        event: "login",
+        outcome: "pending",
+        details: "Google sign-in started",
+      });
+      req.session.googleAuthActivityId = String(activity._id);
+      next();
+    } catch (error) {
+      next(error);
+    }
+  },
   passport.authenticate("google", { scope: ["profile", "email"] }),
 );
 
 app.get(
   "/auth/google/callback",
-  passport.authenticate("google", {
-    failureRedirect: "/login",
-    failureFlash: true,
-  }),
-  (req, res) => {
-    req.flash("success", "Welcome back to Notesphere!");
-    res.redirect("/");
+  (req, res, next) => {
+    passport.authenticate("google", async (error, account, info) => {
+      req.authActivityId = req.session.googleAuthActivityId;
+      delete req.session.googleAuthActivityId;
+      try {
+        if (error || !account) {
+          await completeAuthActivity(req, {
+            outcome: "failed",
+            details: "Google sign-in did not complete",
+          });
+          if (error) return next(error);
+          req.flash("error", info?.message || "Google sign-in could not be completed.");
+          return res.redirect("/login");
+        }
+        if (account.isBlocked || !account.isActive) {
+          await completeAuthActivity(req, {
+            outcome: "blocked",
+            user: account,
+            details: "Account unavailable",
+          });
+          req.flash("error", "This account is currently unavailable.");
+          return res.redirect("/login");
+        }
+        req.logIn(account, async (loginError) => {
+          if (loginError) return next(loginError);
+          try {
+            await recordLogin(account, req, "google");
+            await completeAuthActivity(req, {
+              outcome: "success",
+              user: account,
+              details: "Google login",
+            });
+            req.flash("success", "Welcome back to Notesphere!");
+            res.redirect("/");
+          } catch (activityError) {
+            next(activityError);
+          }
+        });
+      } catch (callbackError) {
+        next(callbackError);
+      }
+    })(req, res, next);
   },
 );
 
@@ -228,6 +323,8 @@ app.use("/", sitemapRouter);
 app.use("/blogs", blogRouter);
 app.use("/admin", adminRouter);
 app.use("/notes", notesRouter);
+app.use("/api/chat", chatRouter);
+app.use("/api/contributions", require("./routes/contributions"));
 app.all(/.*/, (req, res, next) => {
   next(new ExpressError(404, "Page not found!"));
 });

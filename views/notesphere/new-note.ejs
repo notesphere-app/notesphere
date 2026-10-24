@@ -1,0 +1,123 @@
+<% layout("/layouts/boilerplate") -%>
+
+<section class="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
+  <a href="/notes" class="text-sm font-medium text-blue-700 hover:underline">← Back to notes</a>
+  <h1 class="mt-5 text-3xl font-bold text-slate-900 dark:text-white">Share a note link</h1>
+  <p class="mt-2 text-slate-600 dark:text-slate-300">Choose a course to load its specializations, semesters, universities, and colleges. Only share resources you have permission to publish.</p>
+  <% if (currUser?.role === "admin") { %>
+    <p class="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">Admin submissions publish immediately to the public notes library.</p>
+  <% } else { %>
+    <p class="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200">Your submission will be visible to you right away and published to the library after admin review.</p>
+  <% } %>
+
+  <% if (courses.length) { %>
+    <form action="/notes" method="POST" class="mt-8 space-y-5 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+      <label class="block text-sm font-medium text-slate-700 dark:text-slate-200">Course
+        <select name="courseId" id="note-course" required class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
+          <option value="">Select a course</option>
+          <% courses.forEach(function (course) { %><option value="<%= course._id %>"><%= course.name %></option><% }) %>
+        </select>
+      </label>
+      <div class="grid gap-5 sm:grid-cols-2">
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200">Specialization
+          <select name="specialization" id="note-specialization" required disabled class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
+            <option value="">Select a course first</option>
+          </select>
+        </label>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200">Semester
+          <select name="semester" id="note-semester" required disabled class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
+            <option value="">Select a course first</option>
+          </select>
+        </label>
+      </div>
+      <div class="grid gap-5 sm:grid-cols-2">
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200">University
+          <select name="university" id="note-university" required disabled class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
+            <option value="">Select a course first</option>
+          </select>
+        </label>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200">College
+          <select name="college" id="note-college" required disabled class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
+            <option value="">Select a university first</option>
+          </select>
+        </label>
+      </div>
+      <label class="block text-sm font-medium text-slate-700 dark:text-slate-200">Note title
+        <input name="title" required maxlength="160" class="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 dark:border-slate-700">
+      </label>
+      <label class="block text-sm font-medium text-slate-700 dark:text-slate-200">Public notes URL
+        <input name="sourceUrl" type="url" required maxlength="2048" placeholder="https://..." class="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 dark:border-slate-700">
+        <span class="mt-1 block text-xs text-slate-500">Test the link in a signed-out/private browser window first. For Google Drive, set general access to “Anyone with the link”. NoteSphere stores the URL, not the file; admins review student submissions before publication.</span>
+      </label>
+      <label class="block text-sm font-medium text-slate-700 dark:text-slate-200">Description
+        <textarea name="description" maxlength="2000" rows="4" class="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 dark:border-slate-700"></textarea>
+      </label>
+      <div class="grid gap-5 sm:grid-cols-2">
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200">Subject
+          <input name="subject" required maxlength="100" class="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 dark:border-slate-700">
+        </label>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200">Note type
+          <select name="type" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
+            <option value="pdf">PDF</option><option value="handwritten">Handwritten</option><option value="typed">Typed</option><option value="solved">Solved papers</option>
+          </select>
+        </label>
+      </div>
+      <button type="submit" class="rounded-full bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"><%= currUser?.role === "admin" ? "Publish note" : "Submit for review" %></button>
+    </form>
+  <% } else { %>
+    <div class="mt-8 rounded-2xl border border-dashed border-slate-300 p-8 text-center dark:border-slate-700">
+      <p class="font-semibold">No courses are available yet.</p>
+      <p class="mt-2 text-sm text-slate-500">An administrator needs to add courses before notes can be submitted.</p>
+    </div>
+  <% } %>
+</section>
+
+<script>
+  (function () {
+    const courseSelect = document.getElementById("note-course");
+    if (!courseSelect) return;
+    const specializationSelect = document.getElementById("note-specialization");
+    const semesterSelect = document.getElementById("note-semester");
+    const universitySelect = document.getElementById("note-university");
+    const collegeSelect = document.getElementById("note-college");
+    let selectedCourse = null;
+
+    function setOptions(select, options, placeholder) {
+      select.replaceChildren(new Option(placeholder, ""));
+      options.forEach(function (value) {
+        const option = typeof value === "string" ? new Option(value, value) : new Option(value.label, value.value);
+        select.add(option);
+      });
+      select.disabled = options.length === 0;
+    }
+    function updateColleges() {
+      const university = selectedCourse?.universities.find(function (item) {
+        return item.name === universitySelect.value;
+      });
+      setOptions(collegeSelect, university?.colleges || [], "Select a college");
+    }
+    courseSelect.addEventListener("change", async function () {
+      selectedCourse = null;
+      setOptions(specializationSelect, [], "Loading...");
+      setOptions(semesterSelect, [], "Loading...");
+      setOptions(universitySelect, [], "Loading...");
+      setOptions(collegeSelect, [], "Select a university first");
+      if (!courseSelect.value) return;
+      try {
+        const response = await fetch("/notes/courses/" + encodeURIComponent(courseSelect.value), { headers: { Accept: "application/json" } });
+        if (!response.ok) throw new Error("Unable to load this course.");
+        selectedCourse = await response.json();
+        setOptions(specializationSelect, selectedCourse.specializations.length ? selectedCourse.specializations : ["General"], "Select specialization");
+        setOptions(semesterSelect, Array.from({ length: selectedCourse.semesterCount }, function (_, index) { return String(index + 1); }), "Select semester");
+        setOptions(universitySelect, selectedCourse.universities.map(function (item) { return item.name; }), "Select university");
+        updateColleges();
+      } catch (error) {
+        setOptions(specializationSelect, [], "Could not load course");
+        setOptions(semesterSelect, [], "Could not load course");
+        setOptions(universitySelect, [], "Could not load course");
+        window.alert(error.message);
+      }
+    });
+    universitySelect.addEventListener("change", updateColleges);
+  })();
+</script>

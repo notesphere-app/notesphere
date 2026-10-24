@@ -1,0 +1,76 @@
+<% layout("layouts/boilerplate") %>
+
+<main class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <p class="text-sm font-semibold uppercase tracking-wider text-blue-700">Administration</p>
+      <h1 class="mt-1 text-3xl font-bold text-slate-900 dark:text-white">Course catalog</h1>
+      <p class="mt-2 text-slate-600 dark:text-slate-300">Manage specializations, semesters, universities, and colleges used by notes.</p>
+    </div>
+    <nav class="flex gap-3 text-sm font-semibold text-blue-700">
+      <a href="/admin/dashboard">Dashboard</a>
+      <a href="/admin/notes">Notes</a>
+      <a href="/admin/users">Users</a>
+    </nav>
+  </div>
+
+  <div class="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
+    <section class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white"><%= selected ? "Edit course" : "Add a course" %></h2>
+      <form action="<%= selected ? `/admin/courses/${selected._id}` : '/admin/courses' %>" method="POST" class="mt-5 space-y-4">
+        <% if (selected) { %><input type="hidden" name="_method" value="PATCH"><% } %>
+        <input type="hidden" name="courseId" value="<%= selected?._id || '' %>">
+        <label class="block text-sm font-semibold">Course name
+          <input name="name" required maxlength="120" value="<%= selected?.name || '' %>" placeholder="B.Tech Computer Science"
+            class="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 dark:border-slate-700">
+        </label>
+        <label class="block text-sm font-semibold">Specializations (one per line)
+          <textarea name="specializations" rows="5" maxlength="4000" placeholder="Computer Science&#10;Electronics"
+            class="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 dark:border-slate-700"><%= (selected?.specializations || []).join("\n") %></textarea>
+        </label>
+        <label class="block text-sm font-semibold">Number of semesters
+          <input name="semesterCount" type="number" required min="1" max="12" value="<%= selected?.semesterCount || 8 %>"
+            class="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 dark:border-slate-700">
+        </label>
+        <label class="block text-sm font-semibold">Universities and colleges
+          <textarea name="universities" rows="7" required maxlength="30000"
+            placeholder="University name | College One, College Two&#10;Another University | Main Campus"
+            class="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 dark:border-slate-700"><% (selected?.universities || []).forEach(function (university) { %><%= `${university.name} | ${university.colleges.join(", ")}` %>
+<% }) %></textarea>
+          <span class="mt-1 block text-xs font-normal text-slate-500">One university per line: university name, a vertical bar, then comma-separated colleges.</span>
+        </label>
+        <div class="flex gap-3">
+          <button class="rounded-full bg-blue-600 px-5 py-2.5 font-semibold text-white hover:bg-blue-700"><%= selected ? "Save changes" : "Create course" %></button>
+          <% if (selected) { %><a href="/admin/courses" class="rounded-full border px-5 py-2.5 font-semibold">Cancel</a><% } %>
+        </div>
+      </form>
+    </section>
+
+    <section class="space-y-4">
+      <% courses.forEach(function (course) { %>
+        <article class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <div class="flex flex-wrap items-center gap-2">
+                <h2 class="text-lg font-bold"><%= course.name %></h2>
+                <span class="rounded-full px-2.5 py-1 text-xs font-semibold <%= course.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600' %>"><%= course.isActive ? "Active" : "Archived" %></span>
+              </div>
+              <p class="mt-1 text-sm text-slate-500"><%= course.semesterCount %> semesters · <%= course.specializations.length %> specializations · <%= course.universities.length %> universities</p>
+              <p class="mt-2 text-sm text-slate-600 dark:text-slate-300"><%= course.universities.map((item) => item.name).join(", ") || "No universities listed" %></p>
+            </div>
+            <div class="flex gap-2">
+              <a href="/admin/courses?edit=<%= course._id %>" class="rounded-full border px-3 py-2 text-sm font-semibold">Edit</a>
+              <form action="/admin/courses/<%= course._id %>/toggle" method="POST">
+                <input type="hidden" name="_method" value="PATCH">
+                <button class="rounded-full border px-3 py-2 text-sm font-semibold"><%= course.isActive ? "Archive" : "Restore" %></button>
+              </form>
+            </div>
+          </div>
+        </article>
+      <% }) %>
+      <% if (!courses.length) { %>
+        <p class="rounded-2xl border border-dashed p-8 text-center text-slate-500">No courses yet. Add the first course to enable note submissions.</p>
+      <% } %>
+    </section>
+  </div>
+</main>

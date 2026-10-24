@@ -1,0 +1,29 @@
+<% layout("layouts/boilerplate") %>
+
+<main class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <p class="text-sm font-semibold uppercase tracking-wider text-blue-700">Administration</p>
+      <h1 class="mt-1 text-3xl font-bold text-slate-900 dark:text-white">Users</h1>
+    </div>
+    <nav class="flex flex-wrap gap-3 text-sm font-semibold text-blue-700">
+      <a href="/admin/dashboard">Dashboard</a><a href="/admin/courses">Courses</a><a href="/admin/notes">Notes</a><a href="/admin/auth-activity">Auth activity</a><a href="/admin/contributions">Contributions</a>
+    </nav>
+  </div>
+  <div class="mt-8 overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+    <table class="w-full min-w-[700px] text-left text-sm">
+      <thead class="bg-slate-50 text-xs uppercase text-slate-500 dark:bg-slate-800"><tr><th class="p-4">Name</th><th class="p-4">Email</th><th class="p-4">Role</th><th class="p-4">Status</th><th class="p-4">University</th><th class="p-4"></th></tr></thead>
+      <tbody>
+        <% users.forEach(function (user) { %>
+          <tr class="border-t border-slate-100 dark:border-slate-800">
+            <td class="p-4 font-semibold"><%= user.name %></td><td class="p-4"><%= user.email || "—" %></td>
+            <td class="p-4"><%= user.role %></td><td class="p-4"><%= user.isBlocked ? "Blocked" : user.isActive ? "Active" : "Inactive" %><%= user.isVerified ? " · Verified" : " · Unverified" %></td>
+            <td class="p-4"><%= [user.university, user.college].filter(Boolean).join(" · ") || "—" %></td>
+            <td class="p-4"><a href="/admin/users/<%= user._id %>" class="font-semibold text-blue-700 hover:underline">Details</a></td>
+          </tr>
+        <% }) %>
+        <% if (!users.length) { %><tr><td colspan="6" class="p-8 text-center text-slate-500">No users found.</td></tr><% } %>
+      </tbody>
+    </table>
+  </div>
+</main>
