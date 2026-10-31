@@ -145,6 +145,12 @@ module.exports.editForm = async (req, res) => {
     return res.redirect("/notes/mine");
   }
   const courses = await Course.find({ isActive: true }).sort({ name: 1 }).select("name");
+  if (!note.courseId) {
+    const legacyCourse = courses.find(
+      (course) => course.name.trim().toLowerCase() === String(note.course || "").trim().toLowerCase(),
+    );
+    if (legacyCourse) note.courseId = legacyCourse._id;
+  }
   res.render("notesphere/new-note.ejs", { courses, note });
 };
 

@@ -58,7 +58,7 @@ async function renderHome(req, res) {
     id: String(note._id),
     title: note.title || "Untitled note",
     excerpt: note.description || "Open this note to view its shared resource.",
-    cover: "/images/logo.png",
+    cover: "/images/note-thumbnail.svg",
     tag: note.subject || note.course || "Study notes",
     author: note.author?.name || note.author?.username || "NoteSphere student",
     avatar: note.author?.avatar || "/images/logo.png",

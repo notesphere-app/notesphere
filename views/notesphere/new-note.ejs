@@ -45,14 +45,14 @@
       <div class="grid gap-5 sm:grid-cols-2">
         <fieldset class="min-w-0 rounded-xl border border-slate-200 p-4 dark:border-slate-700">
           <legend class="px-1 text-sm font-semibold text-slate-700 dark:text-slate-200">1. Choose universities</legend>
-          <p class="mb-3 text-xs text-slate-500">Select one or more universities where these notes are useful.</p>
+          <p class="mb-3 text-xs text-slate-500"><%= editing ? "Your current universities are preselected. Update them if needed." : "Select one or more universities where these notes are useful." %></p>
           <div id="note-universities" class="max-h-64 space-y-2 overflow-y-auto" aria-live="polite">
             <p class="text-sm text-slate-500">Select a course first.</p>
           </div>
         </fieldset>
         <fieldset class="min-w-0 rounded-xl border border-slate-200 p-4 dark:border-slate-700">
           <legend class="px-1 text-sm font-semibold text-slate-700 dark:text-slate-200">2. Choose colleges</legend>
-          <p class="mb-3 text-xs text-slate-500">Colleges appear under the universities you select.</p>
+          <p class="mb-3 text-xs text-slate-500"><%= editing ? "Your current colleges are preselected. Colleges are grouped under each university." : "Colleges appear under the universities you select." %></p>
           <div id="note-colleges" class="max-h-64 space-y-3 overflow-y-auto" aria-live="polite">
             <p class="text-sm text-slate-500">Choose a university to see its colleges.</p>
           </div>
