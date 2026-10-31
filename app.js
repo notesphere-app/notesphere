@@ -37,6 +37,7 @@ const adminRouter = require("./routes/admin.js");
 const othersRouter = require("./routes/others.js");
 const blogRouter = require("./routes/blog.js");
 const notesRouter = require("./routes/notes.js");
+const searchRouter = require("./routes/search.js");
 const sitemapRouter = require("./routes/sitemap.js");
 const chatRouter = require("./routes/chat.js");
 const seoMeta = require("./utils/seoMeta.json");
@@ -327,6 +328,7 @@ app.get(
 );
 
 app.use("/", userRouter);
+app.use("/", searchRouter);
 app.use("/", homeRouter);
 app.use("/", resetRout);
 app.use("/", othersRouter);

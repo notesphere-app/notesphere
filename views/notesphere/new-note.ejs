@@ -43,15 +43,22 @@
         </label>
       </div>
       <div class="grid gap-5 sm:grid-cols-2">
-        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200">Universities
-          <select name="universities[]" id="note-universities" multiple required size="5" disabled class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900"></select>
-          <span class="mt-1 block text-xs text-slate-500">Select one or more. Hold Ctrl (Windows) or Command (Mac) to select several.</span>
-        </label>
-        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200">Colleges
-          <select name="colleges[]" id="note-colleges" multiple required size="5" disabled class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900"></select>
-          <span class="mt-1 block text-xs text-slate-500">Only colleges belonging to your selected universities are listed.</span>
-        </label>
+        <fieldset class="min-w-0 rounded-xl border border-slate-200 p-4 dark:border-slate-700">
+          <legend class="px-1 text-sm font-semibold text-slate-700 dark:text-slate-200">1. Choose universities</legend>
+          <p class="mb-3 text-xs text-slate-500">Select one or more universities where these notes are useful.</p>
+          <div id="note-universities" class="max-h-64 space-y-2 overflow-y-auto" aria-live="polite">
+            <p class="text-sm text-slate-500">Select a course first.</p>
+          </div>
+        </fieldset>
+        <fieldset class="min-w-0 rounded-xl border border-slate-200 p-4 dark:border-slate-700">
+          <legend class="px-1 text-sm font-semibold text-slate-700 dark:text-slate-200">2. Choose colleges</legend>
+          <p class="mb-3 text-xs text-slate-500">Colleges appear under the universities you select.</p>
+          <div id="note-colleges" class="max-h-64 space-y-3 overflow-y-auto" aria-live="polite">
+            <p class="text-sm text-slate-500">Choose a university to see its colleges.</p>
+          </div>
+        </fieldset>
       </div>
+      <p id="note-campus-error" class="hidden text-sm font-medium text-rose-600" role="alert">Choose at least one university and one college.</p>
       <label class="block text-sm font-medium text-slate-700 dark:text-slate-200">Note title
         <input name="title" required maxlength="160" value="<%= note?.title || '' %>" class="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 dark:border-slate-700">
       </label>
@@ -105,8 +112,9 @@
     if (!form || !courseSelect) return;
     const specializationSelect = document.getElementById("note-specialization");
     const semesterSelect = document.getElementById("note-semester");
-    const universitiesSelect = document.getElementById("note-universities");
-    const collegesSelect = document.getElementById("note-colleges");
+    const universitiesList = document.getElementById("note-universities");
+    const collegesList = document.getElementById("note-colleges");
+    const campusError = document.getElementById("note-campus-error");
     const initialUniversities = new Set(form.dataset.selectedUniversities.split(",").filter(Boolean));
     const initialColleges = new Set(form.dataset.selectedColleges.split(",").filter(Boolean));
     const initialSpecialization = form.dataset.selectedSpecialization;
@@ -114,37 +122,95 @@
     let selectedCourse = null;
     let loadingInitialCourse = true;
 
-    function setOptions(select, options, placeholder, selectedIds) {
+    function setOptions(select, options, placeholder) {
       select.replaceChildren();
       if (placeholder) select.add(new Option(placeholder, ""));
       options.forEach(function (option) {
         const item = typeof option === "string"
           ? new Option(option, option)
           : new Option(option.name, option._id);
-        item.selected = selectedIds ? selectedIds.has(item.value) : false;
         select.add(item);
       });
       select.disabled = options.length === 0;
     }
 
-    function selectedValues(select) {
-      return new Set(Array.from(select.selectedOptions).map(function (option) { return option.value; }));
+    function renderUniversityChoices(universities, selectedIds) {
+      universitiesList.replaceChildren();
+      if (!universities.length) {
+        universitiesList.textContent = "No universities are available yet.";
+        return;
+      }
+      universities.forEach(function (university) {
+        const label = document.createElement("label");
+        label.className = "flex cursor-pointer items-center gap-3 rounded-lg border border-slate-200 px-3 py-2 text-sm hover:border-blue-300 hover:bg-blue-50 dark:border-slate-700 dark:hover:bg-slate-800";
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.name = "universities[]";
+        checkbox.value = university._id;
+        checkbox.checked = Boolean(selectedIds && selectedIds.has(university._id));
+        checkbox.className = "h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500";
+        checkbox.addEventListener("change", function () {
+          renderCollegeChoices(selectedValues(universitiesList), selectedValues(collegesList));
+        });
+        const name = document.createElement("span");
+        name.textContent = university.name;
+        label.append(checkbox, name);
+        universitiesList.appendChild(label);
+      });
     }
 
-    function updateColleges(selectedIds) {
-      const currentUniversityIds = selectedValues(universitiesSelect);
-      const colleges = (selectedCourse?.universities || [])
-        .filter(function (university) { return currentUniversityIds.has(university._id); })
-        .flatMap(function (university) { return university.colleges; });
-      setOptions(collegesSelect, colleges, "", selectedIds);
+    function selectedValues(container) {
+      return new Set(Array.from(container.querySelectorAll('input[type="checkbox"]:checked')).map(function (input) {
+        return input.value;
+      }));
+    }
+
+    function renderCollegeChoices(selectedUniversityIds, selectedCollegeIds) {
+      collegesList.replaceChildren();
+      const selectedUniversities = (selectedCourse?.universities || []).filter(function (university) {
+        return selectedUniversityIds.has(university._id);
+      });
+      if (!selectedUniversities.length) {
+        collegesList.textContent = "Choose a university to see its colleges.";
+        return;
+      }
+      selectedUniversities.forEach(function (university) {
+        const group = document.createElement("fieldset");
+        group.className = "space-y-2";
+        const legend = document.createElement("legend");
+        legend.className = "text-xs font-bold uppercase tracking-wide text-slate-500";
+        legend.textContent = university.name;
+        group.appendChild(legend);
+        if (!university.colleges.length) {
+          const empty = document.createElement("p");
+          empty.className = "text-sm text-slate-500";
+          empty.textContent = "No colleges are listed for this university yet.";
+          group.appendChild(empty);
+        }
+        university.colleges.forEach(function (college) {
+          const label = document.createElement("label");
+          label.className = "flex cursor-pointer items-center gap-3 rounded-lg border border-slate-200 px-3 py-2 text-sm hover:border-blue-300 hover:bg-blue-50 dark:border-slate-700 dark:hover:bg-slate-800";
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.name = "colleges[]";
+          checkbox.value = college._id;
+          checkbox.checked = Boolean(selectedCollegeIds && selectedCollegeIds.has(college._id));
+          checkbox.className = "h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500";
+          const name = document.createElement("span");
+          name.textContent = college.name;
+          label.append(checkbox, name);
+          group.appendChild(label);
+        });
+        collegesList.appendChild(group);
+      });
     }
 
     async function loadCourse(courseId, initial) {
       selectedCourse = null;
       setOptions(specializationSelect, [], "Loading...");
       setOptions(semesterSelect, [], "Loading...");
-      setOptions(universitiesSelect, [], "Loading...");
-      setOptions(collegesSelect, [], "Select a university first");
+      universitiesList.textContent = courseId ? "Loading universities..." : "Select a course first.";
+      collegesList.textContent = "Choose a university to see its colleges.";
       if (!courseId) return;
       try {
         const response = await fetch("/notes/courses/" + encodeURIComponent(courseId), {
@@ -163,18 +229,16 @@
           "Select semester",
         );
         semesterSelect.value = initial && initialSemester ? initialSemester : "1";
-        setOptions(
-          universitiesSelect,
-          selectedCourse.universities,
-          "",
-          initial ? initialUniversities : null,
+        renderUniversityChoices(selectedCourse.universities, initial ? initialUniversities : null);
+        renderCollegeChoices(
+          initial ? initialUniversities : new Set(),
+          initial ? initialColleges : new Set(),
         );
-        updateColleges(initial ? initialColleges : null);
       } catch (error) {
         setOptions(specializationSelect, [], "Could not load course");
         setOptions(semesterSelect, [], "Could not load course");
-        setOptions(universitiesSelect, [], "Could not load campuses");
-        setOptions(collegesSelect, [], "Could not load campuses");
+        universitiesList.textContent = "Could not load universities.";
+        collegesList.textContent = "Could not load colleges.";
         window.alert(error.message);
       } finally {
         loadingInitialCourse = false;
@@ -184,8 +248,13 @@
     courseSelect.addEventListener("change", function () {
       loadCourse(courseSelect.value, false);
     });
-    universitiesSelect.addEventListener("change", function () {
-      updateColleges(selectedValues(collegesSelect));
+    form.addEventListener("submit", function (event) {
+      const validCampus = selectedValues(universitiesList).size > 0 && selectedValues(collegesList).size > 0;
+      campusError.classList.toggle("hidden", validCampus);
+      if (!validCampus) {
+        event.preventDefault();
+        campusError.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
     });
     if (courseSelect.value) loadCourse(courseSelect.value, loadingInitialCourse);
   })();

@@ -115,6 +115,29 @@
   <% } %>
 </section>
 
+<div id="note-share-modal" class="fixed inset-0 z-[120] hidden items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="note-share-title">
+  <div class="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl dark:bg-slate-900 sm:p-6">
+    <div class="flex items-center justify-between gap-3">
+      <div>
+        <h2 id="note-share-title" class="text-lg font-bold text-slate-900 dark:text-white">Share these notes</h2>
+        <p class="mt-1 truncate text-sm text-slate-500 dark:text-slate-400"><%= note.title %></p>
+      </div>
+      <button type="button" id="note-share-close" aria-label="Close share dialog" class="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="mt-5 grid grid-cols-2 gap-3">
+      <a id="note-share-whatsapp" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 rounded-xl border p-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-50 dark:border-slate-700 dark:text-emerald-300 dark:hover:bg-slate-800"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
+      <a id="note-share-facebook" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 rounded-xl border p-3 text-sm font-semibold text-blue-700 hover:bg-blue-50 dark:border-slate-700 dark:text-blue-300 dark:hover:bg-slate-800"><i class="fa-brands fa-facebook"></i> Facebook</a>
+      <a id="note-share-x" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 rounded-xl border p-3 text-sm font-semibold hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"><i class="fa-brands fa-x-twitter"></i> X</a>
+      <a id="note-share-telegram" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 rounded-xl border p-3 text-sm font-semibold text-sky-700 hover:bg-sky-50 dark:border-slate-700 dark:text-sky-300 dark:hover:bg-slate-800"><i class="fa-brands fa-telegram"></i> Telegram</a>
+    </div>
+    <div class="mt-4 flex gap-2">
+      <input id="note-share-url" readonly class="min-w-0 flex-1 rounded-lg border bg-slate-50 px-3 py-2 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">
+      <button type="button" id="note-share-copy" class="shrink-0 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"><i class="fa-regular fa-copy"></i> Copy</button>
+    </div>
+    <p id="note-share-status" class="mt-2 min-h-5 text-xs text-emerald-700 dark:text-emerald-300" role="status" aria-live="polite"></p>
+  </div>
+</div>
+
 <div id="download-campus-modal" class="fixed inset-0 z-[120] hidden items-center justify-center bg-slate-950/60 p-4" role="dialog" aria-modal="true" aria-labelledby="download-campus-title">
   <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-slate-900">
     <h2 id="download-campus-title" class="text-xl font-bold text-slate-900 dark:text-white">Your university details</h2>
@@ -143,6 +166,9 @@
     var downloadModal = document.getElementById("download-campus-modal");
     var downloadCancel = document.getElementById("download-campus-cancel");
     var downloadLink = document.getElementById("note-download");
+    var shareModal = document.getElementById("note-share-modal");
+    var shareUrl = document.getElementById("note-share-url");
+    var shareStatus = document.getElementById("note-share-status");
     function post(url) {
       return fetch(url, { method: "POST", headers: { Accept: "application/json" } })
         .then(function (response) {
@@ -169,11 +195,49 @@
       }).catch(function (error) { window.alert(error.message); });
     });
     if (share) share.addEventListener("click", function () {
-      if (navigator.share) navigator.share({ title: document.title, url: location.href });
-      else if (navigator.clipboard) navigator.clipboard.writeText(location.href).then(function () {
-        window.alert("Link copied.");
-      }).catch(function () { window.prompt("Copy this link:", location.href); });
-      else window.prompt("Copy this link:", location.href);
+      var url = location.origin + location.pathname;
+      var title = document.getElementById("note-share-title").textContent;
+      var encodedUrl = encodeURIComponent(url);
+      var encodedTitle = encodeURIComponent(title);
+      shareUrl.value = url;
+      shareStatus.textContent = "";
+      document.getElementById("note-share-whatsapp").href = "https://wa.me/?text=" + encodeURIComponent(title + " " + url);
+      document.getElementById("note-share-facebook").href = "https://www.facebook.com/sharer/sharer.php?u=" + encodedUrl;
+      document.getElementById("note-share-x").href = "https://twitter.com/intent/tweet?url=" + encodedUrl + "&text=" + encodedTitle;
+      document.getElementById("note-share-telegram").href = "https://t.me/share/url?url=" + encodedUrl + "&text=" + encodedTitle;
+      shareModal.classList.remove("hidden");
+      shareModal.classList.add("flex");
+      document.getElementById("note-share-close").focus();
+    });
+    document.getElementById("note-share-close").addEventListener("click", function () {
+      shareModal.classList.add("hidden");
+      shareModal.classList.remove("flex");
+    });
+    shareModal.addEventListener("click", function (event) {
+      if (event.target === shareModal) {
+        shareModal.classList.add("hidden");
+        shareModal.classList.remove("flex");
+      }
+    });
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") {
+        shareModal.classList.add("hidden");
+        shareModal.classList.remove("flex");
+      }
+    });
+    document.getElementById("note-share-copy").addEventListener("click", function () {
+      var fallback = function () {
+        shareUrl.select();
+        if (!document.execCommand("copy")) throw new Error("Copy failed");
+      };
+      var copyPromise = navigator.clipboard
+        ? navigator.clipboard.writeText(shareUrl.value).catch(fallback)
+        : Promise.resolve().then(fallback);
+      copyPromise.then(function () {
+        shareStatus.textContent = "Link copied to clipboard.";
+      }).catch(function () {
+        shareStatus.textContent = "Copy was blocked. Select and copy the link above.";
+      });
     });
     if (downloadCancel && downloadModal) {
       downloadCancel.addEventListener("click", function () {

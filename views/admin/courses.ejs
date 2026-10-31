@@ -19,8 +19,6 @@
     <section class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
       <h2 class="text-xl font-bold text-slate-900 dark:text-white"><%= selected ? "Edit course" : "Add a course" %></h2>
       <form action="<%= selected ? `/admin/courses/${selected._id}` : '/admin/courses' %>" method="POST" class="mt-5 space-y-4">
-        <% if (selected) { %><input type="hidden" name="_method" value="PATCH"><% } %>
-        <input type="hidden" name="courseId" value="<%= selected?._id || '' %>">
         <label class="block text-sm font-semibold">Course name
           <input name="name" required maxlength="120" value="<%= selected?.name || '' %>" placeholder="B.Tech Computer Science"
             class="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 dark:border-slate-700">
@@ -54,11 +52,9 @@
             <div class="flex gap-2">
               <a href="/admin/courses?edit=<%= course._id %>" class="rounded-full border px-3 py-2 text-sm font-semibold">Edit</a>
               <form action="/admin/courses/<%= course._id %>/toggle" method="POST">
-                <input type="hidden" name="_method" value="PATCH">
                 <button class="rounded-full border px-3 py-2 text-sm font-semibold"><%= course.isActive ? "Archive" : "Restore" %></button>
               </form>
-              <form action="/admin/courses/<%= course._id %>" method="POST" onsubmit="return confirm('Delete this course? Courses linked to notes cannot be deleted.')">
-                <input type="hidden" name="_method" value="DELETE">
+              <form action="/admin/courses/<%= course._id %>/delete" method="POST" onsubmit="return confirm('Delete this course? Courses linked to notes cannot be deleted.')">
                 <button class="rounded-full border border-rose-300 px-3 py-2 text-sm font-semibold text-rose-700">Delete</button>
               </form>
             </div>

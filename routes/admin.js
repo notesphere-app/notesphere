@@ -77,14 +77,21 @@ router.delete(
 
 router.get("/courses", isLoggedIn, isAdmin, courseAdminController.listCourses);
 router.post("/courses", isLoggedIn, isAdmin, courseAdminController.saveCourse);
+router.post("/courses/:id", isLoggedIn, isAdmin, courseAdminController.saveCourse);
+router.post("/courses/:id/toggle", isLoggedIn, isAdmin, courseAdminController.toggleCourse);
+router.post("/courses/:id/delete", isLoggedIn, isAdmin, courseAdminController.deleteCourse);
 router.patch("/courses/:id", isLoggedIn, isAdmin, courseAdminController.saveCourse);
 router.patch("/courses/:id/toggle", isLoggedIn, isAdmin, courseAdminController.toggleCourse);
 router.delete("/courses/:id", isLoggedIn, isAdmin, courseAdminController.deleteCourse);
 router.get("/universities", isLoggedIn, isAdmin, campusAdminController.list);
 router.post("/universities", isLoggedIn, isAdmin, campusAdminController.createUniversity);
+router.post("/universities/:id", isLoggedIn, isAdmin, campusAdminController.updateUniversity);
+router.post("/universities/:id/delete", isLoggedIn, isAdmin, campusAdminController.deleteUniversity);
 router.patch("/universities/:id", isLoggedIn, isAdmin, campusAdminController.updateUniversity);
 router.delete("/universities/:id", isLoggedIn, isAdmin, campusAdminController.deleteUniversity);
 router.post("/colleges", isLoggedIn, isAdmin, campusAdminController.createCollege);
+router.post("/colleges/:id", isLoggedIn, isAdmin, campusAdminController.updateCollege);
+router.post("/colleges/:id/delete", isLoggedIn, isAdmin, campusAdminController.deleteCollege);
 router.patch("/colleges/:id", isLoggedIn, isAdmin, campusAdminController.updateCollege);
 router.delete("/colleges/:id", isLoggedIn, isAdmin, campusAdminController.deleteCollege);
 router.get("/notes", isLoggedIn, isAdmin, courseAdminController.listNotes);

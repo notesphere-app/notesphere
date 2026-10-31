@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const Course = require("../models/course");
 const Note = require("../models/note");
 const University = require("../models/university");
+const College = require("../models/college");
 const { parseNoteFields } = require("../utils/noteFields");
 
 function parseCourseInput(body) {
@@ -45,7 +46,7 @@ module.exports.saveCourse = async (req, res) => {
     req.flash("error", "Check the course name, semester count, specializations, and campus list.");
     return res.redirect("/admin/courses");
   }
-  const editId = typeof req.body.courseId === "string" ? req.body.courseId : "";
+  const editId = req.params.id || (typeof req.body.courseId === "string" ? req.body.courseId : "");
   if (editId && !mongoose.Types.ObjectId.isValid(editId)) {
     req.flash("error", "Course not found.");
     return res.redirect("/admin/courses");
@@ -60,7 +61,13 @@ module.exports.saveCourse = async (req, res) => {
   }
 
   if (editId) {
-    await Course.findByIdAndUpdate(editId, courseData, { runValidators: true });
+    const course = await Course.findById(editId);
+    if (!course) {
+      req.flash("error", "Course not found.");
+      return res.redirect("/admin/courses");
+    }
+    course.set(courseData);
+    await course.save();
     req.flash("success", "Course updated.");
   } else {
     await Course.create({ ...courseData, createdBy: req.user._id });

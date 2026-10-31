@@ -237,6 +237,7 @@
           <i class="fa-solid fa-xmark text-xs"></i>
         </button>
       </form>
+      <div id="mobile-search-results" class="mt-2 hidden overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-800 dark:bg-slate-900" aria-live="polite"></div>
     </div>
   </div>
 </nav>
@@ -715,22 +716,41 @@
     });
 
     function renderResultsInto(container, items) {
+      if (!container) return;
+      container.replaceChildren();
       if (!items || !items.length) {
-        container.innerHTML = '<p class="px-3 py-6 text-center text-sm text-slate-400">No results found.</p>';
-        searchResults?.classList.remove("hidden");
-        positionSearchPanels();
+        const empty = document.createElement("p");
+        empty.className = "px-3 py-6 text-center text-sm text-slate-400";
+        empty.textContent = "No close matches. Try a different spelling.";
+        container.appendChild(empty);
+        if (container === searchResultItems) {
+          searchResults?.classList.remove("hidden");
+          positionSearchPanels();
+        }
         return;
       }
-      container.innerHTML = items.map(function (item) {
-        return '<a href="' + (item.url || '#') + '" class="flex items-center gap-3 rounded-xl px-3 py-2 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">' +
-          '<span class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-[#0878E8]/10 text-[#0878E8]"><i class="' + (item.icon || 'fa-solid fa-file-lines') + '"></i></span>' +
-          '<span class="min-w-0 flex-1">' +
-            '<span class="block truncate text-sm font-medium text-[#022E5A] dark:text-white">' + item.title + '</span>' +
-            '<span class="block truncate text-xs text-slate-400">' + (item.subtitle || '') + '</span>' +
-          '</span>' +
-        '</a>';
-      }).join("");
-      searchResults?.classList.remove("hidden");
+      items.forEach(function (item) {
+        const link = document.createElement("a");
+        link.href = item.url || "#";
+        link.className = "flex items-center gap-3 rounded-xl px-3 py-2 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800";
+        const iconWrap = document.createElement("span");
+        iconWrap.className = "flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-[#0878E8]/10 text-[#0878E8]";
+        const icon = document.createElement("i");
+        icon.className = item.icon || "fa-solid fa-file-lines";
+        iconWrap.appendChild(icon);
+        const textWrap = document.createElement("span");
+        textWrap.className = "min-w-0 flex-1";
+        const title = document.createElement("span");
+        title.className = "block truncate text-sm font-medium text-[#022E5A] dark:text-white";
+        title.textContent = item.title || "Search result";
+        const subtitle = document.createElement("span");
+        subtitle.className = "block truncate text-xs text-slate-400";
+        subtitle.textContent = item.subtitle || "";
+        textWrap.append(title, subtitle);
+        link.append(iconWrap, textWrap);
+        container.appendChild(link);
+      });
+      if (container === searchResultItems) searchResults?.classList.remove("hidden");
     }
 
     function runSearch(q, resultsEl) {
@@ -765,6 +785,7 @@
     const mobileSearchPanel = document.getElementById("mobile-search-panel");
     const mobileSearchInput = document.getElementById("mobile-search-input");
     const mobileSearchClose = document.getElementById("mobile-search-close");
+    const mobileSearchResults = document.getElementById("mobile-search-results");
     let mobileSearchOpen = false;
 
     function openMobileSearch() {
@@ -783,6 +804,9 @@
       mobileSearchPanel.classList.remove("opacity-100", "translate-y-0");
       mobileSearchToggle?.setAttribute("aria-expanded", "false");
       if (mobileSearchInput) mobileSearchInput.value = "";
+      mobileSearchResults?.classList.add("hidden");
+      mobileSearchResults?.replaceChildren();
+      searchAbort?.abort();
       setTimeout(function () {
         if (!mobileSearchOpen) mobileSearchPanel.classList.add("hidden");
       }, 220);
@@ -792,6 +816,19 @@
       mobileSearchOpen ? closeMobileSearch() : openMobileSearch();
     });
     mobileSearchClose?.addEventListener("click", closeMobileSearch);
+    mobileSearchInput?.addEventListener("input", function () {
+      const query = mobileSearchInput.value.trim();
+      clearTimeout(searchDebounce);
+      if (!query) {
+        mobileSearchResults?.classList.add("hidden");
+        mobileSearchResults?.replaceChildren();
+        return;
+      }
+      searchDebounce = setTimeout(function () {
+        runSearch(query, mobileSearchResults);
+        mobileSearchResults?.classList.remove("hidden");
+      }, 200);
+    });
 
     /* -------- Logout confirmation -------- */
     const logoutRoot = document.getElementById("logout-modal-root");

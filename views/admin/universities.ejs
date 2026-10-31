@@ -29,13 +29,11 @@
         <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
           <div class="space-y-4">
             <form action="/admin/universities/<%= university._id %>" method="POST" class="flex gap-2">
-              <input type="hidden" name="_method" value="PATCH">
               <label class="sr-only" for="university-<%= university._id %>">University name</label>
               <input id="university-<%= university._id %>" name="name" required minlength="2" maxlength="160" value="<%= university.name %>" class="min-w-0 flex-1 rounded-lg border px-3 py-2 font-semibold dark:bg-slate-950">
               <button class="rounded-full border px-4 py-2 text-sm font-semibold">Save</button>
             </form>
-            <form action="/admin/universities/<%= university._id %>" method="POST" onsubmit="return confirm('Delete this university? It must have no colleges or linked notes.')">
-              <input type="hidden" name="_method" value="DELETE">
+            <form action="/admin/universities/<%= university._id %>/delete" method="POST" onsubmit="return confirm('Delete this university? It must have no colleges or linked notes.')">
               <button class="rounded-full border border-rose-300 px-4 py-2 text-sm font-semibold text-rose-700">Delete university</button>
             </form>
             <form action="/admin/colleges" method="POST" class="rounded-xl border border-slate-200 p-4 dark:border-slate-700">
@@ -54,13 +52,11 @@
                 <% university.colleges.forEach(function (college) { %>
                   <li class="flex flex-wrap items-center gap-2 rounded-xl bg-slate-50 p-3 dark:bg-slate-800">
                     <form action="/admin/colleges/<%= college._id %>" method="POST" class="flex min-w-0 flex-1 gap-2">
-                      <input type="hidden" name="_method" value="PATCH">
                       <label class="sr-only" for="college-<%= college._id %>">College name</label>
                       <input id="college-<%= college._id %>" name="name" required minlength="2" maxlength="160" value="<%= college.name %>" class="min-w-0 flex-1 rounded-lg border px-3 py-2 dark:bg-slate-950">
                       <button class="rounded-full border px-3 py-2 text-sm font-semibold">Save</button>
                     </form>
-                    <form action="/admin/colleges/<%= college._id %>" method="POST" onsubmit="return confirm('Delete this college? Linked notes must be updated first.')">
-                      <input type="hidden" name="_method" value="DELETE">
+                    <form action="/admin/colleges/<%= college._id %>/delete" method="POST" onsubmit="return confirm('Delete this college? Linked notes must be updated first.')">
                       <button class="rounded-full border border-rose-300 px-3 py-2 text-sm font-semibold text-rose-700">Delete</button>
                     </form>
                   </li>
