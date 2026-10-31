@@ -252,11 +252,30 @@
             <% } %>
             <div class="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-medium text-slate-500 dark:text-slate-400">
               <span><i class="fa-regular fa-clock mr-1 text-[#0878E8]"></i><span id="blog-reading-time">Reading time</span></span>
-              <span><i class="fa-regular fa-eye mr-1 text-[#0878E8]"></i><%= (blog.usersSeen || []).length.toLocaleString("en-IN") %> readers</span>
+              <span><i class="fa-regular fa-eye mr-1 text-[#0878E8]"></i><%= viewCount.toLocaleString("en-IN") %> views</span>
               <span><i class="fa-regular fa-comments mr-1 text-[#0878E8]"></i><%= (blog.comments || []).length.toLocaleString("en-IN") %> comments</span>
             </div>
           </div>
         </section>
+
+        <div class="mb-8 flex flex-wrap items-center gap-2 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <% if (currUser) { %>
+            <button type="button" data-blog-action="like" aria-pressed="<%= likedByMe %>" class="blog-engagement-button rounded-full border px-4 py-2 text-sm font-semibold">
+              <i class="<%= likedByMe ? 'fa-solid' : 'fa-regular' %> fa-thumbs-up"></i> Like (<span class="blog-like-count"><%= blog.likes.length %></span>)
+            </button>
+            <button type="button" data-blog-action="save" aria-pressed="<%= savedByMe %>" class="blog-engagement-button rounded-full border px-4 py-2 text-sm font-semibold">
+              <i class="<%= savedByMe ? 'fa-solid' : 'fa-regular' %> fa-bookmark"></i> <span><%= savedByMe ? "Saved" : "Save" %></span>
+            </button>
+          <% } else { %>
+            <a href="/login" class="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-[#0878E8] dark:border-slate-700">Log in to like or save</a>
+          <% } %>
+          <a href="#comments" class="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-[#022E5A] dark:border-slate-700 dark:text-slate-100">
+            <i class="fa-regular fa-comments"></i> Comments (<span><%= blog.comments.length %></span>)
+          </a>
+          <button type="button" onclick="openShareModal()" class="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-[#022E5A] hover:border-[#0878E8] hover:text-[#0878E8] dark:border-slate-700 dark:text-slate-100">
+            <i class="fa-solid fa-share-nodes"></i> Share
+          </button>
+        </div>
 
         <!-- Blog Content -->
         <div class="mb-12 grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-start">
@@ -286,35 +305,31 @@
             </summary>
             <nav id="blog-toc" aria-label="Table of contents" class="mt-4 space-y-1 border-t border-slate-100 pt-3 dark:border-slate-800"></nav>
           </details>
-          <div class="rounded-2xl bg-[#022E5A] p-5 text-white shadow-sm">
-            <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-[#8CC4FF]"><i class="fa-regular fa-envelope"></i></span>
-            <h3 class="mt-4 font-semibold">More from NoteSphere</h3>
-            <p class="mt-1 text-sm leading-6 text-blue-100">Get occasional updates when new notes and articles are added.</p>
-            <a href="#subscribe-form" class="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#022E5A] transition hover:bg-blue-50">
-              Subscribe <i class="fa-solid fa-arrow-right text-xs"></i>
+          <div class="rounded-2xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-900 dark:bg-blue-950/40">
+            <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-blue-700 dark:bg-slate-900 dark:text-blue-300"><i class="fa-solid fa-book-open"></i></span>
+            <h3 class="mt-4 font-semibold text-[#022E5A] dark:text-white">Find notes for your next exam</h3>
+            <p class="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">Browse notes and study material shared by students.</p>
+            <a href="/notes" class="mt-4 inline-flex items-center gap-2 rounded-full bg-[#0878E8] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#0668CC]">
+              Browse notes <i class="fa-solid fa-arrow-right text-xs"></i>
             </a>
-          </div>
-          <div class="rounded-2xl border border-slate-200/80 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
-            <h3 class="font-semibold text-[#022E5A] dark:text-white">Support free learning</h3>
-            <p class="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">A voluntary contribution helps with NoteSphere hosting and upkeep.</p>
-            <button type="button" data-donate-open class="mt-4 inline-flex items-center gap-2 rounded-full bg-[#0878E8] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#0668CC]">
-              <i class="fa-solid fa-heart"></i> Support NoteSphere
-            </button>
           </div>
         </aside>
         </div>
 
         <div class="mb-8 flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <% if (currUser) { %>
-            <button type="button" id="blog-like" aria-pressed="<%= likedByMe %>" class="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-[#022E5A] transition hover:border-[#0878E8] hover:text-[#0878E8] aria-pressed:bg-[#0878E8]/10 aria-pressed:text-[#0878E8] dark:border-slate-700 dark:text-slate-100">
-              <i class="fa-regular fa-thumbs-up"></i> Like (<span id="blog-like-count"><%= blog.likes.length %></span>)
+            <button type="button" data-blog-action="like" aria-pressed="<%= likedByMe %>" class="blog-engagement-button rounded-full border px-4 py-2 text-sm font-semibold">
+              <i class="<%= likedByMe ? 'fa-solid' : 'fa-regular' %> fa-thumbs-up"></i> Like (<span class="blog-like-count"><%= blog.likes.length %></span>)
             </button>
-            <button type="button" id="blog-save" aria-pressed="<%= savedByMe %>" class="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-[#022E5A] transition hover:border-[#0878E8] hover:text-[#0878E8] dark:border-slate-700 dark:text-slate-100">
-              <i class="fa-regular fa-bookmark"></i> <span><%= savedByMe ? "Saved" : "Save" %></span>
+            <button type="button" data-blog-action="save" aria-pressed="<%= savedByMe %>" class="blog-engagement-button rounded-full border px-4 py-2 text-sm font-semibold">
+              <i class="<%= savedByMe ? 'fa-solid' : 'fa-regular' %> fa-bookmark"></i> <span><%= savedByMe ? "Saved" : "Save" %></span>
             </button>
           <% } else { %>
             <a href="/login" class="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-[#0878E8] dark:border-slate-700">Log in to like or save</a>
           <% } %>
+          <a href="#comments" class="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-[#022E5A] dark:border-slate-700 dark:text-slate-100">
+            <i class="fa-regular fa-comments"></i> Comments (<%= blog.comments.length %>)
+          </a>
           <button type="button" onclick="openShareModal()" class="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-[#022E5A] hover:border-[#0878E8] hover:text-[#0878E8] dark:border-slate-700 dark:text-slate-100">
             <i class="fa-solid fa-share-nodes"></i> Share
           </button>
@@ -385,7 +400,7 @@
           <% } %>
 
           <!-- Comments List -->
-          <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
+          <div id="comments" class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
             <div class="flex items-center justify-between mb-8">
               <h3 class="text-2xl font-bold text-[#022E5A] dark:text-white">
                 <i class="far fa-comments mr-2 text-[#0878E8]"></i>
@@ -843,6 +858,15 @@ document.querySelectorAll('form').forEach(form => {
 #blog-toc-panel:not([open]) summary > span > i:last-child { transform: rotate(-90deg); }
 .blog-toc-link[aria-current="location"] { background: #eff6ff; color: #0878e8; }
 .dark .blog-toc-link[aria-current="location"] { background: #1e293b; color: #93c5fd; }
+.blog-engagement-button[aria-pressed="true"] {
+  border-color: #0878e8;
+  background: rgba(8, 120, 232, 0.12);
+  color: #0878e8;
+}
+.dark .blog-engagement-button[aria-pressed="true"] {
+  background: rgba(8, 120, 232, 0.2);
+  color: #93c5fd;
+}
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
@@ -904,25 +928,44 @@ document.querySelectorAll('form').forEach(form => {
     function send(action) {
       return fetch("/blogs/" + blogId + "/" + action, {
         method: "POST",
-        headers: { Accept: "application/json" }
+        headers: { Accept: "application/json" },
+        credentials: "same-origin"
       }).then(function (response) {
-        if (!response.ok) throw new Error("Please sign in and try again.");
-        return response.json();
+        return response.json().then(function (result) {
+          if (!response.ok) throw new Error(result.message || "Please sign in and try again.");
+          return result;
+        });
       });
     }
-    var like = document.getElementById("blog-like");
-    var save = document.getElementById("blog-save");
-    if (like) like.addEventListener("click", function () {
-      send("like").then(function (result) {
-        like.setAttribute("aria-pressed", result.liked);
-        document.getElementById("blog-like-count").textContent = result.count;
-      }).catch(function (error) { window.alert(error.message); });
-    });
-    if (save) save.addEventListener("click", function () {
-      send("save").then(function (result) {
-        save.setAttribute("aria-pressed", result.saved);
-        save.querySelector("span").textContent = result.saved ? "Saved" : "Save";
-      }).catch(function (error) { window.alert(error.message); });
+    document.querySelectorAll("[data-blog-action]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        var action = button.dataset.blogAction;
+        var actionButtons = Array.from(document.querySelectorAll('[data-blog-action="' + action + '"]'));
+        actionButtons.forEach(function (item) { item.disabled = true; });
+        send(action).then(function (result) {
+          var active = action === "like" ? result.liked : result.saved;
+          actionButtons.forEach(function (item) {
+            item.setAttribute("aria-pressed", String(active));
+            var icon = item.querySelector("i");
+            if (icon) {
+              icon.classList.toggle("fa-solid", active);
+              icon.classList.toggle("fa-regular", !active);
+            }
+            if (action === "save") {
+              var label = item.querySelector("span");
+              if (label) label.textContent = active ? "Saved" : "Save";
+            }
+            if (action === "like") {
+              var count = item.querySelector(".blog-like-count");
+              if (count) count.textContent = String(result.count);
+            }
+          });
+        }).catch(function (error) {
+          window.alert(error.message);
+        }).finally(function () {
+          actionButtons.forEach(function (item) { item.disabled = false; });
+        });
+      });
     });
   })();
 </script>

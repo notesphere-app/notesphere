@@ -5,9 +5,10 @@ NoteSphere is an Express, EJS, and MongoDB application for sharing study notes a
 ## Data features
 
 - User login history is kept on the user document and capped at the most recent 10 sign-ins. Entries include the sign-in method, timestamp, and coarse device type; IP addresses are stored only as keyed hashes.
-- Notes store a public URL and catalog details (title, description, course, semester, subject, and type). The current feature links to externally hosted notes; it does not upload or copy files.
-- Notes support comments, likes, saved-note lists, and download-event records. Blogs support comments, likes, saves, and shares.
-- Newsletter subscriptions from a new email require a time-limited email OTP. The currently signed-in account's verified email can subscribe without an additional OTP. Set `BREVO_API_KEY` and `SECRET` to enable OTP delivery and secure code hashing.
+- Universities and colleges use separate collections in the existing MongoDB database; each college belongs to one university. On startup, an idempotent migration imports legacy course and note campus data into the catalog.
+- Notes store a public URL and catalog details, including title, SEO description/keywords, course, semester, subject, category, type, and multiple university/college associations. Notes link to externally hosted files rather than uploading or copying them. New and uploader-edited notes require admin approval before public display; uploaders can edit/delete their notes and see only their own download and like counts.
+- Notes support comments, likes, saved-note lists, and download-event records. Blogs support comments, likes, saves, and shares. Blog views are deduplicated for guests and signed-in users; guest visitor keys are HMACs of request metadata and the blog ID, and raw IP addresses are not stored for view tracking.
+- Newsletter signup forms remain available in the footer and blog page. New email subscriptions require a time-limited email OTP, while a signed-in account's verified email does not require an additional OTP. Set `BREVO_API_KEY` and `SECRET` to enable OTP delivery and secure code hashing.
 - Contact messages do not require verification. They store guest/account status, coarse browser/device details, a source path, and a keyed IP hash; no precise GPS or raw IP is collected by the contact flow.
 - Essential session cookies are always used. Optional Google AdSense loads only after the visitor accepts it in the cookie prompt; the visitor can revisit their choice from the footer. No analytics cookies are introduced by these features.
 

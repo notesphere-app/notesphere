@@ -14,7 +14,7 @@
       <div><dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">Link provider</dt><dd class="mt-1 break-all font-semibold text-slate-900 dark:text-white"><%= resourceSource.provider %></dd></div>
       <div><dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">Web address</dt><dd class="mt-1 break-all text-sm text-slate-700 dark:text-slate-200"><%= resourceSource.hostname %></dd></div>
       <div><dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">Course</dt><dd class="mt-1 text-sm text-slate-700 dark:text-slate-200"><%= note.course %> · <%= note.subject %></dd></div>
-      <div><dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">Campus</dt><dd class="mt-1 break-words text-sm text-slate-700 dark:text-slate-200"><%= [note.university, note.college].filter(Boolean).join(" · ") || "Not specified" %></dd></div>
+      <div><dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">Campus</dt><dd class="mt-1 break-words text-sm text-slate-700 dark:text-slate-200"><%= [(note.universities || []).map((item) => item.name).join(", ") || note.university, (note.colleges || []).map((item) => item.name).join(", ") || note.college].filter(Boolean).join(" · ") || "Not specified" %></dd></div>
     </dl>
 
     <% if (adminVerified) { %>

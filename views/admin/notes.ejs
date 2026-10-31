@@ -5,11 +5,12 @@
     <div>
       <p class="text-sm font-semibold uppercase tracking-wider text-blue-700">Administration</p>
       <h1 class="mt-1 text-3xl font-bold text-slate-900 dark:text-white">Notes management</h1>
-      <p class="mt-2 text-slate-600 dark:text-slate-300">Review and update note details, course placement, and publication status.</p>
+      <p class="mt-2 text-slate-600 dark:text-slate-300">Review note details and metadata, manage publication, and remove notes.</p>
     </div>
     <nav class="flex gap-3 text-sm font-semibold text-blue-700">
       <a href="/admin/dashboard">Dashboard</a>
       <a href="/admin/courses">Courses</a>
+      <a href="/admin/universities">Universities</a>
       <a href="/admin/users">Users</a>
     </nav>
   </div>
@@ -34,14 +35,29 @@
           <label class="text-sm font-semibold">Subject
             <input name="subject" maxlength="100" required value="<%= note.subject %>" class="mt-1 w-full rounded-lg border px-3 py-2 dark:bg-slate-950">
           </label>
-          <label class="text-sm font-semibold">University
-            <input name="university" maxlength="160" value="<%= note.university || '' %>" class="mt-1 w-full rounded-lg border px-3 py-2 dark:bg-slate-950">
+          <label class="text-sm font-semibold">Universities
+            <select name="universities[]" multiple size="4" required class="mt-1 w-full rounded-lg border px-3 py-2 dark:bg-slate-950">
+              <% universities.forEach(function (university) { %>
+                <option value="<%= university._id %>" <%= (note.universities || []).some((item) => String(item._id || item) === String(university._id)) ? "selected" : "" %>><%= university.name %></option>
+              <% }); %>
+            </select>
           </label>
-          <label class="text-sm font-semibold">College
-            <input name="college" maxlength="160" value="<%= note.college || '' %>" class="mt-1 w-full rounded-lg border px-3 py-2 dark:bg-slate-950">
+          <label class="text-sm font-semibold">Colleges
+            <select name="colleges[]" multiple size="4" required class="mt-1 w-full rounded-lg border px-3 py-2 dark:bg-slate-950">
+              <% colleges.forEach(function (college) { %>
+                <option value="<%= college._id %>" <%= (note.colleges || []).some((item) => String(item._id || item) === String(college._id)) ? "selected" : "" %>><%= college.name %></option>
+              <% }); %>
+            </select>
+            <span class="mt-1 block text-xs font-normal text-slate-500">Each selected college must belong to one of the selected universities.</span>
           </label>
           <label class="text-sm font-semibold">Description
             <textarea name="description" maxlength="2000" rows="3" class="mt-1 w-full rounded-lg border px-3 py-2 dark:bg-slate-950"><%= note.description || '' %></textarea>
+          </label>
+          <label class="text-sm font-semibold">SEO description
+            <textarea name="metaDescription" maxlength="300" rows="3" class="mt-1 w-full rounded-lg border px-3 py-2 dark:bg-slate-950"><%= note.metaDescription || '' %></textarea>
+          </label>
+          <label class="text-sm font-semibold">SEO keywords (comma-separated)
+            <textarea name="keywords" maxlength="1200" rows="3" class="mt-1 w-full rounded-lg border px-3 py-2 dark:bg-slate-950"><%= (note.keywords || []).join(", ") %></textarea>
           </label>
           <label class="text-sm font-semibold sm:col-span-2">Public resource URL
             <input name="sourceUrl" type="url" maxlength="2048" required value="<%= note.sourceUrl %>" class="mt-1 w-full rounded-lg border px-3 py-2 dark:bg-slate-950">
@@ -53,6 +69,9 @@
           </label>
           <label class="text-sm font-semibold">Specialization
             <input name="specialization" maxlength="100" value="<%= note.specialization || '' %>" class="mt-1 w-full rounded-lg border px-3 py-2 dark:bg-slate-950">
+          </label>
+          <label class="text-sm font-semibold">Material category
+            <input name="noteCategory" maxlength="80" value="<%= note.noteCategory || 'General' %>" class="mt-1 w-full rounded-lg border px-3 py-2 dark:bg-slate-950">
           </label>
           <label class="text-sm font-semibold">Semester
             <input name="semester" type="number" min="1" max="12" required value="<%= note.semester || 1 %>" class="mt-1 w-full rounded-lg border px-3 py-2 dark:bg-slate-950">

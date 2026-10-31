@@ -1,4 +1,4 @@
-const { saveRedirectUrl } = require("../middleware.js");
+const { saveRedirectUrl, safeLocalRedirect } = require("../middleware.js");
 const passport = require("passport");
 const User = require("../models/user.js");
 const bcrypt = require("bcrypt");
@@ -439,7 +439,8 @@ module.exports.authenticateLocal = (req, res, next) => {
 module.exports.login = async (req, res) => {
   await recordLogin(req.user, req, req.user.authMethod || "local");
   req.flash("success", "Welcome back to NoteSphere!");
-  const redirectUrl = res.locals.redirectUrl || "/";
+  const redirectUrl = safeLocalRedirect(res.locals.redirectUrl);
+  delete req.session.redirectUrl;
   res.redirect(redirectUrl);
 };
 module.exports.logout = (req, res, next) => {
@@ -535,7 +536,9 @@ module.exports.verifyEmail = async (req, res, next) => {
         "success",
         "Email verified successfully! Welcome to NoteSphere.",
       );
-      res.redirect("/");
+      const redirectUrl = safeLocalRedirect(req.session.redirectUrl);
+      delete req.session.redirectUrl;
+      res.redirect(redirectUrl);
     });
   } catch (err) {
     console.error("❌ Email verification error:", err);

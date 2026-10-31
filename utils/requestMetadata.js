@@ -29,4 +29,12 @@ function hashIp(ip) {
   return crypto.createHmac("sha256", process.env.SECRET).update(ip).digest("hex");
 }
 
-module.exports = { getDeviceDetails, hashIp };
+function hashAnonymousBlogViewer(ip, userAgent, blogId) {
+  if (!process.env.SECRET) {
+    throw new Error("SECRET must be configured to count anonymous blog views securely.");
+  }
+  const identity = `${String(blogId)}\0${ip || ""}\0${(userAgent || "").slice(0, 512)}`;
+  return crypto.createHmac("sha256", process.env.SECRET).update(`blog-view\0${identity}`).digest("hex");
+}
+
+module.exports = { getDeviceDetails, hashIp, hashAnonymousBlogViewer };

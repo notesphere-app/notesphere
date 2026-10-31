@@ -1,5 +1,6 @@
 const User = require("../models/user.js");
 const Blog = require("../models/blog.js");
+const BlogView = require("../models/blogView.js");
 const { required } = require("joi");
 const { cloudinary } = require("../Cloudconfig");
 const path = require("path");
@@ -7,6 +8,7 @@ const mongoose = require("mongoose");
 const sanitizeHtml = require("sanitize-html");
 const { validateComment } = require("../utils/commentFilter.cjs");
 const blogCategories = require("../utils/blogCategories");
+const { hashAnonymousBlogViewer } = require("../utils/requestMetadata");
 
 const fonts = {
   Jakarta: {
@@ -36,11 +38,17 @@ module.exports.index = async (req, res) => {
     .sort({ createdAt: -1 })
     .skip((page - 1) * limit)
     .limit(limit);
+  const savedBlogIds = new Set((req.user?.savedBlogs || []).map(String));
+  const blogCards = allBlogs.map((blog) => ({
+    ...blog.toObject(),
+    likedByMe: Boolean(req.user && blog.likes.some((id) => id.equals(req.user._id))),
+    savedByMe: savedBlogIds.has(String(blog._id)),
+  }));
 
   const totalPages = Math.ceil(totalBlogs / limit);
 
   res.render("blogs/index.ejs", {
-    allBlogs,
+    allBlogs: blogCards,
     cat,
     currentPage: page,
     totalPages,
@@ -93,11 +101,38 @@ module.exports.showBlog = async (req, res) => {
     },
   });
 
-  // Track views
-  if (req.user && !blog.usersSeen.some((u) => u._id.equals(req.user._id))) {
-    blog.usersSeen.push(req.user._id);
-    await blog.save();
+  if (req.user) {
+    const alreadySeen = blog.usersSeen.some(
+      (viewer) => viewer && String(viewer._id || viewer) === String(req.user._id),
+    );
+    if (!alreadySeen) {
+      const result = await Blog.updateOne(
+        { _id: blog._id, usersSeen: { $ne: req.user._id } },
+        { $addToSet: { usersSeen: req.user._id } },
+      );
+      if (result.modifiedCount) blog.usersSeen.push(req.user);
+    }
+  } else {
+    const visitorHash = hashAnonymousBlogViewer(
+      req.ip,
+      req.get("user-agent") || "",
+      blog._id,
+    );
+    try {
+      const result = await BlogView.updateOne(
+        { blog: blog._id, visitorHash },
+        { $setOnInsert: { blog: blog._id, visitorHash } },
+        { upsert: true },
+      );
+      if (result.upsertedCount) {
+        await Blog.updateOne({ _id: blog._id }, { $inc: { guestViewCount: 1 } });
+        blog.guestViewCount = (blog.guestViewCount || 0) + 1;
+      }
+    } catch (error) {
+      if (error.code !== 11000) throw error;
+    }
   }
+  const viewCount = (blog.usersSeen || []).length + (blog.guestViewCount || 0);
 
   // ✅ Show all comments (no pagination)
   const paginatedComments = blog.comments.sort(
@@ -118,13 +153,14 @@ module.exports.showBlog = async (req, res) => {
   const dynamicMeta = {
     title: blog.title + " | NoteSphere Blog",
     description: blog.shortdescription,
-    keywords: blog.keywords,
+    keywords: blog.Keywords || "",
     image: blog.image?.url || "/images/logo.png",
   };
 
   res.render("blogs/show.ejs", {
     meta: dynamicMeta,
     blog,
+    viewCount,
     comments: paginatedComments,
     currentPage: 1,
     totalPages: 1,
@@ -141,13 +177,19 @@ module.exports.toggleLike = async (req, res) => {
   const blog = await Blog.findById(req.params.id).select("likes");
   if (!blog) return res.status(404).json({ success: false, message: "Blog not found." });
   const alreadyLiked = blog.likes.some((id) => id.equals(req.user._id));
-  const updated = await Blog.findByIdAndUpdate(
-    blog._id,
+  const updated = await Blog.findOneAndUpdate(
+    {
+      _id: blog._id,
+      ...(alreadyLiked ? { likes: req.user._id } : { likes: { $ne: req.user._id } }),
+    },
     alreadyLiked
       ? { $pull: { likes: req.user._id } }
       : { $addToSet: { likes: req.user._id } },
     { new: true },
   );
+  if (!updated) {
+    return res.status(409).json({ success: false, message: "Your like changed in another request. Please try again." });
+  }
   res.json({ success: true, liked: !alreadyLiked, count: updated.likes.length });
 };
 
@@ -158,11 +200,18 @@ module.exports.toggleSave = async (req, res) => {
   const blog = await Blog.findById(req.params.id).select("_id");
   if (!blog) return res.status(404).json({ success: false, message: "Blog not found." });
   const isSaved = (req.user.savedBlogs || []).some((id) => id.equals(blog._id));
-  await req.user.updateOne(
+  const updated = await User.updateOne(
+    {
+      _id: req.user._id,
+      ...(isSaved ? { savedBlogs: blog._id } : { savedBlogs: { $ne: blog._id } }),
+    },
     isSaved
       ? { $pull: { savedBlogs: blog._id } }
       : { $addToSet: { savedBlogs: blog._id } },
   );
+  if (!updated.modifiedCount) {
+    return res.status(409).json({ success: false, message: "Your saved list changed in another request. Please try again." });
+  }
   res.json({ success: true, saved: !isSaved });
 };
 
@@ -232,7 +281,8 @@ module.exports.renderEditForm = async (req, res) => {
 
 module.exports.renderViewrsPage = async (req, res) => {
   const { id } = req.params;
-  const page = parseInt(req.query.page) || 1;
+  const parsedPage = Number.parseInt(req.query.page, 10);
+  const page = Number.isInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1;
   const limit = 10; // 10 viewers per page
   const skip = (page - 1) * limit;
 
@@ -243,9 +293,10 @@ module.exports.renderViewrsPage = async (req, res) => {
     return res.redirect("/blogs");
   }
 
-  const totalViewers = blog.usersSeen.length;
+  const registeredViewers = blog.usersSeen.length;
   const paginatedViewers = blog.usersSeen.slice(skip, skip + limit);
-  const totalPages = Math.ceil(totalViewers / limit);
+  const totalPages = Math.ceil(registeredViewers / limit);
+  const totalViewers = registeredViewers + (blog.guestViewCount || 0);
 
   const cat = undefined;
   res.render("blogs/seenusers.ejs", {
@@ -254,6 +305,8 @@ module.exports.renderViewrsPage = async (req, res) => {
     totalPages,
     currentPage: page,
     totalViewers,
+    registeredViewers,
+    guestViewers: blog.guestViewCount || 0,
     cat,
   });
 };
@@ -306,7 +359,8 @@ module.exports.updateBlog = async (req, res) => {
 
 module.exports.destroyBlog = async (req, res) => {
   let { id } = req.params;
-  let deleteBlog = await Blog.findByIdAndDelete(id);
+  const deleteBlog = await Blog.findByIdAndDelete(id);
+  if (deleteBlog) await BlogView.deleteMany({ blog: deleteBlog._id });
   req.flash("success", "Blog Deleted!");
   const url = new URL(req.get("Referrer"));
   redirectUrl = url.pathname === "/blogs/yourblogs" ? url.pathname : "/blogs";

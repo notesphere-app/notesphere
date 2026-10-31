@@ -309,7 +309,10 @@ const renderStats = stats || fallbackStats;
 
       <p class="mx-auto mt-5 max-w-2xl text-base text-slate-600 dark:text-slate-300 sm:text-lg" data-reveal data-reveal-delay="160">
         Free notebook scans, handwritten notes, and solved papers uploaded by students.
-        Filter by course, semester, and type — download what you need instantly.
+        Find material by course, campus, semester, and category.
+      </p>
+      <p class="mx-auto mt-3 max-w-2xl text-sm text-slate-500 dark:text-slate-400" data-reveal data-reveal-delay="200">
+        Have notes of your own? Add them to the library and help other students prepare.
       </p>
 
       <form id="notes-search-form" class="mx-auto mt-8 max-w-2xl" data-reveal data-reveal-delay="240" onsubmit="return false;">
@@ -490,6 +493,8 @@ const renderStats = stats || fallbackStats;
               data-specialization="<%= (note.specialization || '').toLowerCase() %>"
               data-university="<%= (note.university || '').toLowerCase() %>"
               data-college="<%= (note.college || '').toLowerCase() %>"
+              data-note-category="<%= (note.noteCategory || '').toLowerCase() %>"
+              data-description="<%= (note.excerpt || '').toLowerCase() %>"
               data-course-label="<%= note.courseLabel.toLowerCase() %>"
               data-downloads="<%= note.downloads %>"
               data-rating="<%= note.rating %>"
@@ -502,7 +507,7 @@ const renderStats = stats || fallbackStats;
                      class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
 
                 <span class="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-red-500 shadow-sm backdrop-blur dark:bg-slate-900/90">
-                  <i class="fa-solid fa-file-pdf"></i> PDF
+                  <i class="fa-solid fa-file-lines"></i> <%= note.typeLabel %>
                 </span>
 
                 <span class="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur">
@@ -525,7 +530,7 @@ const renderStats = stats || fallbackStats;
                     Sem <%= note.semester %>
                   </span>
                   <span class="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">
-                    <%= note.typeLabel %>
+                    <%= note.noteCategory || "General" %>
                   </span>
                 </div>
 
@@ -585,6 +590,9 @@ const renderStats = stats || fallbackStats;
                             transition-colors hover:bg-[#0668CC]">
                     <i class="fa-solid fa-arrow-up-right-from-square"></i> Open link
                   </a>
+                  <button type="button" class="note-share-btn rounded-full px-2.5 py-1.5 text-xs font-semibold text-slate-500 transition-colors hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-slate-700" aria-label="Share this note">
+                    <i class="fa-solid fa-share-nodes"></i>
+                  </button>
                 </div>
 
                 <!-- Author -->
@@ -766,6 +774,7 @@ const renderStats = stats || fallbackStats;
   .note-upvote-btn[aria-pressed="true"] {
     background: rgba(8, 120, 232, 0.12);
     color: #0878E8;
+    box-shadow: inset 0 0 0 1px rgba(8, 120, 232, 0.28);
   }
   .note-upvote-btn[aria-pressed="true"] i {
     color: #0878E8;
@@ -784,17 +793,18 @@ const renderStats = stats || fallbackStats;
      SAVE (bookmark) button
   ============================================================ */
   .note-save-btn[aria-pressed="true"] {
-    background: rgba(245, 158, 11, 0.12);
-    color: #d97706;
+    background: rgba(8, 120, 232, 0.12);
+    color: #0878E8;
+    box-shadow: inset 0 0 0 1px rgba(8, 120, 232, 0.28);
   }
   .note-save-btn[aria-pressed="true"] i {
-    color: #d97706;
+    color: #0878E8;
   }
   .dark .note-save-btn[aria-pressed="true"] {
-    background: rgba(245, 158, 11, 0.18);
-    color: #fbbf24;
+    background: rgba(8, 120, 232, 0.2);
+    color: #93c5fd;
   }
-  .dark .note-save-btn[aria-pressed="true"] i { color: #fbbf24; }
+  .dark .note-save-btn[aria-pressed="true"] i { color: #93c5fd; }
 
   @keyframes noteSavePop {
     0%   { transform: scale(1); }
@@ -860,11 +870,13 @@ const renderStats = stats || fallbackStats;
         var title  = card.dataset.title || '';
         var subj   = card.dataset.subject || '';
         var courseLabel = card.dataset.courseLabel || '';
+        var noteCategory = card.dataset.noteCategory || '';
+        var description = card.dataset.description || '';
 
         var matchesCourse   = state.course === 'all'   || course === state.course;
         var matchesSemester = state.semester === 'all' || sem === state.semester;
         var matchesType     = state.type === 'all'     || type === state.type;
-        var matchesQuery    = !q || title.indexOf(q) !== -1 || subj.indexOf(q) !== -1 || courseLabel.indexOf(q) !== -1;
+        var matchesQuery    = !q || title.indexOf(q) !== -1 || subj.indexOf(q) !== -1 || courseLabel.indexOf(q) !== -1 || noteCategory.indexOf(q) !== -1 || description.indexOf(q) !== -1;
 
         var show = matchesCourse && matchesSemester && matchesType && matchesQuery;
         card.classList.toggle('is-filtered-out', !show);
@@ -1117,6 +1129,26 @@ const renderStats = stats || fallbackStats;
 
         writeSet(STORAGE_SAVES, savedIds);
 
+      });
+    });
+
+    document.querySelectorAll('.note-share-btn').forEach(function (btn) {
+      var card = btn.closest('.note-card');
+      if (!card) return;
+      btn.addEventListener('click', function () {
+        var url = new URL('/notes/' + encodeURIComponent(card.dataset.noteId), location.origin).href;
+        var title = card.querySelector('h3')?.textContent.trim() || 'Study notes';
+        if (navigator.share) {
+          navigator.share({ title: title, url: url }).catch(function () {});
+        } else if (navigator.clipboard) {
+          navigator.clipboard.writeText(url).then(function () {
+            window.alert('Note link copied.');
+          }).catch(function () {
+            window.prompt('Copy this note link:', url);
+          });
+        } else {
+          window.prompt('Copy this note link:', url);
+        }
       });
     });
 

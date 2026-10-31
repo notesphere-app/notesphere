@@ -1,0 +1,80 @@
+<% layout("layouts/boilerplate") %>
+
+<main class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <p class="text-sm font-semibold uppercase tracking-wider text-blue-700">Administration</p>
+      <h1 class="mt-1 text-3xl font-bold text-slate-900 dark:text-white">Universities &amp; colleges</h1>
+      <p class="mt-2 text-slate-600 dark:text-slate-300">Maintain the campus catalog used by note submissions and downloads.</p>
+    </div>
+    <nav class="flex gap-3 text-sm font-semibold text-blue-700">
+      <a href="/admin/courses">Courses</a>
+      <a href="/admin/notes">Notes</a>
+      <a href="/admin/dashboard">Dashboard</a>
+    </nav>
+  </div>
+
+  <section class="mt-8 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+    <h2 class="text-xl font-bold">Add a university</h2>
+    <form action="/admin/universities" method="POST" class="mt-4 flex flex-col gap-3 sm:flex-row">
+      <label class="sr-only" for="new-university">University name</label>
+      <input id="new-university" name="name" required minlength="2" maxlength="160" placeholder="University name" class="min-w-0 flex-1 rounded-lg border px-3 py-2 dark:bg-slate-950">
+      <button class="rounded-full bg-blue-600 px-5 py-2.5 font-semibold text-white hover:bg-blue-700">Add university</button>
+    </form>
+  </section>
+
+  <section class="mt-6 space-y-5">
+    <% universities.forEach(function (university) { %>
+      <article class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+        <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
+          <div class="space-y-4">
+            <form action="/admin/universities/<%= university._id %>" method="POST" class="flex gap-2">
+              <input type="hidden" name="_method" value="PATCH">
+              <label class="sr-only" for="university-<%= university._id %>">University name</label>
+              <input id="university-<%= university._id %>" name="name" required minlength="2" maxlength="160" value="<%= university.name %>" class="min-w-0 flex-1 rounded-lg border px-3 py-2 font-semibold dark:bg-slate-950">
+              <button class="rounded-full border px-4 py-2 text-sm font-semibold">Save</button>
+            </form>
+            <form action="/admin/universities/<%= university._id %>" method="POST" onsubmit="return confirm('Delete this university? It must have no colleges or linked notes.')">
+              <input type="hidden" name="_method" value="DELETE">
+              <button class="rounded-full border border-rose-300 px-4 py-2 text-sm font-semibold text-rose-700">Delete university</button>
+            </form>
+            <form action="/admin/colleges" method="POST" class="rounded-xl border border-slate-200 p-4 dark:border-slate-700">
+              <input type="hidden" name="universityId" value="<%= university._id %>">
+              <label class="block text-sm font-semibold">Add a college
+                <input name="name" required minlength="2" maxlength="160" placeholder="College name" class="mt-2 w-full rounded-lg border px-3 py-2 font-normal dark:bg-slate-950">
+              </label>
+              <button class="mt-3 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white">Add college</button>
+            </form>
+          </div>
+
+          <div>
+            <h2 class="font-semibold"><%= university.colleges.length %> colleges</h2>
+            <% if (university.colleges.length) { %>
+              <ul class="mt-3 space-y-2">
+                <% university.colleges.forEach(function (college) { %>
+                  <li class="flex flex-wrap items-center gap-2 rounded-xl bg-slate-50 p-3 dark:bg-slate-800">
+                    <form action="/admin/colleges/<%= college._id %>" method="POST" class="flex min-w-0 flex-1 gap-2">
+                      <input type="hidden" name="_method" value="PATCH">
+                      <label class="sr-only" for="college-<%= college._id %>">College name</label>
+                      <input id="college-<%= college._id %>" name="name" required minlength="2" maxlength="160" value="<%= college.name %>" class="min-w-0 flex-1 rounded-lg border px-3 py-2 dark:bg-slate-950">
+                      <button class="rounded-full border px-3 py-2 text-sm font-semibold">Save</button>
+                    </form>
+                    <form action="/admin/colleges/<%= college._id %>" method="POST" onsubmit="return confirm('Delete this college? Linked notes must be updated first.')">
+                      <input type="hidden" name="_method" value="DELETE">
+                      <button class="rounded-full border border-rose-300 px-3 py-2 text-sm font-semibold text-rose-700">Delete</button>
+                    </form>
+                  </li>
+                <% }); %>
+              </ul>
+            <% } else { %>
+              <p class="mt-3 text-sm text-slate-500">No colleges added yet.</p>
+            <% } %>
+          </div>
+        </div>
+      </article>
+    <% }); %>
+    <% if (!universities.length) { %>
+      <p class="rounded-2xl border border-dashed p-8 text-center text-slate-500">No universities yet. Add the first university above.</p>
+    <% } %>
+  </section>
+</main>

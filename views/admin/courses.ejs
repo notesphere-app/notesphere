@@ -5,11 +5,12 @@
     <div>
       <p class="text-sm font-semibold uppercase tracking-wider text-blue-700">Administration</p>
       <h1 class="mt-1 text-3xl font-bold text-slate-900 dark:text-white">Course catalog</h1>
-      <p class="mt-2 text-slate-600 dark:text-slate-300">Manage specializations, semesters, universities, and colleges used by notes.</p>
+      <p class="mt-2 text-slate-600 dark:text-slate-300">Manage course names, specializations, and semester counts.</p>
     </div>
     <nav class="flex gap-3 text-sm font-semibold text-blue-700">
       <a href="/admin/dashboard">Dashboard</a>
       <a href="/admin/notes">Notes</a>
+      <a href="/admin/universities">Universities &amp; colleges</a>
       <a href="/admin/users">Users</a>
     </nav>
   </div>
@@ -32,13 +33,6 @@
           <input name="semesterCount" type="number" required min="1" max="12" value="<%= selected?.semesterCount || 8 %>"
             class="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 dark:border-slate-700">
         </label>
-        <label class="block text-sm font-semibold">Universities and colleges
-          <textarea name="universities" rows="7" required maxlength="30000"
-            placeholder="University name | College One, College Two&#10;Another University | Main Campus"
-            class="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 dark:border-slate-700"><% (selected?.universities || []).forEach(function (university) { %><%= `${university.name} | ${university.colleges.join(", ")}` %>
-<% }) %></textarea>
-          <span class="mt-1 block text-xs font-normal text-slate-500">One university per line: university name, a vertical bar, then comma-separated colleges.</span>
-        </label>
         <div class="flex gap-3">
           <button class="rounded-full bg-blue-600 px-5 py-2.5 font-semibold text-white hover:bg-blue-700"><%= selected ? "Save changes" : "Create course" %></button>
           <% if (selected) { %><a href="/admin/courses" class="rounded-full border px-5 py-2.5 font-semibold">Cancel</a><% } %>
@@ -55,14 +49,17 @@
                 <h2 class="text-lg font-bold"><%= course.name %></h2>
                 <span class="rounded-full px-2.5 py-1 text-xs font-semibold <%= course.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600' %>"><%= course.isActive ? "Active" : "Archived" %></span>
               </div>
-              <p class="mt-1 text-sm text-slate-500"><%= course.semesterCount %> semesters · <%= course.specializations.length %> specializations · <%= course.universities.length %> universities</p>
-              <p class="mt-2 text-sm text-slate-600 dark:text-slate-300"><%= course.universities.map((item) => item.name).join(", ") || "No universities listed" %></p>
+              <p class="mt-1 text-sm text-slate-500"><%= course.semesterCount %> semesters · <%= course.specializations.length %> specializations</p>
             </div>
             <div class="flex gap-2">
               <a href="/admin/courses?edit=<%= course._id %>" class="rounded-full border px-3 py-2 text-sm font-semibold">Edit</a>
               <form action="/admin/courses/<%= course._id %>/toggle" method="POST">
                 <input type="hidden" name="_method" value="PATCH">
                 <button class="rounded-full border px-3 py-2 text-sm font-semibold"><%= course.isActive ? "Archive" : "Restore" %></button>
+              </form>
+              <form action="/admin/courses/<%= course._id %>" method="POST" onsubmit="return confirm('Delete this course? Courses linked to notes cannot be deleted.')">
+                <input type="hidden" name="_method" value="DELETE">
+                <button class="rounded-full border border-rose-300 px-3 py-2 text-sm font-semibold text-rose-700">Delete</button>
               </form>
             </div>
           </div>

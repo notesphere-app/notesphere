@@ -1,82 +1,67 @@
 <% layout("/layouts/boilerplate") -%>
 
-<div class="container py-5">
-  <div class="row justify-content-center">
-    <div class="col-12 col-md-10 col-lg-8">
-      
-      <!-- Page Header -->
-      <div class="text-center mb-5">
-        <h2 class="fw-bold">Viewers of: "<%= blog.title %>"</h2>
-        <p class="text-muted">Explore detailed information of everyone who viewed this blog.</p>
+<%
+  const blogUrl = blog.id && blog.id.trim() ? blog.id : blog._id;
+  const registeredReaders = (viewers || []).filter(Boolean);
+%>
+
+<main class="min-h-screen bg-[#FBFAF7] px-4 py-10 dark:bg-slate-950 sm:px-6 lg:px-8">
+  <section class="mx-auto max-w-5xl">
+    <a href="/blogs/<%= blogUrl %>" class="inline-flex items-center gap-2 text-sm font-semibold text-blue-700 hover:underline dark:text-blue-300">
+      <i class="fa-solid fa-arrow-left text-xs"></i> Back to blog
+    </a>
+
+    <header class="mt-5 rounded-3xl bg-gradient-to-br from-[#022E5A] to-[#0878E8] p-6 text-white shadow-lg sm:p-9">
+      <p class="text-xs font-semibold uppercase tracking-widest text-blue-100">Blog analytics</p>
+      <h1 class="mt-2 text-2xl font-bold sm:text-3xl">Views for <%= blog.title %></h1>
+      <p class="mt-2 text-sm text-blue-100">Guest views are deduplicated using a one-way, keyed hash. Guest identities and IP addresses are not displayed or stored.</p>
+      <div class="mt-6 grid gap-3 sm:grid-cols-3">
+        <div class="rounded-2xl bg-white/10 p-4">
+          <p class="text-xs uppercase tracking-wide text-blue-100">Total unique views</p>
+          <p class="mt-1 text-2xl font-bold"><%= Number(totalViewers || 0).toLocaleString("en-IN") %></p>
+        </div>
+        <div class="rounded-2xl bg-white/10 p-4">
+          <p class="text-xs uppercase tracking-wide text-blue-100">Signed-in readers</p>
+          <p class="mt-1 text-2xl font-bold"><%= Number(registeredViewers || 0).toLocaleString("en-IN") %></p>
+        </div>
+        <div class="rounded-2xl bg-white/10 p-4">
+          <p class="text-xs uppercase tracking-wide text-blue-100">Guest views</p>
+          <p class="mt-1 text-2xl font-bold"><%= Number(guestViewers || 0).toLocaleString("en-IN") %></p>
+        </div>
+      </div>
+    </header>
+
+    <section class="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-7">
+      <div class="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white">Signed-in readers</h2>
+          <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Guest view identities are intentionally not listed.</p>
+        </div>
+        <p class="text-xs text-slate-500 dark:text-slate-400">Page <%= currentPage %> of <%= Math.max(totalPages, 1) %></p>
       </div>
 
-
-      <!-- Back Link -->
-      <div class=" mt-2 mb-2">
-        <a href="/blogs/<%= blog.id && blog.id.trim() !== "" ? blog.id : blog._id %>" class="btn btn-outline-dark btn-sm">
-          <i class="bi bi-arrow-left me-1"></i>Back to Blog
-        </a>
-      </div>
-
-      <!-- Viewer Cards -->
-      <% if (viewers.length > 0) { %>
-        <% viewers.forEach((user, index) => { %>
-      
-          <div class="card shadow-sm mb-4 border-0">
-            <div class="card-body">
-              <div class="d-flex justify-content-between">
-                <div>
-                  <h5 class="fw-semibold mb-1">
-                    <i class="bi bi-person-circle me-2 text-primary"></i><%= user.name || user.username %>
-                  </h5>
-                  <p class="text-muted mb-2 small"><%= user.email || 'No email provided' %></p>
-
-                  <div class="row text-muted small">
-                    <div class="col-6 col-sm-4 mb-1"><strong>Gender:</strong> <%= user.gender || 'N/A' %></div>
-                    <div class="col-6 col-sm-4 mb-1"><strong>Age:</strong> <%= user.age || 'N/A' %></div>
-                    <div class="col-6 col-sm-4 mb-1"><strong>Country:</strong> <%= user.country || 'N/A' %></div>
-                    <div class="col-6 col-sm-4 mb-1"><strong>State:</strong> <%= user.state || 'N/A' %></div>
-                    <div class="col-6 col-sm-4 mb-1"><strong>Profession:</strong> <%= user.profession || 'N/A' %></div>
-                    <div class="col-6 col-sm-4 mb-1"><strong>Interest:</strong> <%= user.category || 'N/A' %></div>
-                  </div>
-                </div>
-
-                <div class="text-end">
-                  <span class="badge bg-success px-3 py-2">👁 Viewed</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        <% }) %>
+      <% if (registeredReaders.length) { %>
+        <ul class="mt-5 grid gap-3 sm:grid-cols-2">
+          <% registeredReaders.forEach(function (user) { %>
+            <li class="rounded-xl border border-slate-200 p-4 dark:border-slate-700">
+              <p class="font-semibold text-slate-900 dark:text-white"><i class="fa-solid fa-user-graduate mr-2 text-blue-600"></i><%= user.name || user.username || "NoteSphere member" %></p>
+              <p class="mt-1 break-all text-sm text-slate-500 dark:text-slate-400"><%= user.email || "No email provided" %></p>
+            </li>
+          <% }); %>
+        </ul>
       <% } else { %>
-        <div class="alert alert-info text-center">No viewers have seen this blog yet.</div>
+        <p class="mt-5 rounded-xl bg-slate-50 p-5 text-center text-sm text-slate-500 dark:bg-slate-800 dark:text-slate-300">No signed-in readers to display on this page.</p>
       <% } %>
 
-    </div>
-<!-- Pagination -->
-<% if (totalPages > 1) { %>
-  <nav aria-label="Viewers Pagination" class="mt-4">
-    <ul class="pagination justify-content-center">
-      <% if (currentPage > 1) { %>
-        <li class="page-item">
-          <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
-        </li>
+      <% if (totalPages > 1) { %>
+        <nav aria-label="Readers pagination" class="mt-6 flex items-center justify-center gap-2">
+          <% if (currentPage > 1) { %><a href="?page=<%= currentPage - 1 %>" class="rounded-full border px-4 py-2 text-sm font-semibold dark:border-slate-700">Previous</a><% } %>
+          <% for (let page = 1; page <= totalPages; page++) { %>
+            <a href="?page=<%= page %>" aria-current="<%= page === currentPage ? 'page' : 'false' %>" class="rounded-full px-3 py-2 text-sm font-semibold <%= page === currentPage ? 'bg-blue-600 text-white' : 'border dark:border-slate-700' %>"><%= page %></a>
+          <% } %>
+          <% if (currentPage < totalPages) { %><a href="?page=<%= currentPage + 1 %>" class="rounded-full border px-4 py-2 text-sm font-semibold dark:border-slate-700">Next</a><% } %>
+        </nav>
       <% } %>
-
-      <% for (let i = 1; i <= totalPages; i++) { %>
-        <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-          <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-        </li>
-      <% } %>
-
-      <% if (currentPage < totalPages) { %>
-        <li class="page-item">
-          <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
-        </li>
-      <% } %>
-    </ul>
-  </nav>
-<% } %>
-
-  </div>
-</div>
+    </section>
+  </section>
+</main>

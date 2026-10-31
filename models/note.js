@@ -5,11 +5,16 @@ const noteSchema = new Schema(
   {
     title: { type: String, required: true, trim: true, maxlength: 160 },
     description: { type: String, trim: true, maxlength: 2000, default: "" },
+    metaDescription: { type: String, trim: true, maxlength: 300, default: "" },
+    keywords: [{ type: String, trim: true, maxlength: 60 }],
     sourceUrl: { type: String, required: true, trim: true, maxlength: 2048 },
     course: { type: String, required: true, trim: true, maxlength: 80 },
     courseId: { type: Schema.Types.ObjectId, ref: "Course" },
+    noteCategory: { type: String, trim: true, maxlength: 80, default: "General" },
     specialization: { type: String, trim: true, maxlength: 100, default: "" },
     semester: { type: Number, min: 1, max: 12 },
+    universities: [{ type: Schema.Types.ObjectId, ref: "University" }],
+    colleges: [{ type: Schema.Types.ObjectId, ref: "College" }],
     university: { type: String, trim: true, maxlength: 160, default: "" },
     college: { type: String, trim: true, maxlength: 160, default: "" },
     subject: { type: String, required: true, trim: true, maxlength: 100 },
@@ -43,5 +48,6 @@ const noteSchema = new Schema(
 noteSchema.index({ isPublished: 1, course: 1, createdAt: -1 });
 noteSchema.index({ isPublished: 1, courseId: 1, specialization: 1, semester: 1 });
 noteSchema.index({ isPublished: 1, university: 1, college: 1 });
+noteSchema.index({ isPublished: 1, universities: 1, colleges: 1 });
 
 module.exports = mongoose.model("Note", noteSchema);

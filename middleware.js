@@ -17,7 +17,7 @@ module.exports.isLoggedIn = (req, res, next) => {
         message: "Please log in to use this feature.",
       });
     }
-    req.session.redirectUrl = req.originalUrl;
+    req.session.redirectUrl = safeLocalRedirect(req.originalUrl);
     req.flash("error", "you are not logedin!");
     return res.redirect("/login");
   }
@@ -26,10 +26,15 @@ module.exports.isLoggedIn = (req, res, next) => {
 
 module.exports.saveRedirectUrl = (req, res, next) => {
   if (req.session.redirectUrl) {
-    res.locals.redirectUrl = req.session.redirectUrl;
+    res.locals.redirectUrl = safeLocalRedirect(req.session.redirectUrl);
   }
   next();
 };
+
+module.exports.safeLocalRedirect = (url) =>
+  typeof url === "string" && url.startsWith("/") && !url.startsWith("//") && !url.includes("\\")
+    ? url
+    : "/";
 
 module.exports.isOwner = async (req, res, next) => {
   let { id } = req.params;

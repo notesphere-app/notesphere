@@ -5,6 +5,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon --watch . --ext js,ejs,json --legacy-watch app.js",
+    "build:css": "tailwindcss -i ./public/css/tailwind.css -o ./public/css/output.css",
     "tw": "tailwindcss -i ./public/css/tailwind.css -o ./public/css/output.css --watch"
   },
   "author": "NoteSphere",

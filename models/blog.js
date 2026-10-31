@@ -58,6 +58,11 @@ const blogsSchema = new Schema({
       ref: "User",
     },
   ],
+  guestViewCount: {
+    type: Number,
+    default: 0,
+    min: 0,
+  },
   likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
   adminVerified: {
     type: Boolean,

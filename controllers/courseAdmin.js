@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const Course = require("../models/course");
 const Note = require("../models/note");
+const University = require("../models/university");
+const { parseNoteFields } = require("../utils/noteFields");
 
 function parseCourseInput(body) {
   const name = typeof body.name === "string" ? body.name.trim() : "";
@@ -9,17 +11,6 @@ function parseCourseInput(body) {
     .split(/\r?\n/)
     .map((value) => value.trim())
     .filter(Boolean);
-  const universities = (typeof body.universities === "string" ? body.universities : "")
-    .split(/\r?\n/)
-    .map((line) => {
-      const [universityName, collegeList = ""] = line.split("|");
-      return {
-        name: universityName.trim(),
-        colleges: collegeList.split(",").map((college) => college.trim()).filter(Boolean),
-      };
-    })
-    .filter((university) => university.name);
-
   if (
     !name ||
     name.length > 120 ||
@@ -27,35 +18,9 @@ function parseCourseInput(body) {
     semesters < 1 ||
     semesters > 12 ||
     specializations.length > 40 ||
-    specializations.some((value) => value.length > 100) ||
-    universities.length > 100 ||
-    universities.some((university) =>
-      university.name.length > 160 ||
-      !university.colleges.length ||
-      university.colleges.length > 100 ||
-      university.colleges.some((college) => college.length > 160),
-    )
+    specializations.some((value) => value.length > 100)
   ) {
     return null;
-  }
-
-  const normalizedUniversities = [];
-  for (const university of universities) {
-    const existing = normalizedUniversities.find(
-      (item) => item.name.toLowerCase() === university.name.toLowerCase(),
-    );
-    if (existing) {
-      for (const college of university.colleges) {
-        if (!existing.colleges.some((item) => item.toLowerCase() === college.toLowerCase())) {
-          existing.colleges.push(college);
-        }
-      }
-    } else {
-      normalizedUniversities.push({
-        name: university.name,
-        colleges: [...new Set(university.colleges)],
-      });
-    }
   }
 
   return {
@@ -63,7 +28,6 @@ function parseCourseInput(body) {
     slug: name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
     semesterCount: semesters,
     specializations: [...new Set(specializations)],
-    universities: normalizedUniversities,
   };
 }
 
@@ -121,10 +85,40 @@ module.exports.toggleCourse = async (req, res) => {
   res.redirect("/admin/courses");
 };
 
+module.exports.deleteCourse = async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    req.flash("error", "Course not found.");
+    return res.redirect("/admin/courses");
+  }
+  const [course, notesUsingCourse] = await Promise.all([
+    Course.findById(req.params.id),
+    Note.countDocuments({ courseId: req.params.id }),
+  ]);
+  if (!course) {
+    req.flash("error", "Course not found.");
+    return res.redirect("/admin/courses");
+  }
+  if (notesUsingCourse) {
+    req.flash("error", "This course is used by notes. Archive it instead of deleting it.");
+    return res.redirect("/admin/courses");
+  }
+  await course.deleteOne();
+  req.flash("success", "Course deleted.");
+  res.redirect("/admin/courses");
+};
+
 module.exports.listNotes = async (req, res) => {
-  const [notes, courses] = await Promise.all([
-    Note.find().populate("author", "name email").sort({ createdAt: -1 }).limit(200).lean(),
-    Course.find().sort({ name: 1 }).select("name semesterCount specializations universities").lean(),
+  const [notes, courses, universities, colleges] = await Promise.all([
+    Note.find()
+      .populate("author", "name email")
+      .populate("universities", "name")
+      .populate("colleges", "name")
+      .sort({ createdAt: -1 })
+      .limit(200)
+      .lean(),
+    Course.find().sort({ name: 1 }).select("name semesterCount specializations").lean(),
+    University.find({ isActive: true }).sort({ name: 1 }).lean(),
+    College.find({ isActive: true }).sort({ name: 1 }).lean(),
   ]);
   res.render("admin/notes.ejs", {
     notes: notes.map((note) => ({
@@ -132,6 +126,8 @@ module.exports.listNotes = async (req, res) => {
       moderationStatus: note.isPublished ? "approved" : note.moderationStatus || "pending",
     })),
     courses,
+    universities,
+    colleges,
   });
 };
 
@@ -141,54 +137,17 @@ module.exports.updateNote = async (req, res) => {
     return res.redirect("/admin/notes");
   }
   const note = await Note.findById(req.params.id);
-  const course = mongoose.Types.ObjectId.isValid(req.body.courseId)
-    ? await Course.findById(req.body.courseId)
-    : null;
-  if (!note || !course) {
-    req.flash("error", "Choose a valid note and course.");
+  if (!note) {
+    req.flash("error", "Note not found.");
     return res.redirect("/admin/notes");
   }
-  const semester = Number(req.body.semester);
-  const title = typeof req.body.title === "string" ? req.body.title.trim() : "";
-  const subject = typeof req.body.subject === "string" ? req.body.subject.trim() : "";
-  const description = typeof req.body.description === "string" ? req.body.description.trim() : "";
-  const university = typeof req.body.university === "string" ? req.body.university.trim() : "";
-  const college = typeof req.body.college === "string" ? req.body.college.trim() : "";
-  const type = typeof req.body.type === "string" ? req.body.type : "";
   const moderationStatus = typeof req.body.moderationStatus === "string" ? req.body.moderationStatus : "";
-  const sourceUrl = typeof req.body.sourceUrl === "string" ? req.body.sourceUrl.trim() : "";
-  let parsedUrl;
-  try {
-    parsedUrl = new URL(sourceUrl);
-  } catch {
-    req.flash("error", "Enter a valid HTTP or HTTPS resource link.");
+  const parsed = await parseNoteFields(req.body || {}, { allowInactiveCourse: true });
+  if (parsed.error || !["pending", "approved", "rejected"].includes(moderationStatus)) {
+    req.flash("error", parsed.error || "Choose a valid moderation status.");
     return res.redirect("/admin/notes");
   }
-  const specialization = typeof req.body.specialization === "string" ? req.body.specialization.trim() : "";
-  if (
-    !title || title.length > 160 || !subject || subject.length > 100 ||
-    description.length > 2000 || university.length > 160 || college.length > 160 ||
-    !["http:", "https:"].includes(parsedUrl.protocol) || parsedUrl.username || parsedUrl.password ||
-    !Number.isInteger(semester) || semester < 1 || semester > course.semesterCount ||
-    !["handwritten", "typed", "solved", "pdf"].includes(type) ||
-    !["pending", "approved", "rejected"].includes(moderationStatus) ||
-    (course.specializations.length &&
-      !course.specializations.some((value) => value.toLowerCase() === specialization.toLowerCase()))
-  ) {
-    req.flash("error", "Check the note title, subject, specialization, semester, and public URL.");
-    return res.redirect("/admin/notes");
-  }
-  note.title = title;
-  note.subject = subject;
-  note.description = description;
-  note.sourceUrl = parsedUrl.toString();
-  note.courseId = course._id;
-  note.course = course.name;
-  note.specialization = specialization;
-  note.semester = semester;
-  note.university = university;
-  note.college = college;
-  note.type = type;
+  note.set(parsed.values);
   note.isPublished = moderationStatus === "approved";
   note.moderationStatus = moderationStatus;
   note.moderatedAt = moderationStatus === "pending" ? null : new Date();

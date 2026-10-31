@@ -8,6 +8,7 @@
       <span class="rounded-full bg-blue-50 px-3 py-1"><%= note.subject %></span>
       <span class="rounded-full bg-blue-50 px-3 py-1">Semester <%= note.semester || "—" %></span>
       <% if (note.specialization) { %><span class="rounded-full bg-blue-50 px-3 py-1"><%= note.specialization %></span><% } %>
+      <% if (note.noteCategory) { %><span class="rounded-full bg-blue-50 px-3 py-1"><%= note.noteCategory %></span><% } %>
     </div>
     <h1 class="mt-4 text-3xl font-bold text-slate-900 dark:text-white"><%= note.title %></h1>
     <p class="mt-3 whitespace-pre-line text-slate-600 dark:text-slate-300"><%= note.description || "Shared notes link" %></p>
@@ -38,8 +39,11 @@
     <p class="mt-4 text-sm text-slate-500">
       Shared by <%= note.author?.name || note.author?.username || "Notesphere user" %>
     </p>
-    <% if (note.university || note.college) { %>
-      <p class="mt-2 text-sm text-slate-500"><%= [note.university, note.college].filter(Boolean).join(" · ") %></p>
+    <% if ((note.universities && note.universities.length) || (note.colleges && note.colleges.length) || note.university || note.college) { %>
+      <p class="mt-2 text-sm text-slate-500">
+        <%= (note.universities || []).map((item) => item.name).join(", ") || note.university %>
+        <% if ((note.colleges && note.colleges.length) || note.college) { %> · <%= (note.colleges || []).map((item) => item.name).join(", ") || note.college %><% } %>
+      </p>
     <% } %>
     <% if (note.isPublished) { %>
       <div class="mt-4 flex flex-wrap items-center gap-2 text-sm">
@@ -51,6 +55,21 @@
         <% } %>
       </div>
     <% } %>
+    <% if (canEditNote) { %>
+      <div class="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
+        <div>
+          <p class="font-semibold text-slate-900 dark:text-white">Your note activity</p>
+          <p class="mt-1 text-sm text-slate-600 dark:text-slate-300"><%= note.downloadCount %> downloads · <%= note.likes.length %> likes</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <a href="/notes/<%= note._id %>/edit" class="rounded-full border border-blue-300 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-300">Edit note</a>
+          <form action="/notes/<%= note._id %>" method="POST" onsubmit="return confirm('Delete this note permanently?')">
+            <input type="hidden" name="_method" value="DELETE">
+            <button class="rounded-full border border-rose-300 px-4 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-50">Delete note</button>
+          </form>
+        </div>
+      </div>
+    <% } %>
     <div class="mt-6 flex flex-wrap gap-3">
       <% if (note.isPublished) { %>
         <a href="/notes/<%= note._id %>/download" id="note-download" class="rounded-full bg-blue-600 px-5 py-2.5 font-semibold text-white hover:bg-blue-700">
@@ -58,11 +77,11 @@
         </a>
       <% } %>
       <% if (note.isPublished && currUser) { %>
-        <button type="button" id="note-like" aria-pressed="<%= upvotedByMe %>" class="rounded-full border px-5 py-2.5 font-semibold">
-          <i class="fa-regular fa-thumbs-up"></i> Like (<span id="note-likes"><%= note.likes.length %></span>)
+        <button type="button" id="note-like" aria-pressed="<%= upvotedByMe %>" class="note-engagement-button rounded-full border px-5 py-2.5 font-semibold">
+          <i class="<%= upvotedByMe ? 'fa-solid' : 'fa-regular' %> fa-thumbs-up"></i> Like (<span id="note-likes"><%= note.likes.length %></span>)
         </button>
-        <button type="button" id="note-save" aria-pressed="<%= savedByMe %>" class="rounded-full border px-5 py-2.5 font-semibold">
-          <i class="fa-regular fa-bookmark"></i> <span><%= savedByMe ? "Saved" : "Save" %></span>
+        <button type="button" id="note-save" aria-pressed="<%= savedByMe %>" class="note-save-button rounded-full border px-5 py-2.5 font-semibold">
+          <i class="<%= savedByMe ? 'fa-solid' : 'fa-regular' %> fa-bookmark"></i> <span><%= savedByMe ? "Saved" : "Save" %></span>
         </button>
       <% } else if (note.isPublished) { %>
         <a href="/login" class="rounded-full border px-5 py-2.5 font-semibold">Log in to like or save</a>
@@ -70,20 +89,6 @@
       <button type="button" id="note-share" class="rounded-full border px-5 py-2.5 font-semibold">Share</button>
     </div>
   </article>
-
-  <% if (note.isPublished) { %>
-  <aside class="mt-6 rounded-2xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-900 dark:bg-blue-950/40" aria-label="Support this student-run project">
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <h2 class="font-semibold text-slate-900 dark:text-white">Found these notes useful?</h2>
-        <p class="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">NoteSphere is a free learning project maintained by students, not a formal organization or registered charity. Optional contributions help us cover hosting and keep study resources accessible.</p>
-      </div>
-      <button type="button" data-donate-open class="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700">
-        <i class="fa-solid fa-heart"></i> Contribute
-      </button>
-    </div>
-  </aside>
-  <% } %>
 
   <% if (note.isPublished) { %>
   <section class="mt-8 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
@@ -148,6 +153,9 @@
     if (like) like.addEventListener("click", function () {
       post("/notes/" + id + "/like").then(function (result) {
         like.setAttribute("aria-pressed", result.liked);
+        var icon = like.querySelector("i");
+        icon.classList.toggle("fa-solid", result.liked);
+        icon.classList.toggle("fa-regular", !result.liked);
         document.getElementById("note-likes").textContent = result.count;
       }).catch(function (error) { window.alert(error.message); });
     });
@@ -155,6 +163,9 @@
       post("/notes/" + id + "/save").then(function (result) {
         save.setAttribute("aria-pressed", result.saved);
         save.querySelector("span").textContent = result.saved ? "Saved" : "Save";
+        var icon = save.querySelector("i");
+        icon.classList.toggle("fa-solid", result.saved);
+        icon.classList.toggle("fa-regular", !result.saved);
       }).catch(function (error) { window.alert(error.message); });
     });
     if (share) share.addEventListener("click", function () {
@@ -182,3 +193,16 @@
     }
   })();
 </script>
+<style>
+  .note-engagement-button[aria-pressed="true"],
+  .note-save-button[aria-pressed="true"] {
+    border-color: #0878e8;
+    background: rgba(8, 120, 232, 0.12);
+    color: #0878e8;
+  }
+  .dark .note-engagement-button[aria-pressed="true"],
+  .dark .note-save-button[aria-pressed="true"] {
+    background: rgba(8, 120, 232, 0.2);
+    color: #93c5fd;
+  }
+</style>

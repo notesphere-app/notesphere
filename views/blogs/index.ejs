@@ -184,6 +184,7 @@ const blogPosts = (allBlogs || []).map(function (blog) {
   const body = blog.shortdescription || "";
   const wordCount = (blog.content || "").trim().split(/\s+/).filter(Boolean).length;
   return {
+    id: String(blog._id),
     slug: blog.id || String(blog._id),
     title,
     excerpt: body,
@@ -196,6 +197,8 @@ const blogPosts = (allBlogs || []).map(function (blog) {
     readTime: `${Math.max(1, Math.ceil(wordCount / 200))} min read`,
     likes: blog.likes?.length || 0,
     comments: blog.comments?.length || 0,
+    likedByMe: Boolean(blog.likedByMe),
+    savedByMe: Boolean(blog.savedByMe),
   };
 });
 const blogs = blogPosts.length ? blogPosts : sampleBlogs;
@@ -374,9 +377,16 @@ const popularTags = [
             </div>
 
             <div class="flex shrink-0 items-center gap-3 text-xs text-slate-400">
-              <button type="button" class="blog-like-btn flex items-center gap-1 transition-colors hover:text-rose-500" aria-label="Like">
-                <i class="fa-regular fa-heart"></i> <span class="like-count"><%= post.likes %></span>
-              </button>
+              <% if (post.id) { %>
+                <button type="button" data-blog-action="like" data-blog-id="<%= post.id %>" aria-pressed="<%= post.likedByMe %>" class="blog-card-action blog-like-btn flex items-center gap-1 transition-colors" aria-label="Like this blog">
+                  <i class="<%= post.likedByMe ? 'fa-solid' : 'fa-regular' %> fa-thumbs-up"></i> <span class="like-count"><%= post.likes %></span>
+                </button>
+                <button type="button" data-blog-action="save" data-blog-id="<%= post.id %>" aria-pressed="<%= post.savedByMe %>" class="blog-card-action blog-save-btn flex items-center gap-1 transition-colors" aria-label="Save this blog">
+                  <i class="<%= post.savedByMe ? 'fa-solid' : 'fa-regular' %> fa-bookmark"></i>
+                </button>
+              <% } else { %>
+                <span class="flex items-center gap-1"><i class="fa-regular fa-heart"></i> <%= post.likes %></span>
+              <% } %>
               <span class="flex items-center gap-1"><i class="fa-regular fa-comment"></i> <%= post.comments %></span>
             </div>
           </div>
@@ -453,7 +463,6 @@ const popularTags = [
           </div>
         </div>
 
-        <!-- Newsletter mini -->
         <div class="mt-6 overflow-hidden rounded-2xl bg-gradient-to-br from-[#022E5A] via-[#053A72] to-[#0878E8] p-6 text-white shadow-xl">
           <div class="flex items-center gap-2 text-emerald-300">
             <span class="pulse-dot h-2 w-2 rounded-full bg-emerald-400"></span>
@@ -461,29 +470,28 @@ const popularTags = [
           </div>
           <h3 class="mt-3 text-base font-semibold">One email a week. Fresh reads only.</h3>
           <p class="mt-1.5 text-xs text-white/80">No spam. Unsubscribe anytime.</p>
-
           <form id="blog-newsletter" class="mt-4 flex gap-2" novalidate>
-            <input
-              type="email"
-              name="email"
-              required
-              placeholder="you@college.edu"
-              class="min-w-0 flex-1 rounded-full border border-white/20 bg-white/10 px-4 py-2.5 text-sm text-white placeholder-white/60 backdrop-blur
-                     focus:border-white/50 focus:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/30"
-            />
-            <button type="submit"
-              class="shrink-0 rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-[#022E5A] transition-transform hover:-translate-y-0.5">
+            <input type="email" name="email" required placeholder="you@college.edu"
+              class="min-w-0 flex-1 rounded-full border border-white/20 bg-white/10 px-4 py-2.5 text-sm text-white placeholder-white/60 backdrop-blur focus:border-white/50 focus:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/30">
+            <button type="submit" class="shrink-0 rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-[#022E5A] transition-transform hover:-translate-y-0.5">
               <i class="fa-solid fa-arrow-right"></i>
             </button>
           </form>
           <div id="blog-newsletter-verification" class="mt-3 hidden">
             <label for="blog-newsletter-otp" class="text-xs text-white/90">Enter the 6-digit code sent to your email</label>
             <div class="mt-1 flex gap-2">
-              <input id="blog-newsletter-otp" inputmode="numeric" maxlength="6" class="min-w-0 flex-1 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm text-white" />
+              <input id="blog-newsletter-otp" inputmode="numeric" maxlength="6" class="min-w-0 flex-1 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm text-white">
               <button type="button" id="blog-newsletter-verify" class="rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#022E5A]">Verify</button>
             </div>
           </div>
-          <p id="blog-newsletter-msg" class="mt-3 hidden text-xs"></p>
+          <p id="blog-newsletter-msg" role="status" aria-live="polite" class="mt-3 hidden text-xs"></p>
+        </div>
+
+        <div class="mt-6 rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+          <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300"><i class="fa-solid fa-book-open"></i></div>
+          <h3 class="mt-3 font-semibold text-[#022E5A] dark:text-white">Looking for study material?</h3>
+          <p class="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">Browse student-shared notes by course and campus.</p>
+          <a href="/notes" class="mt-4 inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Browse notes <i class="fa-solid fa-arrow-right text-xs"></i></a>
         </div>
       </aside>
 
@@ -554,6 +562,11 @@ const popularTags = [
     border-color: #0878E8;
     color: #fff;
     box-shadow: 0 8px 20px -8px rgba(8, 120, 232, 0.6);
+  }
+  .blog-card-action[aria-pressed="true"] {
+    color: #0878e8;
+    background: rgba(8, 120, 232, 0.1);
+    border-radius: 9999px;
   }
 
   /* ============================================================
@@ -739,40 +752,60 @@ const popularTags = [
       });
     }
 
-    /* ============================================================
-       Like buttons
-    ============================================================ */
-    document.querySelectorAll('.blog-like-btn').forEach(function (btn) {
+    document.querySelectorAll('[data-blog-action]').forEach(function (btn) {
       btn.addEventListener('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
-        var icon = btn.querySelector('i');
-        var countEl = btn.querySelector('.like-count');
-        var nowLiked = icon.classList.toggle('fa-solid');
-        icon.classList.toggle('fa-regular', !nowLiked);
-        icon.classList.toggle('text-rose-500', nowLiked);
-        countEl.textContent = String(Number(countEl.textContent) + (nowLiked ? 1 : -1));
-        btn.classList.add('like-pop');
-        setTimeout(function () { btn.classList.remove('like-pop'); }, 260);
+        btn.disabled = true;
+        fetch('/blogs/' + encodeURIComponent(btn.dataset.blogId) + '/' + btn.dataset.blogAction, {
+          method: 'POST',
+          headers: { Accept: 'application/json' },
+          credentials: 'same-origin'
+        }).then(function (response) {
+          return response.json().then(function (result) {
+            if (!response.ok) throw new Error(result.message || 'Please sign in and try again.');
+            return result;
+          });
+        }).then(function (result) {
+          btn.setAttribute('aria-pressed', String(result.liked || result.saved));
+          var icon = btn.querySelector('i');
+          if (icon) {
+            icon.classList.toggle('fa-solid', Boolean(result.liked || result.saved));
+            icon.classList.toggle('fa-regular', !(result.liked || result.saved));
+          }
+          var count = btn.querySelector('.like-count');
+          if (count && typeof result.count === 'number') count.textContent = String(result.count);
+        }).catch(function (error) {
+          window.alert(error.message);
+        }).finally(function () {
+          btn.disabled = false;
+        });
       });
     });
 
-    /* ============================================================
-       Newsletter mini form
-    ============================================================ */
     (function newsletter() {
       var form = document.getElementById('blog-newsletter');
-      var msg  = document.getElementById('blog-newsletter-msg');
+      var msg = document.getElementById('blog-newsletter-msg');
       var verification = document.getElementById('blog-newsletter-verification');
       var verifyButton = document.getElementById('blog-newsletter-verify');
       var pendingEmail = '';
       if (!form || !msg || !verification || !verifyButton) return;
 
+      function show(text, kind) {
+        msg.textContent = text;
+        msg.classList.remove('hidden', 'text-emerald-300', 'text-rose-300');
+        msg.classList.add(kind === 'ok' ? 'text-emerald-300' : 'text-rose-300');
+      }
+
       function request(url, body) {
-        return fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify(body)
+        return window.nsGetRecaptchaToken('subscribe').then(function (captchaToken) {
+          body['g-recaptcha-response'] = captchaToken;
+          return fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify(body)
+          });
         }).then(function (response) {
           return response.json().then(function (result) {
             if (!response.ok) throw new Error(result.message || 'Request failed.');
@@ -780,22 +813,19 @@ const popularTags = [
           });
         });
       }
-      form.addEventListener('submit', function (e) {
-        e.preventDefault();
+
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
         var email = form.querySelector('input[name="email"]');
         var value = (email.value || '').trim();
-        var ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-
-        msg.classList.remove('hidden', 'text-emerald-300', 'text-rose-300');
-        if (!ok) {
-          msg.textContent = 'Please enter a valid email.';
-          msg.classList.add('text-rose-300');
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          show('Please enter a valid email address.', 'err');
           email.focus();
           return;
         }
 
-        var btn = form.querySelector('button[type="submit"]');
-        btn.disabled = true;
+        var button = form.querySelector('button[type="submit"]');
+        button.disabled = true;
         request('/subscribe', { email: value }).then(function (result) {
           if (result.verificationRequired) {
             pendingEmail = result.email || value;
@@ -805,36 +835,31 @@ const popularTags = [
             pendingEmail = '';
             verification.classList.add('hidden');
           }
-          msg.textContent = result.message;
-          msg.classList.add('text-emerald-300');
+          show(result.message, 'ok');
         }).catch(function (error) {
-          msg.textContent = error.message || 'Unable to subscribe. Please try again.';
-          msg.classList.add('text-rose-300');
+          show(error.message || 'Unable to subscribe. Please try again.', 'err');
         }).finally(function () {
-          btn.disabled = false;
+          button.disabled = false;
         });
       });
+
       verifyButton.addEventListener('click', function () {
         var otp = document.getElementById('blog-newsletter-otp').value.trim();
         if (!pendingEmail || !/^\d{6}$/.test(otp)) {
-          msg.textContent = 'Enter the 6-digit code sent to your email.';
-          msg.classList.remove('hidden', 'text-emerald-300');
-          msg.classList.add('text-rose-300');
+          show('Enter the 6-digit code sent to your email.', 'err');
           return;
         }
         verifyButton.disabled = true;
         request('/subscribe/verify', { email: pendingEmail, otp: otp }).then(function (result) {
-          msg.textContent = result.message;
-          msg.classList.remove('hidden', 'text-rose-300');
-          msg.classList.add('text-emerald-300');
+          show(result.message, 'ok');
           verification.classList.add('hidden');
           form.reset();
           pendingEmail = '';
         }).catch(function (error) {
-          msg.textContent = error.message || 'Unable to verify this code.';
-          msg.classList.remove('hidden', 'text-emerald-300');
-          msg.classList.add('text-rose-300');
-        }).finally(function () { verifyButton.disabled = false; });
+          show(error.message || 'Unable to verify this code.', 'err');
+        }).finally(function () {
+          verifyButton.disabled = false;
+        });
       });
     })();
 

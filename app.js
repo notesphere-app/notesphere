@@ -27,6 +27,7 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
 const Course = require("./models/course.js");
+const migrateCampusCatalog = require("./utils/migrateCampusCatalog");
 
 const homeRouter = require("./routes/home.js");
 const userRouter = require("./routes/user.js");
@@ -41,19 +42,25 @@ const chatRouter = require("./routes/chat.js");
 const seoMeta = require("./utils/seoMeta.json");
 const recordLogin = require("./utils/loginHistory");
 const { recordAuthActivity, completeAuthActivity } = require("./utils/authActivity");
+const { safeLocalRedirect } = require("./middleware");
 
 const dbUrl = process.env.ATLUSDB_URL;
 
 main()
   .then(() => {
     console.log("connected to DB");
+    app.listen(3000, () => {
+      console.log(`Notesphere is working at ${3000}`);
+    });
   })
   .catch((err) => {
-    console.log(err);
+    console.error("Failed to connect to the database or migrate campus data:", err);
+    process.exitCode = 1;
   });
 
 async function main() {
   await mongoose.connect(dbUrl);
+  await migrateCampusCatalog();
 }
 
 app.set("view engine", "ejs");
@@ -305,7 +312,9 @@ app.get(
               details: "Google login",
             });
             req.flash("success", "Welcome back to Notesphere!");
-            res.redirect("/");
+            const redirectUrl = safeLocalRedirect(req.session.redirectUrl);
+            delete req.session.redirectUrl;
+            res.redirect(redirectUrl);
           } catch (activityError) {
             next(activityError);
           }
@@ -337,8 +346,4 @@ app.use((err, req, res, next) => {
   }
   let { statusCode = 500, message = "Something went wrong!" } = err;
   res.status(statusCode).render("error.ejs", { message, statusCode });
-});
-
-app.listen(3000, () => {
-  console.log(`Notesphere is working at ${3000}`);
 });

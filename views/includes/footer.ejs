@@ -98,17 +98,6 @@
 
     </div>
 
-    <section class="mt-10 grid gap-5 rounded-2xl border border-white/15 bg-white/5 p-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:p-8" aria-label="Support NoteSphere">
-      <div class="min-w-0">
-        <p class="text-xs font-semibold uppercase tracking-widest text-[#8CC4FF]">Student-run · Free to use</p>
-        <h2 class="mt-2 text-xl font-bold text-white">Help keep shared learning resources accessible</h2>
-        <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-300">NoteSphere is an independent project maintained by students, not a formal organization or registered charity. If this library has helped you, you can make a voluntary contribution toward its hosting and upkeep.</p>
-      </div>
-      <button type="button" data-donate-open class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#022E5A] transition hover:bg-blue-50 sm:w-auto">
-        <i class="fa-solid fa-heart text-rose-500"></i> Contribute
-      </button>
-    </section>
-
     <!-- =========================================
          Bottom bar
     ========================================= -->
@@ -134,8 +123,6 @@
 
   </div>
 </footer>
-
-<%- include("./contribution.ejs") %>
 
 <style>
   /* ============================================================
@@ -293,10 +280,9 @@
 </style>
 
 <script>
-  /* Newsletter subscription and email confirmation. */
   (function subscribeForm() {
     var form = document.getElementById('subscribe-form');
-    var msg  = document.getElementById('subscribe-msg');
+    var msg = document.getElementById('subscribe-msg');
     var verifyPanel = document.getElementById('subscribe-verification');
     var verifyButton = document.getElementById('verify-subscription');
     var pendingEmail = '';
@@ -324,19 +310,18 @@
       });
     }
 
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
       var email = form.querySelector('input[name="email"]');
       var value = (email.value || '').trim();
-      var ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-      if (!ok) {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
         show('Please enter a valid email address.', 'err');
         email.focus();
         return;
       }
 
-      var btn = form.querySelector('button[type="submit"]');
-      btn.disabled = true;
+      var button = form.querySelector('button[type="submit"]');
+      button.disabled = true;
       request('/subscribe', { email: value }).then(function (result) {
         if (result.verificationRequired) {
           pendingEmail = result.email || value;
@@ -351,7 +336,7 @@
       }).catch(function (error) {
         show(error.message || 'Unable to subscribe. Please try again.', 'err');
       }).finally(function () {
-        btn.disabled = false;
+        button.disabled = false;
       });
     });
 

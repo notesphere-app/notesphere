@@ -1,21 +1,33 @@
 <% layout("/layouts/boilerplate") -%>
+<%
+  const editing = Boolean(note);
+  const selectedUniversities = (note?.universities || []).map((item) => String(item._id || item));
+  const selectedColleges = (note?.colleges || []).map((item) => String(item._id || item));
+%>
 
 <section class="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
-  <a href="/notes" class="text-sm font-medium text-blue-700 hover:underline">← Back to notes</a>
-  <h1 class="mt-5 text-3xl font-bold text-slate-900 dark:text-white">Share a note link</h1>
-  <p class="mt-2 text-slate-600 dark:text-slate-300">Choose a course to load its specializations, semesters, universities, and colleges. Only share resources you have permission to publish.</p>
-  <% if (currUser?.role === "admin") { %>
+  <a href="<%= editing ? `/notes/${note._id}` : '/notes' %>" class="text-sm font-medium text-blue-700 hover:underline">← <%= editing ? "Back to note" : "Back to notes" %></a>
+  <h1 class="mt-5 text-3xl font-bold text-slate-900 dark:text-white"><%= editing ? "Edit note" : "Share a note link" %></h1>
+  <p class="mt-2 text-slate-600 dark:text-slate-300">Help students find relevant study material. Only share resources you have permission to publish.</p>
+  <% if (editing && note.isPublished) { %>
+    <p class="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">Saving changes to a published note sends it back for admin review and temporarily hides it from the public library.</p>
+  <% } else if (currUser?.role === "admin") { %>
     <p class="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">Admin submissions publish immediately to the public notes library.</p>
   <% } else { %>
     <p class="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200">Your submission will be visible to you right away and published to the library after admin review.</p>
   <% } %>
 
   <% if (courses.length) { %>
-    <form action="/notes" method="POST" class="mt-8 space-y-5 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+    <form action="<%= editing ? `/notes/${note._id}` : '/notes' %>" method="POST" class="mt-8 space-y-5 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
+      data-selected-universities="<%= selectedUniversities.join(',') %>"
+      data-selected-colleges="<%= selectedColleges.join(',') %>"
+      data-selected-specialization="<%= note?.specialization || '' %>"
+      data-selected-semester="<%= note?.semester || '' %>">
+      <% if (editing) { %><input type="hidden" name="_method" value="PUT"><% } %>
       <label class="block text-sm font-medium text-slate-700 dark:text-slate-200">Course
         <select name="courseId" id="note-course" required class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
           <option value="">Select a course</option>
-          <% courses.forEach(function (course) { %><option value="<%= course._id %>"><%= course.name %></option><% }) %>
+          <% courses.forEach(function (course) { %><option value="<%= course._id %>" <%= String(note?.courseId || '') === String(course._id) ? "selected" : "" %>><%= course.name %></option><% }) %>
         </select>
       </label>
       <div class="grid gap-5 sm:grid-cols-2">
@@ -31,93 +43,150 @@
         </label>
       </div>
       <div class="grid gap-5 sm:grid-cols-2">
-        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200">University
-          <select name="university" id="note-university" required disabled class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
-            <option value="">Select a course first</option>
-          </select>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200">Universities
+          <select name="universities[]" id="note-universities" multiple required size="5" disabled class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900"></select>
+          <span class="mt-1 block text-xs text-slate-500">Select one or more. Hold Ctrl (Windows) or Command (Mac) to select several.</span>
         </label>
-        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200">College
-          <select name="college" id="note-college" required disabled class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
-            <option value="">Select a university first</option>
-          </select>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200">Colleges
+          <select name="colleges[]" id="note-colleges" multiple required size="5" disabled class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900"></select>
+          <span class="mt-1 block text-xs text-slate-500">Only colleges belonging to your selected universities are listed.</span>
         </label>
       </div>
       <label class="block text-sm font-medium text-slate-700 dark:text-slate-200">Note title
-        <input name="title" required maxlength="160" class="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 dark:border-slate-700">
+        <input name="title" required maxlength="160" value="<%= note?.title || '' %>" class="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 dark:border-slate-700">
       </label>
       <label class="block text-sm font-medium text-slate-700 dark:text-slate-200">Public notes URL
-        <input name="sourceUrl" type="url" required maxlength="2048" placeholder="https://..." class="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 dark:border-slate-700">
-        <span class="mt-1 block text-xs text-slate-500">Test the link in a signed-out/private browser window first. For Google Drive, set general access to “Anyone with the link”. NoteSphere stores the URL, not the file; admins review student submissions before publication.</span>
+        <input name="sourceUrl" type="url" required maxlength="2048" value="<%= note?.sourceUrl || '' %>" placeholder="https://..." class="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 dark:border-slate-700">
+        <span class="mt-1 block text-xs text-slate-500">Test the link in a signed-out/private browser window first. NoteSphere stores the URL, not the file.</span>
       </label>
       <label class="block text-sm font-medium text-slate-700 dark:text-slate-200">Description
-        <textarea name="description" maxlength="2000" rows="4" class="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 dark:border-slate-700"></textarea>
+        <textarea name="description" maxlength="2000" rows="3" class="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 dark:border-slate-700"><%= note?.description || '' %></textarea>
       </label>
       <div class="grid gap-5 sm:grid-cols-2">
-        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200">Subject
-          <input name="subject" required maxlength="100" class="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 dark:border-slate-700">
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200">SEO description
+          <textarea name="metaDescription" maxlength="300" rows="3" placeholder="A short search-result description" class="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 dark:border-slate-700"><%= note?.metaDescription || '' %></textarea>
         </label>
-        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200">Note type
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200">SEO keywords
+          <textarea name="keywords" maxlength="1200" rows="3" placeholder="exam notes, semester 2, mathematics" class="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 dark:border-slate-700"><%= (note?.keywords || []).join(', ') %></textarea>
+          <span class="mt-1 block text-xs text-slate-500">Separate keywords with commas (up to 20).</span>
+        </label>
+      </div>
+      <div class="grid gap-5 sm:grid-cols-2">
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200">Subject
+          <input name="subject" required maxlength="100" value="<%= note?.subject || '' %>" class="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 dark:border-slate-700">
+        </label>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200">Material category
+          <input name="noteCategory" maxlength="80" value="<%= note?.noteCategory || 'General' %>" placeholder="EasyNotes, Quantom, exam preparation" class="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 dark:border-slate-700">
+          <span class="mt-1 block text-xs text-slate-500">Examples: EasyNotes, Quantom, exam preparation. File format is selected separately.</span>
+        </label>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 sm:col-span-2">File format
           <select name="type" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
-            <option value="pdf">PDF</option><option value="handwritten">Handwritten</option><option value="typed">Typed</option><option value="solved">Solved papers</option>
+            <% [["pdf", "PDF"], ["handwritten", "Handwritten"], ["typed", "Typed"], ["solved", "Solved papers"]].forEach(function (option) { %>
+              <option value="<%= option[0] %>" <%= (note?.type || "pdf") === option[0] ? "selected" : "" %>><%= option[1] %></option>
+            <% }); %>
           </select>
         </label>
       </div>
-      <button type="submit" class="rounded-full bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"><%= currUser?.role === "admin" ? "Publish note" : "Submit for review" %></button>
+      <button type="submit" class="rounded-full bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"><%= editing ? "Save changes" : currUser?.role === "admin" ? "Publish note" : "Submit for review" %></button>
     </form>
   <% } else { %>
     <div class="mt-8 rounded-2xl border border-dashed border-slate-300 p-8 text-center dark:border-slate-700">
       <p class="font-semibold">No courses are available yet.</p>
       <p class="mt-2 text-sm text-slate-500">An administrator needs to add courses before notes can be submitted.</p>
+      <% if (currUser?.role === "admin") { %><a href="/admin/universities" class="mt-4 inline-block text-sm font-semibold text-blue-700">Manage universities and colleges</a><% } %>
     </div>
   <% } %>
 </section>
 
 <script>
   (function () {
+    const form = document.querySelector("form[data-selected-universities]");
     const courseSelect = document.getElementById("note-course");
-    if (!courseSelect) return;
+    if (!form || !courseSelect) return;
     const specializationSelect = document.getElementById("note-specialization");
     const semesterSelect = document.getElementById("note-semester");
-    const universitySelect = document.getElementById("note-university");
-    const collegeSelect = document.getElementById("note-college");
+    const universitiesSelect = document.getElementById("note-universities");
+    const collegesSelect = document.getElementById("note-colleges");
+    const initialUniversities = new Set(form.dataset.selectedUniversities.split(",").filter(Boolean));
+    const initialColleges = new Set(form.dataset.selectedColleges.split(",").filter(Boolean));
+    const initialSpecialization = form.dataset.selectedSpecialization;
+    const initialSemester = form.dataset.selectedSemester;
     let selectedCourse = null;
+    let loadingInitialCourse = true;
 
-    function setOptions(select, options, placeholder) {
-      select.replaceChildren(new Option(placeholder, ""));
-      options.forEach(function (value) {
-        const option = typeof value === "string" ? new Option(value, value) : new Option(value.label, value.value);
-        select.add(option);
+    function setOptions(select, options, placeholder, selectedIds) {
+      select.replaceChildren();
+      if (placeholder) select.add(new Option(placeholder, ""));
+      options.forEach(function (option) {
+        const item = typeof option === "string"
+          ? new Option(option, option)
+          : new Option(option.name, option._id);
+        item.selected = selectedIds ? selectedIds.has(item.value) : false;
+        select.add(item);
       });
       select.disabled = options.length === 0;
     }
-    function updateColleges() {
-      const university = selectedCourse?.universities.find(function (item) {
-        return item.name === universitySelect.value;
-      });
-      setOptions(collegeSelect, university?.colleges || [], "Select a college");
+
+    function selectedValues(select) {
+      return new Set(Array.from(select.selectedOptions).map(function (option) { return option.value; }));
     }
-    courseSelect.addEventListener("change", async function () {
+
+    function updateColleges(selectedIds) {
+      const currentUniversityIds = selectedValues(universitiesSelect);
+      const colleges = (selectedCourse?.universities || [])
+        .filter(function (university) { return currentUniversityIds.has(university._id); })
+        .flatMap(function (university) { return university.colleges; });
+      setOptions(collegesSelect, colleges, "", selectedIds);
+    }
+
+    async function loadCourse(courseId, initial) {
       selectedCourse = null;
       setOptions(specializationSelect, [], "Loading...");
       setOptions(semesterSelect, [], "Loading...");
-      setOptions(universitySelect, [], "Loading...");
-      setOptions(collegeSelect, [], "Select a university first");
-      if (!courseSelect.value) return;
+      setOptions(universitiesSelect, [], "Loading...");
+      setOptions(collegesSelect, [], "Select a university first");
+      if (!courseId) return;
       try {
-        const response = await fetch("/notes/courses/" + encodeURIComponent(courseSelect.value), { headers: { Accept: "application/json" } });
-        if (!response.ok) throw new Error("Unable to load this course.");
+        const response = await fetch("/notes/courses/" + encodeURIComponent(courseId), {
+          headers: { Accept: "application/json" },
+          credentials: "same-origin",
+        });
+        if (!response.ok) throw new Error("Unable to load course and campus choices.");
         selectedCourse = await response.json();
-        setOptions(specializationSelect, selectedCourse.specializations.length ? selectedCourse.specializations : ["General"], "Select specialization");
-        setOptions(semesterSelect, Array.from({ length: selectedCourse.semesterCount }, function (_, index) { return String(index + 1); }), "Select semester");
-        setOptions(universitySelect, selectedCourse.universities.map(function (item) { return item.name; }), "Select university");
-        updateColleges();
+
+        const specializationOptions = selectedCourse.specializations.length ? selectedCourse.specializations : ["General"];
+        setOptions(specializationSelect, specializationOptions, "Select specialization");
+        specializationSelect.value = initial ? initialSpecialization || specializationOptions[0] : specializationOptions[0];
+        setOptions(
+          semesterSelect,
+          Array.from({ length: selectedCourse.semesterCount }, function (_, index) { return String(index + 1); }),
+          "Select semester",
+        );
+        semesterSelect.value = initial && initialSemester ? initialSemester : "1";
+        setOptions(
+          universitiesSelect,
+          selectedCourse.universities,
+          "",
+          initial ? initialUniversities : null,
+        );
+        updateColleges(initial ? initialColleges : null);
       } catch (error) {
         setOptions(specializationSelect, [], "Could not load course");
         setOptions(semesterSelect, [], "Could not load course");
-        setOptions(universitySelect, [], "Could not load course");
+        setOptions(universitiesSelect, [], "Could not load campuses");
+        setOptions(collegesSelect, [], "Could not load campuses");
         window.alert(error.message);
+      } finally {
+        loadingInitialCourse = false;
       }
+    }
+
+    courseSelect.addEventListener("change", function () {
+      loadCourse(courseSelect.value, false);
     });
-    universitySelect.addEventListener("change", updateColleges);
+    universitiesSelect.addEventListener("change", function () {
+      updateColleges(selectedValues(collegesSelect));
+    });
+    if (courseSelect.value) loadCourse(courseSelect.value, loadingInitialCourse);
   })();
 </script>
