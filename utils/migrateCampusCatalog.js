@@ -2,6 +2,21 @@ const mongoose = require("mongoose");
 const { findOrCreateUniversity, findOrCreateCollege } = require("./campusCatalog");
 
 async function migrateCampusCatalog() {
+  const notesCollection = mongoose.connection.collection("notes");
+  let noteIndexes;
+  try {
+    noteIndexes = await notesCollection.indexes();
+  } catch (error) {
+    if (error.code !== 26) throw error;
+    noteIndexes = [];
+  }
+  const obsoleteCampusIndex = noteIndexes.find(
+    (index) => index.name === "isPublished_1_universities_1_colleges_1",
+  );
+  if (obsoleteCampusIndex) {
+    await notesCollection.dropIndex(obsoleteCampusIndex.name);
+  }
+
   const courseCursor = mongoose.connection
     .collection("courses")
     .find({ universities: { $type: "array" } })
@@ -23,8 +38,7 @@ async function migrateCampusCatalog() {
     );
   }
 
-  const noteCursor = mongoose.connection
-    .collection("notes")
+  const noteCursor = notesCollection
     .find({
       $or: [
         { university: { $type: "string", $ne: "" }, universities: { $exists: false } },
@@ -46,7 +60,7 @@ async function migrateCampusCatalog() {
       }
     }
 
-    await mongoose.connection.collection("notes").updateOne(
+    await notesCollection.updateOne(
       { _id: note._id },
       Object.keys(associations).length
         ? { $addToSet: associations }

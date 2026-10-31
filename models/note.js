@@ -48,6 +48,7 @@ const noteSchema = new Schema(
 noteSchema.index({ isPublished: 1, course: 1, createdAt: -1 });
 noteSchema.index({ isPublished: 1, courseId: 1, specialization: 1, semester: 1 });
 noteSchema.index({ isPublished: 1, university: 1, college: 1 });
-noteSchema.index({ isPublished: 1, universities: 1, colleges: 1 });
+noteSchema.index({ isPublished: 1, universities: 1 });
+noteSchema.index({ isPublished: 1, colleges: 1 });
 
 module.exports = mongoose.model("Note", noteSchema);
